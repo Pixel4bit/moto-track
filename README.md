@@ -1,49 +1,52 @@
-📌 About MotoTrack
-MotoTrack is a smart, pure client-side web application (Single Page Application) meticulously engineered to track your motorcycle's spare part lifespans and service intervals in real-time.
+# MotoTrack — Motorcycle Component Lifetime Tracker & Maintenance Log
 
-Built with a strict 100% Privacy-Focused & Offline-First philosophy, MotoTrack handles all your maintenance schedules, odometer logs, and financial records directly inside your browser's localStorage. No sign-ups required, no cloud backends, and absolutely zero personal data tracking. Your data never leaves your device.
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-1.0.0-f06a00?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/Architecture-Pure%20SPA%20%2F%20Client--Side-blue?style=for-the-badge" alt="Type">
+  <img src="https://img.shields.io/badge/Privacy-100%25%20Offline%20%2F%20Local-success?style=for-the-badge" alt="Privacy">
+</p>
 
-🚀 Key Features
-Central Odometer Synchronization: Simply update your motorcycle's current global mileage, and the app instantly re-evaluates the remaining precise lifetime for every configured component.
+---
 
-Dynamic Early Warning System (EWS): Visualizes your components' health using clear, modern color-coded alerts:
+## 🇮🇩 Bahasa Indonesia
 
-🔴 Critical: Component lifetime has expired or exceeded safe thresholds.
+### 📌 Tentang MotoTrack
+**MotoTrack** adalah aplikasi berbasis web (*Single Page Application*) modern dengan estetika industri-cyberpunk yang dirancang khusus untuk memantau sisa masa pakai (umur) komponen serta jadwal perawatan sepeda motor secara *real-time*. 
 
-🟡 Warning: Component is approaching its replacement limit (customizable global/individual thresholds).
+Berbeda dengan aplikasi pelacak kendaraan lain yang mewajibkan pendaftaran akun atau koneksi internet, MotoTrack mengusung prinsip **100% Privacy-Focused & Offline-First**. Seluruh data motor, parameter komponen, QR Code eksternal, hingga catatan finansial servis Anda diproses dan disimpan sepenuhnya di dalam penyimpanan lokal (*localStorage*) browser Anda sendiri. **Tidak ada data yang dikirim ke server luar, bebas pelacakan, dan sepenuhnya aman.**
 
-🟢 Good: Component is well within its optimal operating condition.
+---
 
-Adaptive Tracking Intervals (Fast & Slow Moving): * Fast Moving: Dual-tracking metric combination based on both mileage (KM) and duration (Months)—ideal for Engine Oil, Gear Oil, or Brake Fluid.
+### 🚀 Fitur Utama
+* **Odometer Sentral Terintegrasi:** Cukup perbarui angka odometer utama (KM) motor Anda pada dashboard, dan sistem akan langsung mengalkulasi ulang sisa jarak tempuh aman untuk seluruh komponen secara instan.
+* **Early Warning System (EWS):** Visualisasi status keausan komponen yang interaktif menggunakan indikator warna intuitif:
+  * 🔴 **Kritis:** Masa pakai komponen telah habis atau melewati batas toleransi aman.
+  * 🟡 **Peringatan:** Komponen mendekati batas penggantian berdasarkan persentase ambang batas (*alert threshold*) yang dapat dikonfigurasi.
+  * 🟢 **Bagus:** Komponen masih dalam kondisi optimal.
+* **Kategori Fleksibel (*Fast & Slow Moving*):**
+  * *Fast Moving:* Pelacakan ganda berdasarkan kombinasi jarak tempuh (KM) dan batas waktu (Bulan), seperti Oli Mesin, Oli Gardan, atau Minyak Rem.
+  * *Slow Moving:* Pelacakan fokus berdasarkan interval jarak tempuh saja, seperti Vanbelt (V-Belt), Kampas Kopling, Roler, atau Busi.
+* **Log Perawatan Komprehensif (Finansial & Mekanik):** Catat riwayat penggantian komponen lengkap dengan tanggal, posisi odometer saat servis, nama bengkel, rincian biaya itemized, serta catatan khusus dari mekanik untuk memantau total pengeluaran servis berkala.
+* **Penyimpanan Gambar QR Code:** Menyimpan gambar QR Code referensi (seperti link manual servis digital, tautan toko sparepart langganan, atau nomor kontak mekanik) langsung di dalam aplikasi menggunakan konversi *Base64*.
+* **Portabilitas Data (Ekspor/Impor JSON):** Anda memiliki kendali penuh atas data Anda. Ekspor seluruh basis data ke dalam satu berkas `.json` ringkas kapan saja sebagai cadangan (*backup*) atau untuk migrasi data antar-perangkat (misal dari HP ke Laptop) secara instan.
+* **Antarmuka Modern & Responsif:** Menggunakan font *Barlow Condensed*, *Barlow*, dan *Share Tech Mono* dipadukan dengan utility-first styling dari Tailwind CSS. Dilengkapi mode gelap (*Dark Mode*) industrial yang pekat dan mode terang (*Light Mode*) yang bersih, serta sepenuhnya responsif untuk perangkat seluler maupun desktop.
+* **Dukungan Dua Bahasa Native:** Pengalihan bahasa dinamis antara Bahasa Indonesia dan Bahasa Inggris secara langsung tanpa memuat ulang halaman.
 
-Slow Moving: Single-metric tracking based strictly on mileage intervals—perfect for V-Belts, Spark Plugs, or Clutch Plates.
+---
 
-Detailed Maintenance Ledger: Maintain an organized logbook of part replacements featuring exact dates, odometer values during service, workshop locations, itemized pricing, and custom mechanic notes.
+### 💻 Teknologi yang Digunakan
+* **HTML5 & CSS3** (Custom Properties / Variabel warna CSS lokal)
+* **Tailwind CSS v3** (Utility-first styling framework via CDN)
+* **Google Fonts** (Barlow Condensed, Barlow, & Share Tech Mono)
+* **Vanilla JavaScript (ES6+)** (Arsitektur SPA murni berbasis *state* tanpa dependensi framework berat)
+* **LocalStorage API** (Penyimpanan data lokal yang persisten di sandbox browser)
 
-Data Sovereignty (JSON Export/Import): Since there is no server-side database, you own your data completely. Backup or migrate your data across devices (e.g., from your phone to a laptop) seamlessly via a single, lightweight .json file export.
+---
 
-Modern & Responsive UI: Experience a sleek cyber-industrial Dark Mode or a clean Light Mode. Built to be fully responsive for seamless mobile navigation and desktop layout ergonomics.
+### ⚙️ Cara Penggunaan Lokal
+Karena aplikasi ini murni berjalan di sisi klien (*client-side*), Anda tidak memerlukan instalasi *runtime* Node.js, Web Server, Docker, atau konfigurasi database yang rumit.
 
-Native Bi-Lingual Support: Dynamic multi-language localized toggles (Indonesian & English) without page refreshes.
-
-💻 Tech Stack
-HTML5 & CSS3 (Custom Utility Variables)
-
-Tailwind CSS v3 (Rapid UI layout framework)
-
-Vanilla JavaScript (ES6+) (Zero-dependency modern state architecture)
-
-LocalStorage API (Persistent browser storage sandbox)
-
-⚙️ How to Run Locally
-Since MotoTrack runs completely on the client-side, you do not need to install complex runtimes like Node.js, configure Docker, or spin up backend database services.
-
-Clone or download this repository:
-
-Bash
-git clone [https://github.com/username/mototrack.git](https://github.com/username/mototrack.git)
-Navigate into the project folder and launch the web interface:
-
-Simply double-click the moto-track.html file to open it instantly inside any modern browser (Chrome, Edge, Firefox, Brave, or Safari).
-
-Alternatively, use the Live Server extension in VS Code for an optimized local development experience.
+1. Unduh atau klon repositori ini ke komputer Anda:
+   ```bash
+   git clone [https://github.com/username/mototrack.git](https://github.com/username/mototrack.git)
