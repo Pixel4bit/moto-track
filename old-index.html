@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MotoTrack — Pemantau Umur Komponen Motor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg:        #0f0f0f;
+    --surface:   #181818;
+    --card:      #1e1e1e;
+    --border:    #2e2e2e;
+    --text:      #e8e4de;
+    --muted:     #7a7570;
+    --accent:    #f06a00;
+    --accent2:   #ff9a3c;
+    --green:     #4caf7d;
+    --yellow:    #e8b84b;
+    --red:       #e84b4b;
+    --glow:      rgba(240,106,0,0.18);
+  }
+  [data-theme="light"] {
+    --bg:        #f2ede8;
+    --surface:   #e8e2da;
+    --card:      #fff8f2;
+    --border:    #d4c9be;
+    --text:      #1e1a16;
+    --muted:     #8c7f74;
+    --accent:    #d95c00;
+    --accent2:   #f07020;
+    --green:     #2e7a52;
+    --yellow:    #b88c18;
+    --red:       #c43030;
+    --glow:      rgba(217,92,0,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  .font-mono { font-family: 'Share Tech Mono', monospace; }
+  .font-display { font-family: 'Barlow Condensed', sans-serif; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* Header */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* Odo box */
+  .odo-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: border-color 0.2s;
+  }
+  .odo-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+
+  /* Cards */
+  .comp-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .comp-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .comp-card.critical { border-color: var(--red) !important; }
+  .comp-card.warning  { border-color: var(--yellow) !important; }
+  .comp-card.ok       { border-color: var(--border); }
+
+  /* Progress bar */
+  .progress-track {
+    background: var(--border);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .bar-ok      { background: linear-gradient(90deg, var(--green), #6fcf97); }
+  .bar-warning { background: linear-gradient(90deg, var(--yellow), #f0c060); }
+  .bar-critical{ background: linear-gradient(90deg, var(--red), #ff6b6b); box-shadow: 0 0 8px rgba(232,75,75,0.5); }
+
+  /* Pill badges */
+  .badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .badge-ok       { background: rgba(76,175,125,0.15); color: var(--green); }
+  .badge-warning  { background: rgba(232,184,75,0.15); color: var(--yellow); }
+  .badge-critical { background: rgba(232,75,75,0.18); color: var(--red); }
+  .badge-due      { background: rgba(240,106,0,0.18); color: var(--accent2); }
+  .badge-fast     { background: rgba(240,106,0,0.1); color: var(--accent); }
+  .badge-slow     { background: rgba(122,117,112,0.15); color: var(--muted); }
+
+  /* Buttons */
+  .btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 13px;
+    padding: 7px 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: rgba(232,75,75,0.12); color: var(--red); border: 1px solid rgba(232,75,75,0.2); }
+  .btn-danger:hover { background: rgba(232,75,75,0.22); }
+  .btn-sm { font-size: 11px; padding: 4px 10px; }
+  .btn-icon { padding: 6px; }
+
+  /* Inputs */
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 5px;
+    padding: 8px 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+  input[type="number"] { font-family: 'Share Tech Mono', monospace; }
+  label { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 100%; max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(16px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal-box { transform: translateY(0); }
+
+  /* Tabs */
+  .tab-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  /* Accent stripe on critical card */
+  .comp-card.critical::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--red);
+  }
+  .comp-card.warning::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--yellow);
+  }
+
+  /* Section dividers */
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* History entry */
+  .history-entry {
+    border-left: 2px solid var(--accent);
+    padding-left: 14px;
+    position: relative;
+  }
+  .history-entry::before {
+    content: '';
+    position: absolute;
+    left: -5px; top: 5px;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* Toggle switch */
+  .toggle-wrap { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+  .toggle-input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle-slider {
+    width: 40px; height: 22px;
+    background: var(--border);
+    border-radius: 99px;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    left: 3px; top: 3px;
+    width: 16px; height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.2s;
+  }
+  .toggle-input:checked + .toggle-slider { background: var(--accent); }
+  .toggle-input:checked + .toggle-slider::after { left: 21px; }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .fade-in { animation: fadeIn 0.25s ease both; }
+
+  @keyframes pulse-glow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(232,75,75,0); }
+    50% { box-shadow: 0 0 0 4px rgba(232,75,75,0.2); }
+  }
+  .comp-card.critical { animation: pulse-glow 2.5s infinite; }
+
+  /* Responsive grid */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+
+  /* Tooltip */
+  .tooltip-wrap { position: relative; }
+  .tooltip-wrap .tooltip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%; transform: translateX(-50%);
+    background: #000;
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 10;
+  }
+  .tooltip-wrap:hover .tooltip { opacity: 1; }
+
+  /* Stat cards */
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  select option { background: var(--card); }
+
+  /* Sort control */
+  .sort-group {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .sort-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 6px 13px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+    border-right: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .sort-btn:last-child { border-right: none; }
+  .sort-btn:hover { color: var(--text); background: var(--card); }
+  .sort-btn.active {
+    background: var(--accent);
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+    <div class="flex items-center gap-3 flex-1">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="7" cy="20" r="5" stroke="var(--accent)" stroke-width="2"/>
+        <circle cx="21" cy="20" r="5" stroke="var(--accent)" stroke-width="2"/>
+        <path d="M7 15 L10 8 L16 8 L21 15" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round"/>
+        <path d="M13 8 L15 12 L21 12" stroke="var(--accent2)" stroke-width="1.5" fill="none"/>
+        <circle cx="21" cy="20" r="2" fill="var(--accent)"/>
+        <circle cx="7" cy="20" r="2" fill="var(--accent)"/>
+      </svg>
+      <span class="font-display font-bold text-xl tracking-wide" style="color:var(--text)">MOTO<span style="color:var(--accent)">TRACK</span></span>
+    </div>
+
+    <div class="odo-box flex items-center gap-3 px-4 py-2" style="min-width:220px">
+      <svg width="16" height="16" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <div class="flex flex-col">
+        <span id="lbl-odometer-title" style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Odometer</span>
+        <div class="flex items-center gap-2">
+          <input id="odoInput" type="number" min="0" placeholder="0"
+            style="background:transparent;border:none;box-shadow:none;padding:0;font-size:18px;font-family:'Share Tech Mono',monospace;font-weight:600;color:var(--accent);width:100px"
+            oninput="updateOdo(this.value)" />
+          <span style="font-size:11px;color:var(--muted);font-weight:600">KM</span>
+        </div>
+      </div>
+    </div>
+
+    <label class="toggle-wrap gap-2" title="Toggle Light/Dark Mode">
+      <input type="checkbox" class="toggle-input" id="themeToggle" onchange="toggleTheme(this.checked)" />
+      <div class="toggle-slider"></div>
+      <span style="font-size:11px;color:var(--muted);font-weight:600">☀️</span>
+    </label>
+  </div>
+</header>
+
+<div class="max-w-6xl mx-auto px-4 pt-5 pb-3">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="statsRow"></div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4">
+  <div style="border-bottom:1px solid var(--border); display:flex; gap:0; overflow-x:auto;">
+    <button id="tab-btn-dashboard" class="tab-btn active" onclick="switchTab('dashboard',this)">Dashboard</button>
+    <button id="tab-btn-history" class="tab-btn" onclick="switchTab('history',this)">History</button>
+    <button id="tab-btn-settings" class="tab-btn" onclick="switchTab('settings',this)">Settings</button>
+    <button id="tab-btn-about" class="tab-btn" onclick="switchTab('about',this)">About</button>
+  </div>
+</div>
+
+<div id="tab-dashboard" class="max-w-6xl mx-auto px-4 py-5">
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+    <div class="flex flex-wrap gap-2 items-center">
+      <div class="flex gap-2 flex-wrap">
+        <button class="btn btn-ghost btn-sm" onclick="filterComponents('all')" id="filter-all">All</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterComponents('critical')" id="filter-critical">🔴 Critical</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterComponents('warning')" id="filter-warning">🟡 Warning</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterComponents('ok')" id="filter-ok">🟢 Good</button>
+      </div>
+      <div class="sort-group" title="Sort components">
+        <button class="sort-btn" id="sort-default"  onclick="setSort('default')">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="1" width="10" height="2" rx="1"/><rect x="1" y="5" width="7" height="2" rx="1"/><rect x="1" y="9" width="4" height="2" rx="1"/></svg>
+          <span id="lbl-sort-default">Default</span>
+        </button>
+        <button class="sort-btn active" id="sort-urgency" onclick="setSort('urgency')">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1v6M6 9v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><circle cx="6" cy="10.5" r="0.5"/></svg>
+          <span id="lbl-sort-urgency">Urgency</span>
+        </button>
+        <button class="sort-btn" id="sort-alpha"   onclick="setSort('alpha')">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" style="font-size:9px"><text x="0" y="10" font-size="10" font-family="monospace" fill="currentColor">Az</text></svg>
+          <span id="lbl-sort-alpha">A–Z</span>
+        </button>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button id="btn-add-comp-dash" class="btn btn-ghost btn-sm" onclick="openAddModal()">＋ Add Component</button>
+      <button id="btn-export-dash" class="btn btn-ghost btn-sm" onclick="exportData()">⬆ Export</button>
+      <label id="lbl-import-dash" class="btn btn-ghost btn-sm" style="cursor:pointer">⬇ Import<input type="file" accept=".json" style="display:none" onchange="importData(event)"/></label>
+    </div>
+  </div>
+
+  <div id="lbl-section-fast" class="section-label mb-4">⚡ Fast Moving Components</div>
+  <div class="comp-grid mb-8" id="fastGrid"></div>
+
+  <div id="lbl-section-slow" class="section-label mb-4">🔩 Slow Moving Components</div>
+  <div class="comp-grid mb-6" id="slowGrid"></div>
+</div>
+
+<div id="tab-history" class="max-w-6xl mx-auto px-4 py-5 hidden">
+  <div class="flex items-center justify-between mb-5">
+    <h2 id="lbl-history-title" class="font-display font-bold text-xl tracking-wide">Maintenance History</h2>
+    <div class="flex gap-2">
+      <input type="text" id="historySearch" placeholder="Search component…" style="width:200px" oninput="renderHistory()" />
+    </div>
+  </div>
+  <div id="historyList"></div>
+</div>
+
+<div id="tab-settings" class="max-w-6xl mx-auto px-4 py-5 hidden">
+  <h2 id="lbl-settings-title" class="font-display font-bold text-xl tracking-wide mb-5">Settings &amp; Customization</h2>
+
+  <div class="stat-card mb-6">
+    <label id="lbl-lang-select" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em">🌐 Language / Bahasa</label>
+    <div style="max-width: 240px">
+      <select id="langSelect" onchange="changeLanguage(this.value)">
+        <option value="id">Bahasa Indonesia</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="stat-card mb-6" style="border-color:var(--accent);border-width:1px">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="flex-1" style="min-width:220px">
+        <div id="lbl-ews-title" class="font-display font-bold text-base mb-1" style="letter-spacing:0.04em;color:var(--accent)">
+          🔔 Early Warning System
+        </div>
+        <p id="lbl-ews-desc" style="font-size:13px;color:var(--muted);line-height:1.55">
+          Trigger a Warning state when a component's remaining lifetime falls to or below this threshold.
+          Set a per-component override in each component's Edit dialog.
+        </p>
+      </div>
+      <div style="min-width:200px">
+        <label id="lbl-global-threshold-input">Global Warning Threshold</label>
+        <div class="flex items-center gap-3">
+          <div style="position:relative;flex:1">
+            <input type="number" id="globalThresholdInput" min="1" max="99"
+              style="padding-right:36px"
+              oninput="previewThreshold(this.value)"
+              onchange="saveThreshold(this.value)" />
+            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;font-weight:600;pointer-events:none">%</span>
+          </div>
+          <button id="btn-threshold-apply" class="btn btn-ghost btn-sm" onclick="saveThreshold(document.getElementById('globalThresholdInput').value)">Apply</button>
+        </div>
+        <div id="thresholdPreview" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+        <div style="margin-top:10px">
+          <input type="range" id="globalThresholdSlider" min="1" max="99" step="1"
+            style="width:100%;height:4px;accent-color:var(--accent);cursor:pointer;padding:0;border:none;background:transparent;box-shadow:none"
+            oninput="syncThresholdSlider(this.value)" />
+          <div class="flex justify-between" style="font-size:10px;color:var(--muted);margin-top:2px">
+            <span id="lbl-slider-strict">1% (Strict)</span><span>50%</span><span id="lbl-slider-early">99% (Early)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsCompList"></div>
+</div>
+
+<div id="tab-about" class="max-w-6xl mx-auto px-4 py-5 hidden">
+
+  <div id="aboutView">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="7" cy="20" r="5" stroke="var(--accent)" stroke-width="2"/>
+          <circle cx="21" cy="20" r="5" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M7 15 L10 8 L16 8 L21 15" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linejoin="round"/>
+          <circle cx="21" cy="20" r="2" fill="var(--accent)"/>
+          <circle cx="7" cy="20" r="2" fill="var(--accent)"/>
+        </svg>
+        <span class="font-display font-bold text-2xl tracking-wide">MOTO<span style="color:var(--accent)">TRACK</span></span>
+      </div>
+      <button id="btn-about-edit" class="btn btn-ghost btn-sm" onclick="enterAboutEdit()">✎ Edit</button>
+    </div>
+
+    <div id="aboutContent" class="mb-8"
+      style="font-size:14px;line-height:1.75;color:var(--text)"></div>
+
+    <div id="qrSection" style="display:none" class="mb-8">
+      <div id="lbl-donation-section" class="section-label mb-4">💳 Donation / Support</div>
+      <div style="display:flex;justify-content:center">
+        <div style="
+          background:var(--card);
+          border:1px solid var(--border);
+          border-radius:12px;
+          padding:20px;
+          display:inline-block;
+          text-align:center;
+        ">
+          <img id="qrImage" src="" alt="Donation QR Code"
+            style="max-width:240px;width:100%;border-radius:8px;display:block;margin:0 auto" />
+          <div id="lbl-scan-donate" style="font-size:11px;color:var(--muted);margin-top:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase">
+            Scan to Donate
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="lbl-license-section" class="section-label mb-4">⚖️ License</div>
+    <div class="stat-card" style="font-size:12px;line-height:1.7;color:var(--muted)">
+      <div class="font-display font-bold mb-2" style="font-size:14px;color:var(--text);letter-spacing:0.04em">MIT License</div>
+      <p>Copyright © <span id="licenseYear"></span> MotoTrack Contributors</p>
+      <br>
+      <p id="lbl-mit-p1">Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+      <br>
+      <p id="lbl-mit-p2">The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+      <br>
+      <p id="lbl-mit-p3" style="font-weight:600;color:var(--text)">THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+    </div>
+  </div>
+
+  <div id="aboutEdit" style="display:none">
+    <div class="flex items-center justify-between mb-5">
+      <h2 id="lbl-about-edit-title" class="font-display font-bold text-xl tracking-wide">Edit README / About</h2>
+      <div class="flex gap-2">
+        <button id="btn-about-cancel" class="btn btn-ghost" onclick="cancelAboutEdit()">Cancel</button>
+        <button id="btn-about-save" class="btn btn-primary" onclick="saveAboutEdit()">✓ Save</button>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-5">
+      <div>
+        <label id="lbl-about-textarea-label">About Text
+          <span id="lbl-html-support-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">
+            Supports basic HTML tags (&lt;a&gt;, &lt;strong&gt;, &lt;br&gt;, &lt;p&gt;, etc.)
+          </span>
+        </label>
+        <textarea id="aboutTextarea" rows="12"
+          style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.6;resize:vertical"
+          placeholder="Write your About / README text here…"></textarea>
+      </div>
+
+      <div>
+        <label id="lbl-donation-qr-label">Donation QR Code Image
+          <span id="lbl-img-support-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">
+            PNG, JPG, or WebP — will be stored as Base64
+          </span>
+        </label>
+        <div id="qrUploadArea" style="
+          border:2px dashed var(--border);
+          border-radius:8px;
+          padding:24px;
+          text-align:center;
+          cursor:pointer;
+          transition:border-color 0.2s;
+          position:relative;
+        " onclick="document.getElementById('qrFileInput').click()"
+           ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+           ondragleave="this.style.borderColor='var(--border)'"
+           ondrop="handleQrDrop(event)">
+          <input type="file" id="qrFileInput" accept="image/*"
+            style="display:none" onchange="handleQrUpload(event)" />
+          <div id="qrUploadPreview">
+            </div>
+        </div>
+        <div id="qrEditActions" style="display:none;margin-top:8px;display:flex;gap:8px;align-items:center">
+          <span id="qrEditFilename" style="font-size:12px;color:var(--muted);flex:1"></span>
+          <button id="btn-qr-remove" class="btn btn-danger btn-sm" onclick="removeQrImage()">✕ Remove QR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="logModal">
+  <div class="modal-box p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-display font-bold text-lg tracking-wide" id="logModalTitle">Log Replacement</h3>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('logModal')">✕</button>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div>
+        <label id="lbl-modal-datetime">Date &amp; Time</label>
+        <input type="datetime-local" id="logDate" />
+      </div>
+      <div>
+        <label id="lbl-modal-location">Location / Shop Name</label>
+        <input type="text" id="logLocation" placeholder="e.g. Bengkel Maju Jaya" />
+      </div>
+      <div>
+        <label id="lbl-modal-cost">Cost (Rp)</label>
+        <input type="number" id="logCost" placeholder="0" />
+      </div>
+      <div>
+        <label id="lbl-modal-odo">Odometer at Service (KM)</label>
+        <input type="number" id="logOdo" placeholder="Enter current odometer" />
+      </div>
+      <div>
+        <label id="lbl-modal-notes">Notes</label>
+        <textarea id="logNotes" rows="2" placeholder="Optional notes…"></textarea>
+      </div>
+      <div class="flex justify-end gap-3 mt-2">
+        <button id="btn-modal-log-cancel" class="btn btn-ghost" onclick="closeModal('logModal')">Cancel</button>
+        <button id="btn-modal-log-save" class="btn btn-primary" onclick="confirmLog()">✓ Save Record</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="compModal">
+  <div class="modal-box p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-display font-bold text-lg tracking-wide" id="compModalTitle">Add Component</h3>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('compModal')">✕</button>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div>
+        <label id="lbl-comp-name">Component Name</label>
+        <input type="text" id="compName" placeholder="e.g. Drive Chain" />
+      </div>
+      <div>
+        <label id="lbl-comp-type">Type</label>
+        <select id="compType">
+          </select>
+      </div>
+      <div id="compKmField">
+        <label id="lbl-comp-interval-km">Interval KM</label>
+        <input type="number" id="compKm" placeholder="e.g. 5000" />
+      </div>
+      <div id="compMonthField">
+        <label id="lbl-comp-interval-mo">Interval Months</label>
+        <input type="number" id="compMonths" placeholder="e.g. 6" />
+      </div>
+      <div>
+        <label id="lbl-comp-last-km">Last Serviced Odometer (KM)</label>
+        <input type="number" id="compLastKm" placeholder="0" />
+      </div>
+      <div>
+        <label id="lbl-comp-last-date">Last Serviced Date</label>
+        <input type="date" id="compLastDate" />
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:2px">
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span id="lbl-comp-wto-title">Warning Threshold Override</span>
+          <span id="lbl-comp-wto-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px">(leave blank to use global)</span>
+        </label>
+        <div style="position:relative">
+          <input type="number" id="compThreshold" min="1" max="99" placeholder="e.g. 30" style="padding-right:36px" />
+          <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;font-weight:600;pointer-events:none">%</span>
+        </div>
+        <div id="lbl-comp-wto-desc" style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">
+          Warn when remaining lifetime ≤ this value. Overrides the global threshold for this component only.
+        </div>
+      </div>
+      <input type="hidden" id="compEditId" />
+      <div class="flex justify-end gap-3 mt-2">
+        <button id="btn-comp-cancel" class="btn btn-ghost" onclick="closeModal('compModal')">Cancel</button>
+        <button id="btn-comp-save" class="btn var(--accent) btn-primary" onclick="saveComponent()">✓ Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="
+  position:fixed; bottom:24px; right:24px; z-index:9998;
+  background:var(--card); border:1px solid var(--accent);
+  color:var(--text); padding:12px 20px; border-radius:8px;
+  font-size:13px; font-weight:500; font-family:'Barlow',sans-serif;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  transform:translateY(80px); opacity:0;
+  transition:all 0.3s;
+  max-width:320px;
+"></div>
+
+<script>
+// ===== DICTIONARY / LOKALISASI =====
+const LANG_DICT = {
+  en: {
+    dashboard: "Dashboard", history: "Services", settings: "Settings", about: "About",
+    all: "All", critical: "🔴 Critical", warning: "🟡 Warning", good: "🟢 Good",
+    defaultSort: "Default", urgencySort: "Urgency", alphaSort: "A–Z",
+    addComponent: "＋ Add Component", export: "⬆ Export", import: "⬇ Import",
+    fastMoving: "⚡ Fast Moving Components", slowMoving: "🔩 Slow Moving Components",
+    overdue: "Overdue", soon: "Soon", ok: "Good", serviceOverdue: "⚠ Service overdue",
+    next: "Next", last: "Last", logService: "✓ Log Service", searchComp: "Search component…",
+    maintHistory: "Maintenance History", settingsTitle: "Settings & Customization",
+    ewsTitle: "🔔 Early Warning System",
+    ewsDesc: "Trigger a Warning state when a component's remaining lifetime falls to or below this threshold. Set a per-component override in each component's Edit dialog.",
+    globalThresh: "Global Warning Threshold", apply: "Apply", resetAll: "⚠ Reset All Data",
+    scanDonate: "Scan to Donate", license: "⚖️ License", donationSection: "💳 Donation / Support",
+    odometerTitle: "Odometer", sliderStrict: "1% (Strict)", sliderEarly: "99% (Early)",
+    aboutEditTitle: "Edit README / About", cancel: "Cancel", save: "✓ Save",
+    aboutTexareaLabel: "About Text", htmlSupportNote: "Supports basic HTML tags (<a>, <strong>, <br>, <p>, etc.)",
+    donationQrLabel: "Donation QR Code Image", imgSupportNote: "PNG, JPG, or WebP — will be stored as Base64",
+    clickDragQr: "Click or drag & drop a QR code image", qrTypesNote: "QRIS, GoPay, OVO, Bank Transfer, etc.",
+    removeQr: "✕ Remove QR", mDateTime: "Date & Time", mLocation: "Location / Shop Name", mCost: "Cost (Rp)",
+    mOdo: "Odometer at Service (KM)", mNotes: "Notes", mSaveRecord: "✓ Save Record", mLogReplacement: "Log Replacement",
+    compName: "Component Name", compType: "Type", compIntKm: "Interval KM", compIntMo: "Interval Months",
+    compLastKm: "Last Serviced Odometer (KM)", compLastDate: "Last Serviced Date", compWtoTitle: "Warning Threshold Override",
+    compWtoNote: "(leave blank to use global)", compWtoDesc: "Warn when remaining lifetime ≤ this value. Overrides the global threshold for this component only.",
+    optFast: "Fast Moving (KM + Months)", optSlow: "Slow Moving", placeholderSearch: "Search component…",
+    toastLangChanged: "✓ Language changed to English", toastSaved: "✓ Saved", toastDeleted: "Deleted",
+    confirmReset: "Reset ALL data? This cannot be undone.", confirmDeleteComp: "Delete \"{name}\"?", confirmDeleteHist: "Delete this services entry?",
+    affectedWarn: "{count} component{plural} would be in Warning state at {pct}%", enterRange: "Enter a value between 1 and 99",
+    errThresholdRange: "⚠ Threshold must be between 1–99%", errImageSize: "⚠ Image too large — max 5 MB",
+    msgNoComponentMatch: "No components in this category match the filter.", msgNoHistory: "No service records yet. Log your first service from the Dashboard!",
+    componentsSection: "Components", lblLeft: "left", lblGlobal: "global", uploadImgName: "Uploaded image",
+    clickReplaceQr: "Click to replace image"
+  },
+  id: {
+    dashboard: "Dasbor", history: "Servis", settings: "Pengaturan", about: "Tentang",
+    all: "Semua", critical: "🔴 Kritis", warning: "🟡 Peringatan", good: "🟢 Bagus",
+    defaultSort: "Bawaan", urgencySort: "Urgensi", alphaSort: "A–Z",
+    addComponent: "＋ Tambah Komponen", export: "⬆ Ekspor", import: "⬇ Impor",
+    fastMoving: "⚡ Komponen Fast Moving", slowMoving: "🔩 Komponen Slow Moving",
+    overdue: "Telat Servis", soon: "Segera", ok: "Bagus", serviceOverdue: "⚠ Waktunya servis!",
+    next: "Berikutnya", last: "Terakhir", logService: "✓ Catat Servis", searchComp: "Cari komponen…",
+    maintHistory: "Riwayat Perawatan", settingsTitle: "Pengaturan & Kustomisasi",
+    ewsTitle: "🔔 Sistem Peringatan Dini",
+    ewsDesc: "Memicu status Peringatan ketika sisa masa pakai komponen mencapai atau di bawah ambang batas ini. Anda bisa mengatur nilai khusus di tiap komponen.",
+    globalThresh: "Ambang Batas Peringatan Global", apply: "Terapkan", resetAll: "⚠ Reset Semua Data",
+    scanDonate: "Scan untuk Donasi", license: "⚖️ Lisensi", donationSection: "💳 Donasi / Dukungan",
+    odometerTitle: "Odometer", sliderStrict: "1% (Ketat)", sliderEarly: "99% (Cepat)",
+    aboutEditTitle: "Edit Catatan / Tentang", cancel: "Batal", save: "✓ Simpan",
+    aboutTexareaLabel: "Teks Pengumuman", htmlSupportNote: "Mendukung tag HTML dasar (<a>, <strong>, <br>, <p>, dll.)",
+    donationQrLabel: "Gambar QR Code Pembayaran", imgSupportNote: "PNG, JPG, atau WebP — akan disimpan sebagai Base64",
+    clickDragQr: "Klik atau seret & lepas gambar QR code di sini", qrTypesNote: "QRIS, GoPay, OVO, Transfer Bank, dll.",
+    removeQr: "✕ Hapus QR", mDateTime: "Tanggal & Waktu", mLocation: "Lokasi / Nama Bengkel", mCost: "Biaya (Rp)",
+    mOdo: "Odometer Saat Servis (KM)", mNotes: "Catatan Tambahan", mSaveRecord: "✓ Simpan Catatan", mLogReplacement: "Catat Penggantian/Servis",
+    compName: "Nama Komponen", compType: "Tipe Pergerakan", compIntKm: "Interval KM", compIntMo: "Interval Bulan",
+    compLastKm: "Odometer Servis Terakhir (KM)", compLastDate: "Tanggal Servis Terakhir", compWtoTitle: "Override Batas Peringatan",
+    compWtoNote: "(kosongkan untuk menggunakan batas global)", compWtoDesc: "Beri peringatan jika sisa umur ≤ nilai ini. Mengesampingkan ambang batas global hanya untuk komponen ini.",
+    optFast: "Fast Moving (KM + Bulan)", optSlow: "Slow Moving", placeholderSearch: "Cari komponen…",
+    toastLangChanged: "✓ Bahasa diubah ke Indonesia", toastSaved: "✓ Berhasil disimpan", toastDeleted: "Berhasil dihapus",
+    confirmReset: "Reset SEMUA data? Tindakan ini tidak dapat dibatalkan.", confirmDeleteComp: "Hapus \"{name}\"?", confirmDeleteHist: "Hapus catatan servis ini?",
+    affectedWarn: "{count} komponen akan berstatus Peringatan pada tingkat {pct}%", enterRange: "Masukkan nilai antara 1 sampai 99",
+    errThresholdRange: "⚠ Ambang batas harus di antara 1–99%", errImageSize: "⚠ Ukuran gambar terlalu besar — maksimal 5 MB",
+    msgNoComponentMatch: "Tidak ada komponen di kategori ini yang cocok dengan filter.", msgNoHistory: "Belum ada riwayat perawatan. Catat servis pertama Anda melalui Dashboard!",
+    componentsSection: "Komponen", lblLeft: "tersisa", lblGlobal: "global", uploadImgName: "Gambar terunggah",
+    clickReplaceQr: "Klik untuk mengganti gambar"
+  }
+};
+
+// ===== DATA LAYER =====
+const STORE_KEY = 'mototrack_v2';
+let DB = {
+  odometer: 0,
+  theme: 'dark',
+  warningThreshold: 20,
+  components: [],
+  history: [],
+  readme: null,       // custom README text (null = use default)
+  donationQr: null,   // base64 data URL of QR image
+  lang: 'id'          // default language language selection
+};
+
+const DEFAULT_COMPONENTS = [
+  { name:'Engine Oil',          type:'fast', intervalKm:2000,  intervalMonths:2,  category:'fast' },
+  { name:'Engine Oil Filter',   type:'fast', intervalKm:4000,  intervalMonths:4,  category:'fast' },
+  { name:'Tire',                type:'fast', intervalKm:12500, intervalMonths:18, category:'fast' },
+  { name:'Air Filter',          type:'fast', intervalKm:4000,  intervalMonths:6,  category:'fast' },
+  { name:'Coolant',             type:'fast', intervalKm:12000, intervalMonths:12, category:'fast' },
+  { name:'Spark Plugs',         type:'fast', intervalKm:6000,  intervalMonths:6,  category:'fast' },
+  { name:'Transmission Oil',    type:'fast', intervalKm:8000,  intervalMonths:12, category:'fast' },
+  { name:'Brake Disk',          type:'slow', intervalKm:20000, intervalMonths:null, category:'slow' },
+  { name:'Brake Pad',           type:'slow', intervalKm:15000, intervalMonths:null, category:'slow' },
+  { name:'Brake Fluid',         type:'slow', intervalKm:20000, intervalMonths:null, category:'slow' },
+  { name:'12V Battery',         type:'slow', intervalKm:null,  intervalMonths:24,   category:'slow' },
+  { name:'CVT Belt',            type:'slow', intervalKm:20000, intervalMonths:null, category:'slow' },
+  { name:'CVT Roller Weights',  type:'slow', intervalKm:20000, intervalMonths:null, category:'slow' },
+  { name:'Tensioner',           type:'slow', intervalKm:20000, intervalMonths:null, category:'slow' },
+  { name:'Fuel Filter',         type:'slow', intervalKm:20000, intervalMonths:null, category:'slow' },
+  { name:'Shock Breaker Fluid', type:'slow', intervalKm:20000, intervalMonths:null, category:'slow' },
+];
+
+function genId() { return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
+
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      DB = JSON.parse(raw);
+      if (DB.warningThreshold == null) DB.warningThreshold = 20;
+      if (!('readme'      in DB)) DB.readme      = null;
+      if (!('donationQr'  in DB)) DB.donationQr  = null;
+      if (!('lang'        in DB)) DB.lang        = 'id';
+      DB.components.forEach(c => { if (c.warningThreshold === undefined) c.warningThreshold = null; });
+    } else {
+      DB.lang = 'id';
+      DB.components = DEFAULT_COMPONENTS.map(c => ({
+        ...c,
+        id: genId(),
+        lastKm: 0,
+        lastDate: new Date().toISOString().split('T')[0],
+        warningThreshold: null
+      }));
+      saveDB();
+    }
+  } catch(e) { console.error(e); }
+}
+
+function saveDB() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(DB));
+}
+
+// ===== LANGUAGE CHANGER =====
+function changeLanguage(lang) {
+  DB.lang = lang;
+  saveDB();
+  applyLanguage();
+  renderDashboard();
+  renderHistory();
+  renderSettings();
+  toast(LANG_DICT[lang].toastLangChanged);
+}
+
+function applyLanguage() {
+  const l = LANG_DICT[DB.lang || 'id'];
+
+  // Document language element sync
+  document.getElementById('langSelect').value = DB.lang || 'id';
+
+  // Navigation tab components
+  document.getElementById('tab-btn-dashboard').textContent = l.dashboard;
+  document.getElementById('tab-btn-history').textContent = l.history;
+  document.getElementById('tab-btn-settings').textContent = l.settings;
+  document.getElementById('tab-btn-about').textContent = l.about;
+
+  // Header Elements
+  document.getElementById('lbl-odometer-title').textContent = l.odometerTitle;
+
+  // Filters and sorting labels
+  document.getElementById('filter-all').textContent = l.all;
+  document.getElementById('filter-critical').textContent = l.critical;
+  document.getElementById('filter-warning').textContent = l.warning;
+  document.getElementById('filter-ok').textContent = l.good;
+  document.getElementById('lbl-sort-default').textContent = l.defaultSort;
+  document.getElementById('lbl-sort-urgency').textContent = l.urgencySort;
+  document.getElementById('lbl-sort-alpha').textContent = l.alphaSort;
+
+  // Dash Action Control Elements
+  document.getElementById('btn-add-comp-dash').textContent = l.addComponent;
+  document.getElementById('btn-export-dash').textContent = l.export;
+  
+  const importLabel = document.getElementById('lbl-import-dash');
+  if (importLabel) {
+    importLabel.innerHTML = `${l.import}<input type="file" accept=".json" style="display:none" onchange="importData(event)"/>`;
+  }
+
+  // Segment labels
+  document.getElementById('lbl-section-fast').textContent = l.fastMoving;
+  document.getElementById('lbl-section-slow').textContent = l.slowMoving;
+
+  // History Tab labels
+  document.getElementById('lbl-history-title').textContent = l.maintHistory;
+  document.getElementById('historySearch').placeholder = l.placeholderSearch;
+
+  // Settings tab elements
+  document.getElementById('lbl-settings-title').textContent = l.settingsTitle;
+  document.getElementById('lbl-lang-select').textContent = `🌐 ${l.compType} / Language`;
+  document.getElementById('lbl-ews-title').textContent = l.ewsTitle;
+  document.getElementById('lbl-ews-desc').textContent = l.ewsDesc;
+  document.getElementById('lbl-global-threshold-input').textContent = l.globalThresh;
+  document.getElementById('btn-threshold-apply').textContent = l.apply;
+  document.getElementById('lbl-slider-strict').textContent = l.sliderStrict;
+  document.getElementById('lbl-slider-early').textContent = l.sliderEarly;
+
+  // About Tab static labels
+  document.getElementById('btn-about-edit').textContent = `✎ ${l.cancel.replace('Cancel', 'Edit').replace('Batal', 'Edit')}`;
+  document.getElementById('lbl-donation-section').textContent = l.donationSection;
+  document.getElementById('lbl-scan-donate').textContent = l.scanDonate;
+  document.getElementById('lbl-license-section').textContent = l.license;
+
+  // About Edit view labels
+  document.getElementById('lbl-about-edit-title').textContent = l.aboutEditTitle;
+  document.getElementById('btn-about-cancel').textContent = l.cancel;
+  document.getElementById('btn-about-save').textContent = l.save;
+  document.getElementById('lbl-about-textarea-label').innerHTML = `${l.aboutTexareaLabel} <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">${l.htmlSupportNote}</span>`;
+  document.getElementById('lbl-donation-qr-label').innerHTML = `${l.donationQrLabel} <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">${l.imgSupportNote}</span>`;
+  document.getElementById('btn-qr-remove').textContent = l.removeQr;
+
+  // Replacement Logs modal labels
+  document.getElementById('lbl-modal-datetime').textContent = l.mDateTime;
+  document.getElementById('lbl-modal-location').textContent = l.mLocation;
+  document.getElementById('lbl-modal-cost').textContent = l.mCost;
+  document.getElementById('lbl-modal-odo').textContent = l.mOdo;
+  document.getElementById('lbl-modal-notes').textContent = l.mNotes;
+  document.getElementById('btn-modal-log-cancel').textContent = l.cancel;
+  document.getElementById('btn-modal-log-save').textContent = l.mSaveRecord;
+
+  // Component Modals Select options 
+  const typeSelect = document.getElementById('compType');
+  if (typeSelect) {
+    typeSelect.innerHTML = `
+      <option value="fast">${l.optFast}</option>
+      <option value="slow">${l.optSlow}</option>
+    `;
+  }
+  document.getElementById('lbl-comp-name').textContent = l.compName;
+  document.getElementById('lbl-comp-type').textContent = l.compType;
+  document.getElementById('lbl-comp-interval-km').textContent = l.compIntKm;
+  document.getElementById('lbl-comp-interval-mo').textContent = l.compIntMo;
+  document.getElementById('lbl-comp-last-km').textContent = l.compLastKm;
+  document.getElementById('lbl-comp-last-date').textContent = l.compLastDate;
+  document.getElementById('lbl-comp-wto-title').textContent = l.compWtoTitle;
+  document.getElementById('lbl-comp-wto-note').textContent = l.compWtoNote;
+  document.getElementById('lbl-comp-wto-desc').textContent = l.compWtoDesc;
+  document.getElementById('btn-comp-cancel').textContent = l.cancel;
+  document.getElementById('btn-comp-save').textContent = l.save;
+}
+
+// ===== CALCULATIONS =====
+function getStatus(comp) {
+  const odo = DB.odometer;
+  const now = new Date();
+  const lastDate = comp.lastDate ? new Date(comp.lastDate) : now;
+  const monthsElapsed = (now - lastDate) / (1000 * 60 * 60 * 24 * 30.44);
+  const kmElapsed = odo - (comp.lastKm || 0);
+
+  let kmPct = null, moPct = null;
+  if (comp.intervalKm) kmPct = Math.min(kmElapsed / comp.intervalKm * 100, 100);
+  if (comp.intervalMonths) moPct = Math.min(monthsElapsed / comp.intervalMonths * 100, 100);
+
+  let pct = 0;
+  if (kmPct !== null && moPct !== null) pct = Math.max(kmPct, moPct);
+  else if (kmPct !== null) pct = kmPct;
+  else if (moPct !== null) pct = moPct;
+
+  const remaining = Math.max(0, 100 - pct);
+  const warnAt = (comp.warningThreshold != null) ? comp.warningThreshold : (DB.warningThreshold ?? 20);
+
+  let statusClass = 'ok';
+  if (remaining <= 0) statusClass = 'critical';
+  else if (remaining <= warnAt) statusClass = 'warning';
+
+  let kmLeft = null, daysLeft = null;
+  if (comp.intervalKm) kmLeft = Math.max(0, (comp.lastKm || 0) + comp.intervalKm - odo);
+  if (comp.intervalMonths) {
+    const nextDate = new Date(lastDate);
+    nextDate.setMonth(nextDate.getMonth() + comp.intervalMonths);
+    daysLeft = Math.max(0, Math.round((nextDate - now) / (1000*60*60*24)));
+  }
+
+  return { pct, remaining, statusClass, kmLeft, daysLeft, kmPct, moPct };
+}
+
+// ===== THEME =====
+function toggleTheme(isLight) {
+  document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+  DB.theme = isLight ? 'light' : 'dark';
+  saveDB();
+}
+
+// ===== ODO =====
+function updateOdo(val) {
+  DB.odometer = parseFloat(val) || 0;
+  saveDB();
+  renderDashboard();
+  renderStats();
+}
+
+// ===== TOAST =====
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.transform = 'translateY(0)';
+  el.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.style.transform = 'translateY(80px)';
+    el.style.opacity = '0';
+  }, 2800);
+}
+
+// ===== TABS =====
+function switchTab(name, btn) {
+  ['dashboard','history','settings','about'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('hidden', t !== name);
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'settings') renderSettings();
+  if (name === 'about') renderAbout();
+}
+
+// ===== SORT =====
+let currentSort = 'urgency';
+
+function setSort(mode) {
+  currentSort = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sort-' + mode)?.classList.add('active');
+  renderDashboard();
+}
+
+function applySortOrder(comps) {
+  const list = [...comps];
+  if (currentSort === 'urgency') {
+    return list.sort((a, b) => getStatus(a).remaining - getStatus(b).remaining);
+  }
+  if (currentSort === 'alpha') {
+    return list.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return list;
+}
+
+// ===== THRESHOLD =====
+function getEffectiveThreshold(comp) {
+  return (comp.warningThreshold != null) ? comp.warningThreshold : (DB.warningThreshold ?? 20);
+}
+
+function previewThreshold(val) {
+  const n = parseInt(val);
+  const el = document.getElementById('thresholdPreview');
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (!el) return;
+  if (isNaN(n) || n < 1 || n > 99) {
+    el.textContent = l.enterRange;
+    el.style.color = 'var(--red)';
+    return;
+  }
+  const affected = DB.components.filter(c => {
+    const s = getStatus(c);
+    return s.remaining <= n && s.remaining > 0;
+  }).length;
+  el.style.color = 'var(--muted)';
+  
+  let formatted = l.affectedWarn.replace('{count}', affected).replace('{pct}', n);
+  if (DB.lang === 'en') {
+    formatted = formatted.replace('{plural}', affected !== 1 ? 's' : '');
+  }
+  el.textContent = formatted;
+}
+
+function syncThresholdSlider(val) {
+  const inp = document.getElementById('globalThresholdInput');
+  if (inp) inp.value = val;
+  previewThreshold(val);
+}
+
+function saveThreshold(val) {
+  const n = parseInt(val);
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (isNaN(n) || n < 1 || n > 99) { toast(l.errThresholdRange); return; }
+  DB.warningThreshold = n;
+  saveDB();
+  const inp = document.getElementById('globalThresholdInput');
+  const sld = document.getElementById('globalThresholdSlider');
+  if (inp) inp.value = n;
+  if (sld) sld.value = n;
+  previewThreshold(n);
+  renderDashboard();
+  toast(`${l.toastSaved} (${l.globalThresh} → ${n}%)`);
+}
+
+function initThresholdPanel() {
+  const n = DB.warningThreshold ?? 20;
+  const inp = document.getElementById('globalThresholdInput');
+  const sld = document.getElementById('globalThresholdSlider');
+  if (inp) inp.value = n;
+  if (sld) sld.value = n;
+  previewThreshold(n);
+}
+
+// ===== FILTER =====
+let currentFilter = 'all';
+function filterComponents(f) {
+  currentFilter = f;
+  document.querySelectorAll('[id^="filter-"]').forEach(b => b.classList.remove('btn-primary'));
+  document.getElementById('filter-'+f)?.classList.add('btn-primary');
+  renderDashboard();
+}
+
+// ===== RENDER STATS =====
+function renderStats() {
+  const comps = DB.components;
+  const l = LANG_DICT[DB.lang || 'id'];
+  const critical = comps.filter(c => getStatus(c).statusClass === 'critical').length;
+  const warning  = comps.filter(c => getStatus(c).statusClass === 'warning').length;
+  const totalHistory = DB.history.length;
+
+  const stats = [
+    { label: l.odometerTitle, value: DB.odometer.toLocaleString() + ' KM', color:'var(--accent)' },
+    { label: l.critical.replace('🔴 ', ''), value: critical, color:'var(--red)' },
+    { label: l.warning.replace('🟡 ', ''), value: warning, color:'var(--yellow)' },
+    { label: l.history, value: totalHistory, color:'var(--green)' },
+  ];
+  document.getElementById('statsRow').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">${s.label}</div>
+      <div class="font-display font-bold" style="font-size:28px;color:${s.color};line-height:1">${s.value}</div>
+    </div>
+  `).join('');
+}
+
+// ===== RENDER DASHBOARD =====
+function renderDashboard() {
+  const fast = DB.components.filter(c => c.category === 'fast');
+  const slow = DB.components.filter(c => c.category === 'slow');
+  renderGrid('fastGrid', fast);
+  renderGrid('slowGrid', slow);
+  renderStats();
+}
+
+function renderGrid(gridId, comps) {
+  const grid = document.getElementById(gridId);
+  const l = LANG_DICT[DB.lang || 'id'];
+  const sorted   = applySortOrder(comps);
+  const filtered = currentFilter === 'all' ? sorted : sorted.filter(c => getStatus(c).statusClass === currentFilter);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:12px 0">${l.msgNoComponentMatch}</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(comp => {
+    const s = getStatus(comp);
+    const barClass = s.statusClass === 'critical' ? 'bar-critical' : s.statusClass === 'warning' ? 'bar-warning' : 'bar-ok';
+    const typeBadge = comp.category === 'fast'
+      ? `<span class="badge badge-fast">${DB.lang === 'id'?'Cepat':'Fast'}</span>`
+      : `<span class="badge badge-slow">${DB.lang === 'id'?'Lambat':'Slow'}</span>`;
+    const statusBadge = s.statusClass === 'critical'
+      ? `<span class="badge badge-critical">${l.overdue}</span>`
+      : s.statusClass === 'warning'
+      ? `<span class="badge badge-warning">${l.soon}</span>`
+      : `<span class="badge badge-ok">${l.ok}</span>`;
+
+    let nextInfo = '';
+    if (s.remaining <= 0) {
+      nextInfo = `<span style="color:var(--red);font-size:12px;font-weight:600">${l.serviceOverdue}</span>`;
+    } else {
+      const parts = [];
+      if (s.kmLeft !== null) parts.push(`${s.kmLeft.toLocaleString()} KM`);
+      if (s.daysLeft !== null) parts.push(`${s.daysLeft}${DB.lang === 'id' ? ' hari' : 'd'}`);
+      nextInfo = `<span style="color:var(--muted);font-size:12px">${l.next}: <span style="color:var(--text)">${parts.join(' / ')}</span></span>`;
+    }
+
+    const lastServiced = comp.lastDate
+      ? new Date(comp.lastDate).toLocaleDateString(DB.lang === 'id' ? 'id-ID' : 'en-US', {day:'2-digit',month:'short',year:'numeric'})
+      : '—';
+
+    return `
+    <div class="comp-card ${s.statusClass} fade-in" data-id="${comp.id}">
+      <div class="p-4">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div>
+            <div class="font-display font-bold text-base mb-1" style="letter-spacing:0.02em">${comp.name}</div>
+            <div class="flex gap-1 flex-wrap">${typeBadge}${statusBadge}</div>
+          </div>
+          <div class="font-display font-bold text-2xl" style="color:${s.statusClass==='critical'?'var(--red)':s.statusClass==='warning'?'var(--yellow)':'var(--green)'}">
+            ${Math.round(s.remaining)}%
+          </div>
+        </div>
+        <div class="progress-track mb-3">
+          <div class="progress-bar ${barClass}" style="width:${s.remaining}%"></div>
+        </div>
+        <div class="flex items-center justify-between mb-3">
+          ${nextInfo}
+          <span style="color:var(--muted);font-size:11px">${l.last}: ${lastServiced} · ${(comp.lastKm||0).toLocaleString()} KM</span>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary btn-sm flex-1" onclick="openLogModal('${comp.id}')">${l.logService}</button>
+          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${comp.id}')" title="Edit">✎</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteComponent('${comp.id}')" title="Delete">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== LOG MODAL =====
+let logTargetId = null;
+function openLogModal(compId) {
+  logTargetId = compId;
+  const comp = DB.components.find(c => c.id === compId);
+  const l = LANG_DICT[DB.lang || 'id'];
+  document.getElementById('logModalTitle').textContent = `${l.mLogReplacement}: ${comp.name}`;
+  const now = new Date();
+  document.getElementById('logDate').value = now.toISOString().slice(0,16);
+  document.getElementById('logLocation').value = '';
+  document.getElementById('logCost').value = '';
+  document.getElementById('logOdo').value = DB.odometer;
+  document.getElementById('logNotes').value = '';
+  openModal('logModal');
+}
+
+function confirmLog() {
+  const comp = DB.components.find(c => c.id === logTargetId);
+  if (!comp) return;
+  const odoVal = parseFloat(document.getElementById('logOdo').value) || DB.odometer;
+  const dateVal = document.getElementById('logDate').value;
+  const costVal = parseFloat(document.getElementById('logCost').value) || 0;
+  const locVal  = document.getElementById('logLocation').value.trim();
+  const notes   = document.getElementById('logNotes').value.trim();
+
+  comp.lastKm   = odoVal;
+  comp.lastDate = dateVal.split('T')[0];
+
+  DB.history.unshift({
+    id: genId(),
+    compId: logTargetId,
+    compName: comp.name,
+    date: dateVal,
+    location: locVal,
+    cost: costVal,
+    odo: odoVal,
+    notes: notes
+  });
+
+  if (odoVal > DB.odometer) {
+    DB.odometer = odoVal;
+    document.getElementById('odoInput').value = odoVal;
+  }
+
+  saveDB();
+  closeModal('logModal');
+  renderDashboard();
+  toast(LANG_DICT[DB.lang || 'id'].toastSaved);
+}
+
+// ===== EDIT COMPONENT MODAL =====
+let editingCompId = null;
+function openEditModal(compId) {
+  editingCompId = compId;
+  const comp = DB.components.find(c => c.id === compId);
+  const l = LANG_DICT[DB.lang || 'id'];
+  document.getElementById('compModalTitle').textContent = `${l.cancel.replace('Cancel', 'Edit').replace('Batal', 'Edit')} ${l.componentsSection}`;
+  document.getElementById('compName').value = comp.name;
+  document.getElementById('compType').value = comp.type;
+  document.getElementById('compKm').value = comp.intervalKm || '';
+  document.getElementById('compMonths').value = comp.intervalMonths || '';
+  document.getElementById('compLastKm').value = comp.lastKm || 0;
+  document.getElementById('compLastDate').value = comp.lastDate || '';
+  document.getElementById('compThreshold').value = comp.warningThreshold != null ? comp.warningThreshold : '';
+  document.getElementById('compEditId').value = compId;
+  toggleCompFields();
+  openModal('compModal');
+}
+
+function openAddModal() {
+  editingCompId = null;
+  const l = LANG_DICT[DB.lang || 'id'];
+  document.getElementById('compModalTitle').textContent = l.addComponent;
+  document.getElementById('compName').value = '';
+  document.getElementById('compType').value = 'fast';
+  document.getElementById('compKm').value = '';
+  document.getElementById('compMonths').value = '';
+  document.getElementById('compLastKm').value = DB.odometer;
+  document.getElementById('compLastDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('compThreshold').value = '';
+  document.getElementById('compEditId').value = '';
+  toggleCompFields();
+  openModal('compModal');
+}
+
+document.getElementById('compType').addEventListener('change', function() {
+  toggleCompFields();
+});
+function toggleCompFields() {
+  // logic configuration defaults placeholder — flexible setup layout keeps both inputs visible
+}
+
+function saveComponent() {
+  const name = document.getElementById('compName').value.trim();
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (!name) { toast(DB.lang === 'id' ? '⚠ Masukkan nama komponen':'⚠ Enter a component name'); return; }
+  const type = document.getElementById('compType').value;
+  const km   = parseFloat(document.getElementById('compKm').value) || null;
+  const mo   = parseFloat(document.getElementById('compMonths').value) || null;
+  const lastKm   = parseFloat(document.getElementById('compLastKm').value) || 0;
+  const lastDate = document.getElementById('compLastDate').value;
+  const threshRaw = document.getElementById('compThreshold').value;
+  const thresh = threshRaw !== '' ? (parseInt(threshRaw) || null) : null;
+
+  const editId = document.getElementById('compEditId').value;
+  if (editId) {
+    const comp = DB.components.find(c => c.id === editId);
+    comp.name = name;
+    comp.type = type;
+    comp.category = type === 'fast' ? 'fast' : 'slow';
+    comp.intervalKm = km;
+    comp.intervalMonths = mo;
+    comp.lastKm = lastKm;
+    comp.lastDate = lastDate;
+    comp.warningThreshold = thresh;
+  } else {
+    DB.components.push({
+      id: genId(),
+      name, type,
+      category: type === 'fast' ? 'fast' : 'slow',
+      intervalKm: km,
+      intervalMonths: mo,
+      lastKm, lastDate,
+      warningThreshold: thresh
+    });
+  }
+  saveDB();
+  closeModal('compModal');
+  renderDashboard();
+  renderSettings();
+  toast(l.toastSaved);
+}
+
+function deleteComponent(compId) {
+  const comp = DB.components.find(c => c.id === compId);
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (!confirm(l.confirmDeleteComp.replace('{name}', comp.name))) return;
+  DB.components = DB.components.filter(c => c.id !== compId);
+  saveDB();
+  renderDashboard();
+  renderSettings();
+  toast(l.toastDeleted);
+}
+
+// ===== HISTORY =====
+function renderHistory() {
+  const search = document.getElementById('historySearch').value.toLowerCase();
+  const l = LANG_DICT[DB.lang || 'id'];
+  const filtered = DB.history.filter(h =>
+    !search || h.compName.toLowerCase().includes(search) || (h.location||'').toLowerCase().includes(search)
+  );
+
+  if (filtered.length === 0) {
+    document.getElementById('historyList').innerHTML = `
+      <div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">
+        ${l.msgNoHistory}
+      </div>`;
+    return;
+  }
+
+  const groups = {};
+  filtered.forEach(h => {
+    const d = new Date(h.date);
+    const key = d.toLocaleDateString(DB.lang === 'id' ? 'id-ID' : 'en-US', {month:'long', year:'numeric'});
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(h);
+  });
+
+  document.getElementById('historyList').innerHTML = Object.entries(groups).map(([month, entries]) => `
+    <div class="mb-6">
+      <div class="section-label mb-4">${month}</div>
+      <div class="flex flex-col gap-3">
+        ${entries.map(h => `
+          <div class="history-entry fade-in">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-display font-bold text-base" style="letter-spacing:0.02em">${h.compName}</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:2px">
+                  ${new Date(h.date).toLocaleString(DB.lang==='id'?'id-ID':'en-US',{dateStyle:'medium',timeStyle:'short'})}
+                  ${h.location ? ` · 📍 ${h.location}` : ''}
+                </div>
+                ${h.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${h.notes}</div>` : ''}
+              </div>
+              <div class="text-right flex-shrink-0">
+                ${h.cost ? `<div class="font-mono font-bold" style="color:var(--accent)">Rp ${h.cost.toLocaleString('id-ID')}</div>` : ''}
+                <div style="font-size:11px;color:var(--muted)">${h.odo?.toLocaleString()} KM</div>
+                <button class="btn btn-danger btn-sm mt-2" onclick="deleteHistory('${h.id}')">✕</button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteHistory(hId) {
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (!confirm(l.confirmDeleteHist)) return;
+  DB.history = DB.history.filter(h => h.id !== hId);
+  saveDB();
+  renderHistory();
+  renderStats();
+  toast(l.toastDeleted);
+}
+
+// ===== SETTINGS =====
+function renderSettings() {
+  initThresholdPanel();
+  const l = LANG_DICT[DB.lang || 'id'];
+  const container = document.getElementById('settingsCompList');
+  container.innerHTML = `
+    <div class="section-label mb-4">${l.componentsSection}</div>
+    <div class="flex flex-col gap-3">
+      ${DB.components.map(comp => {
+        const s = getStatus(comp);
+        const statusColor = s.statusClass === 'critical' ? 'var(--red)' : s.statusClass === 'warning' ? 'var(--yellow)' : 'var(--green)';
+        const effectiveThresh = getEffectiveThreshold(comp);
+        const hasOverride = comp.warningThreshold != null;
+        const mappedCat = comp.category === 'fast' ? (DB.lang==='id'?'Cepat':'Fast') : (DB.lang==='id'?'Lambat':'Slow');
+        return `
+        <div class="comp-card p-4 flex flex-wrap items-center gap-4 justify-between">
+          <div class="flex-1 min-w-0">
+            <div class="font-display font-bold" style="letter-spacing:0.02em">${comp.name}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+              ${comp.intervalKm ? `${comp.intervalKm.toLocaleString()} KM` : ''}
+              ${comp.intervalKm && comp.intervalMonths ? ' / ' : ''}
+              ${comp.intervalMonths ? `${comp.intervalMonths} ${DB.lang==='id'?'bln':'mo'}` : ''}
+              <span class="badge ${comp.category === 'fast' ? 'badge-fast' : 'badge-slow'}">${mappedCat}</span>
+              <span class="badge" style="background:rgba(232,184,75,0.12);color:var(--yellow)" title="${hasOverride ? 'Override khusus' : 'Menggunakan global'}">
+                🔔 ${hasOverride ? `${comp.warningThreshold}%` : `${effectiveThresh}% (${l.lblGlobal})`}
+              </span>
+            </div>
+          </div>
+          <div style="font-size:12px;color:${statusColor};font-weight:600">${Math.round(s.remaining)}% ${l.lblLeft}</div>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost btn-sm" onclick="openEditModal('${comp.id}')">✎ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteComponent('${comp.id}')">✕</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="mt-6 flex gap-3 flex-wrap">
+      <button class="btn btn-primary" onclick="openAddModal()">${l.addComponent}</button>
+      <button class="btn btn-ghost" onclick="resetAllData()">${l.resetAll}</button>
+    </div>
+  `;
+}
+
+function resetAllData() {
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (!confirm(l.confirmReset)) return;
+  localStorage.removeItem(STORE_KEY);
+  loadDB();
+  document.getElementById('odoInput').value = 0;
+  applyLanguage();
+  renderDashboard();
+  renderSettings();
+  toast(l.toastDeleted);
+}
+
+// ===== IMPORT / EXPORT =====
+function exportData() {
+  const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mototrack_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✓ Export OK');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.components) throw new Error('Invalid format');
+      DB = imported;
+      saveDB();
+      document.getElementById('odoInput').value = DB.odometer;
+      applyTheme();
+      applyLanguage();
+      renderDashboard();
+      renderSettings();
+      toast('✓ Import OK');
+    } catch(err) {
+      alert('Import failed: invalid file format.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ===== README / ABOUT CONTENT MATRIX =====
+const DEFAULT_README_EN = `<p style="margin-bottom:14px">
+  <strong>MotoTrack</strong> is a comprehensive, free, web-based application designed to track your motorcycle's component lifetimes and maintenance schedule. Running fully client-side, no backend accounts or internet connections are required — all your personal data resides completely within your secure browser database.
+</p>
+<p style="margin-bottom:14px">
+  Core features include global odometer tracking, real-time visual progress bars, customized early notification warning systems, full itemized diagnostic logs, and dynamic portability utilizing clean JSON Import/Export architectures.
+</p>
+<p style="margin-bottom:14px">
+  This program is created entirely for free for everyone. <!-- Anyone who finds this app helpful can make a donation to support the project at: --> <br>
+  <!-- <a href="https://saweria.co" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline">
+    [Insert Your Donation Link Here — e.g. Saweria / Trakteer / Crypto Wallet]
+  </a> -->
+</p>
+<p style="color:var(--muted);font-size:13px">
+  MotoTrack is open-source software, free to use, modify, and distribute under the MIT License.
+</p>`;
+
+const DEFAULT_README_ID = `<p style="margin-bottom:14px">
+  <strong>MotoTrack</strong> adalah aplikasi gratis berbasis web untuk memantau usia komponen dan jadwal perawatan sepeda motor kamu. Tidak perlu internet, tidak perlu akun — semua data tersimpan langsung di browser-mu secara aman.
+</p>
+<p style="margin-bottom:14px">
+  Fitur utama meliputi pelacakan kilometer global (odometer), visualisasi sisa persentase performa sparepart, konfigurasi batas peringatan dini (early warning system), histori rincian servis terintegrasi, serta penanganan cadangan data ringkas via ekspor/impor JSON.
+</p>
+<p style="margin-bottom:14px">
+  Program ini diciptakan secara gratis untuk semua orang. <!-- Bagi yang merasa terbantu dengan aplikasi ini bisa melakukan donasi ke: --> <br>
+  <!-- <a href="https://saweria.co" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline">
+    [Masukkan Link Donasi Anda di Sini — misal Saweria / Trakteer / Crypto Wallet]
+  </a> -->
+</p>
+<p style="color:var(--muted);font-size:13px">
+  MotoTrack adalah perangkat lunak open-source, bebas digunakan, dimodifikasi, dan didistribusikan secara gratis di bawah naungan Lisensi MIT.
+</p>`;
+
+let _editQrBase64 = null;
+let _editQrFilename = '';
+
+function renderAbout() {
+  document.getElementById('aboutView').style.display = '';
+  document.getElementById('aboutEdit').style.display = 'none';
+  document.getElementById('licenseYear').textContent = new Date().getFullYear();
+
+  const fallbackReadme = (DB.lang === 'id') ? DEFAULT_README_ID : DEFAULT_README_EN;
+  const content = DB.readme || fallbackReadme;
+  document.getElementById('aboutContent').innerHTML = content;
+
+  const qrSec = document.getElementById('qrSection');
+  const qrImg = document.getElementById('qrImage');
+  if (DB.donationQr) {
+    qrImg.src = DB.donationQr;
+    qrSec.style.display = '';
+  } else {
+    qrSec.style.display = 'none';
+    qrImg.src = '';
+  }
+}
+
+function enterAboutEdit() {
+  _editQrBase64 = DB.donationQr || null;
+  _editQrFilename = '';
+
+  document.getElementById('aboutView').style.display = 'none';
+  document.getElementById('aboutEdit').style.display = '';
+  
+  const fallbackReadme = (DB.lang === 'id') ? DEFAULT_README_ID : DEFAULT_README_EN;
+  document.getElementById('aboutTextarea').value = DB.readme || fallbackReadme;
+  refreshQrEditPreview();
+}
+
+function cancelAboutEdit() {
+  _editQrBase64 = null;
+  document.getElementById('aboutView').style.display = '';
+  document.getElementById('aboutEdit').style.display = 'none';
+}
+
+function saveAboutEdit() {
+  DB.readme = document.getElementById('aboutTextarea').value;
+  DB.donationQr = _editQrBase64;
+  saveDB();
+  _editQrBase64 = null;
+  document.getElementById('aboutView').style.display = '';
+  document.getElementById('aboutEdit').style.display = 'none';
+  renderAbout();
+  toast(LANG_DICT[DB.lang || 'id'].toastSaved);
+}
+
+function refreshQrEditPreview() {
+  const area   = document.getElementById('qrUploadArea');
+  const prev   = document.getElementById('qrUploadPreview');
+  const actions= document.getElementById('qrEditActions');
+  const fname  = document.getElementById('qrEditFilename');
+  const l = LANG_DICT[DB.lang || 'id'];
+
+  if (_editQrBase64) {
+    prev.innerHTML = `
+      <img src="${_editQrBase64}" alt="QR Preview"
+        style="max-width:180px;width:100%;border-radius:6px;margin:0 auto 8px;display:block" />
+      <div style="font-size:11px;color:var(--muted)">${l.clickReplaceQr}</div>`;
+    area.style.borderColor = 'var(--accent)';
+    if (actions) { actions.style.display = 'flex'; }
+    if (fname)   { fname.textContent = _editQrFilename || l.uploadImgName; }
+  } else {
+    prev.innerHTML = `
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 10px">
+        <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+        <rect x="3" y="13" width="8" height="8" rx="1"/>
+        <rect x="13" y="13" width="3" height="3"/><rect x="18" y="13" width="3" height="3"/>
+        <rect x="13" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/>
+      </svg>
+      <div style="font-size:13px;color:var(--muted)">${l.clickDragQr}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">${l.qrTypesNote}</div>`;
+    area.style.borderColor = 'var(--border)';
+    if (actions) { actions.style.display = 'none'; }
+  }
+}
+
+function handleQrUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  readQrFile(file);
+  event.target.value = '';
+}
+
+function handleQrDrop(event) {
+  event.preventDefault();
+  document.getElementById('qrUploadArea').style.borderColor = 'var(--border)';
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) readQrFile(file);
+}
+
+function readQrFile(file) {
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (file.size > 5 * 1024 * 1024) { toast(l.errImageSize); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    _editQrBase64 = e.target.result;
+    _editQrFilename = file.name;
+    refreshQrEditPreview();
+    toast('✓ QR Loaded');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeQrImage() {
+  _editQrBase64 = null;
+  _editQrFilename = '';
+  refreshQrEditPreview();
+}
+
+// ===== MODAL HELPERS =====
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => {
+    if (e.target === el) closeModal(el.id);
+  });
+});
+
+// ===== INIT =====
+function applyTheme() {
+  const isLight = DB.theme === 'light';
+  document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeToggle').checked = isLight;
+}
+
+function init() {
+  loadDB();
+  document.getElementById('odoInput').value = DB.odometer;
+  applyTheme();
+  applyLanguage();
+  filterComponents('all');
+  renderDashboard();
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>
