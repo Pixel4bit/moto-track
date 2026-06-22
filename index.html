@@ -367,7 +367,7 @@
         <div class="flex items-center gap-2">
           <input id="odoInput" type="number" min="0" placeholder="0"
             style="background:transparent;border:none;box-shadow:none;padding:0;font-size:18px;font-family:'Share Tech Mono',monospace;font-weight:600;color:var(--accent);width:100px"
-            oninput="updateOdo(this.value)" />
+            onchange="updateOdo(this.value)" />
           <span style="font-size:11px;color:var(--muted);font-weight:600">KM</span>
         </div>
       </div>
@@ -392,7 +392,7 @@
   <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
     <div class="flex flex-wrap gap-2 items-center">
       <div class="flex gap-2 flex-wrap">
-        <button class="btn btn-ghost btn-sm" onclick="filterComponents('all')" id="filter-all">All</button>
+        <button class="btn btn-primary btn-sm" onclick="filterComponents('all')" id="filter-all">All</button>
         <button class="btn btn-ghost btn-sm" onclick="filterComponents('critical')" id="filter-critical">🔴 Critical</button>
         <button class="btn btn-ghost btn-sm" onclick="filterComponents('warning')" id="filter-warning">🟡 Warning</button>
         <button class="btn btn-ghost btn-sm" onclick="filterComponents('ok')" id="filter-ok">🟢 Good</button>
@@ -434,9 +434,9 @@
     <h2 id="lbl-history-title" class="font-display font-bold text-xl tracking-wide">Maintenance History</h2>
     <div class="flex gap-2">
       <select id="historyTypeFilter" onchange="renderHistory()" style="width: 140px; padding: 4px 8px;">
-        <option value="all">All Records</option>
-        <option value="service">🔧 Services</option>
-        <option value="fuel">⛽ Fuel Logs</option>
+        <option value="all" id="opt-all-records">All Records</option>
+        <option value="service" id="opt-services">🔧 Services</option>
+        <option value="fuel" id="opt-fuel-logs">⛽ Fuel Logs</option>
       </select>
       <input type="text" id="historySearch" placeholder="Search item…" style="width:200px" oninput="renderHistory()" />
     </div>
@@ -459,7 +459,7 @@
     </div>
     
     <div class="stat-card flex flex-col justify-center">
-      <label class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em">🌓 Theme / Night Mode</label>
+      <label id="lbl-theme-title" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em">🌓 Theme / Night Mode</label>
       <div>
         <label class="toggle-wrap gap-2" title="Toggle Light/Dark Mode">
           <input type="checkbox" class="toggle-input" id="themeToggle" onchange="toggleTheme(this.checked)" />
@@ -468,6 +468,19 @@
         </label>
       </div>
     </div>
+  </div>
+
+  <div class="stat-card mb-6 border border-neutral-800">
+    <label id="lbl-base-odo-adjustment" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em; color:var(--text)">🏁 Base Odometer Adjustment</label>
+    <div class="flex items-center gap-3" style="max-width: 320px">
+      <div style="position:relative; flex:1;">
+        <input type="number" id="startOdoInput" min="0" placeholder="0" style="padding-right:36px" onchange="updateStartOdo(this.value)" />
+        <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:13px; font-weight:600; pointer-events:none;">KM</span>
+      </div>
+    </div>
+    <p id="lbl-base-odo-desc" style="font-size:12px; color:var(--muted); margin-top:6px; line-height:1.4;">
+      Set initial configuration offsets. Active component ages compute values dynamic relative against this base index configuration.
+    </p>
   </div>
 
   <div class="stat-card mb-6" style="border-color:var(--accent);border-width:1px">
@@ -508,8 +521,8 @@
 
   <div class="stat-card mb-6">
     <div class="flex justify-between items-center mb-4">
-      <div class="font-display font-bold text-base tracking-wide">⛽ FUEL MASTER DATA</div>
-      <button class="btn btn-primary btn-sm" onclick="openFuelModal()">＋ Add Fuel Variant</button>
+      <div id="lbl-fuel-master-title" class="font-display font-bold text-base tracking-wide">⛽ FUEL MASTER DATA</div>
+      <button id="btn-add-fuel-variant" class="btn btn-primary btn-sm" onclick="openFuelModal()">＋ Add Fuel Variant</button>
     </div>
     <div id="settingsFuelList" class="flex flex-col gap-2"></div>
   </div>
@@ -674,25 +687,25 @@
     </div>
     <div class="flex flex-col gap-4">
       <div>
-        <label>Merk / Brand</label>
+        <label id="lbl-fuel-brand">Merk / Brand</label>
         <input type="text" id="fuelBrand" placeholder="e.g. Pertamina, Shell" />
       </div>
       <div>
-        <label>Nama Bensin / Fuel Name</label>
+        <label id="lbl-fuel-name">Nama Bensin / Fuel Name</label>
         <input type="text" id="fuelName" placeholder="e.g. Pertalite, V-Power" />
       </div>
       <div>
-        <label>Angka RON</label>
+        <label id="lbl-fuel-ron">Angka RON</label>
         <input type="text" id="fuelRon" placeholder="e.g. RON 90, RON 92" />
       </div>
       <div>
-        <label>Harga Perliter (Rp)</label>
+        <label id="lbl-fuel-price">Harga Perliter (Rp)</label>
         <input type="number" id="fuelPrice" placeholder="10000" />
       </div>
       <input type="hidden" id="fuelEditId" />
       <div class="flex justify-end gap-3 mt-2">
-        <button class="btn btn-ghost" onclick="closeModal('fuelModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="saveFuelMaster()">✓ Save Fuel</button>
+        <button id="btn-fuel-cancel" class="btn btn-ghost" onclick="closeModal('fuelModal')">Cancel</button>
+        <button id="btn-fuel-save" class="btn btn-primary" onclick="saveFuelMaster()">✓ Save Fuel</button>
       </div>
     </div>
   </div>
@@ -701,37 +714,37 @@
 <div class="modal-overlay" id="fuelLogModal">
   <div class="modal-box p-6">
     <div class="flex items-center justify-between mb-5">
-      <h3 class="font-display font-bold text-lg tracking-wide">⛽ Catat Pengisian BBM</h3>
+      <h3 class="font-display font-bold text-lg tracking-wide" id="fuelLogModalTitle">⛽ Catat Pengisian BBM</h3>
       <button class="btn btn-ghost btn-icon" onclick="closeModal('fuelLogModal')">✕</button>
     </div>
     <div class="flex flex-col gap-4">
       <div>
-        <label>Pilih Jenis Bensin</label>
+        <label id="lbl-fuel-log-select">Pilih Jenis Bensin</label>
         <select id="fuelLogSelect" onchange="autoFillFuelPrice()"></select>
       </div>
       <div>
-        <label>Odometer Saat Ini (KM)</label>
+        <label id="lbl-fuel-log-odo">Odometer Saat Ini (KM)</label>
         <input type="number" id="fuelLogOdo" placeholder="Odometer KM" />
       </div>
       <div>
-        <label>Harga Per Liter (Rp)</label>
+        <label id="lbl-fuel-log-price">Harga Per Liter (Rp)</label>
         <input type="number" id="fuelLogPricePerLiter" placeholder="0" readonly style="opacity:0.6; cursor:not-allowed;" />
       </div>
       <div>
-        <label>Total Biaya Pengisian (Rp)</label>
+        <label id="lbl-fuel-log-cost">Total Biaya Pengisian (Rp)</label>
         <input type="number" id="fuelLogTotalCost" placeholder="Masukkan nominal belanja, cth: 82000" oninput="calculateFuelLitersTotal()" />
       </div>
       <div>
-        <label>Jumlah Liter Yang Didapat</label>
+        <label id="lbl-fuel-log-liters">Jumlah Liter Yang Didapat</label>
         <input type="number" step="0.01" id="fuelLogLiters" placeholder="0.00" readonly style="opacity:0.8; font-weight:bold; color:var(--green);" />
       </div>
       <div>
-        <label>Tanggal Pengisian</label>
+        <label id="lbl-fuel-log-date">Tanggal Pengisian</label>
         <input type="datetime-local" id="fuelLogDate" />
       </div>
       <div class="flex justify-end gap-3 mt-2">
-        <button class="btn btn-ghost" onclick="closeModal('fuelLogModal')">Cancel</button>
-        <button class="btn btn-primary" onclick="submitFuelLog()">✓ Simpan Pengisian</button>
+        <button id="btn-fuel-log-cancel" class="btn btn-ghost" onclick="closeModal('fuelLogModal')">Cancel</button>
+        <button id="btn-fuel-log-save" class="btn btn-primary" onclick="submitFuelLog()">✓ Simpan Pengisian</button>
       </div>
     </div>
   </div>
@@ -767,7 +780,29 @@ const LANG_DICT = {
     errThresholdRange: "⚠ Threshold must be between 1–99%", errImageSize: "⚠ Image too large — max 5 MB",
     msgNoComponentMatch: "No components match the filter.", msgNoHistory: "No records yet. Log your first action!",
     componentsSection: "Components", lblLeft: "left", lblGlobal: "global", uploadImgName: "Uploaded image",
-    clickReplaceQr: "Click to replace image"
+    clickReplaceQr: "Click to replace image",
+    logFuel: "⛽ Log Fuel", baseOdoAdj: "🏁 Base Odometer Adjustment",
+    baseOdoDesc: "Set initial configuration offsets. Active component ages compute values dynamic relative against this base index configuration.",
+    fuelMasterTitle: "⛽ FUEL MASTER DATA", addFuelVariant: "＋ Add Fuel Variant",
+    allRecords: "All Records", servicesOpt: "🔧 Services", fuelLogsOpt: "⛽ Fuel Logs",
+    aboutTextareaLabel: "About Text", donationQrLabel: "Donation QR Code Image",
+    qrUploadPlaceholder: "Drop or Click to upload QR Donation Image", removeQrBtn: "✕ Remove QR",
+    lastFuelLogTitle: "⛽ LAST FUEL LOG", distanceSinceLast: "🚀 Distance since previous log: <strong>{diff} KM</strong>",
+    firstFuelLogMsg: "First fuel fill recorded at baseline Odometer.", totalCostLabel: "Total Cost:",
+    fuelSummaryTitle: "📊 FUEL CONSUMPTION SUMMARY", avgFuelLabel: "Average Fuel Consumption",
+    totalDistLabel: "Total Distance", totalVolLabel: "Total Volume", totalCostLabelGrid: "Total Cost",
+    fuelSpecTitle: "Fuel Specification", fuelBrandLabel: "Brand / Manufacturer", fuelNameLabel: "Fuel Name",
+    fuelRonLabel: "RON Index", fuelPriceLabel: "Price Per Liter (Rp)", saveFuelBtn: "✓ Save Fuel",
+    logFuelTitle: "⛽ Log Fuel Filling", selectFuelType: "Select Fuel Variant", currentOdoLabel: "Current Odometer (KM)",
+    pricePerLiterLabel: "Price Per Liter (Rp)", totalCostInputLabel: "Total Filling Cost (Rp)",
+    litersReceivedLabel: "Liters Received", dateFillingLabel: "Filling Date", saveFillingBtn: "✓ Save Filling",
+    fuelDataEmpty: "Fuel variants registry is empty.", fuelLabelTag: "⛽ Fuel", serviceLabelTag: "🔧 Service",
+    volumeLabel: "Volume:", subtotalServiceLabel: "Subtotal Services:", subtotalFuelLabel: "Subtotal Fuel:",
+    monthlyTotalLabel: "Total this Month:", grandTotalLabel: "GRAND TOTAL ALL TRANSACTIONS (OVERALL EXPENSES)",
+    toLabel: "to", validFuelMsg: "Invalid fuel entry data or total cost value.", 
+    inputCompNameMsg: "⚠ Enter a component name", emptyFuelMasterMsg: "Fuel Name & RON fields are required!",
+    confirmDeleteFuelMaster: "Remove this fuel variant from Master data?",
+    themeLightActive: "Light Mode Active", themeDarkActive: "Dark Mode Active", themeTitleLabel: "🌓 Theme / Night Mode"
   },
   id: {
     dashboard: "Dasbor", history: "Riwayat", settings: "Pengaturan", about: "Tentang",
@@ -779,7 +814,7 @@ const LANG_DICT = {
     next: "Berikutnya", last: "Terakhir", logService: "✓ Catat Servis", searchComp: "Cari item…",
     maintHistory: "Riwayat Transaksi & Perawatan", settingsTitle: "Pengaturan & Kustomisasi",
     ewsTitle: "🔔 Sistem Peringatan Dini",
-    ewsDesc: "Memicu status Peringatan ketika sisa masa pakai komponen mencapai atau di bawah ambang batas ini.",
+    ewsDesc: "Memicu status Peringatan ketika sisa masa pakai komponen mencapai atau di bawah ambang batas ini. Setel pengecualian per komponen di dialog Edit masing-masing.",
     globalThresh: "Ambang Batas Peringatan Global", apply: "Terapkan", resetAll: "⚠ Reset Semua Data",
     scanDonate: "Scan untuk Donasi", license: "⚖️ Lisensi", donationSection: "💳 Donasi / Dukungan",
     odometerTitle: "Odometer", sliderStrict: "1% (Ketat)", sliderEarly: "99% (Cepat)",
@@ -795,13 +830,36 @@ const LANG_DICT = {
     errThresholdRange: "⚠ Ambang batas harus di antara 1–99%", errImageSize: "⚠ Ukuran gambar terlalu besar — maksimal 5 MB",
     msgNoComponentMatch: "Tidak ada komponen di kategori ini yang cocok dengan filter.", msgNoHistory: "Belum ada riwayat perawatan atau pengisian BBM.",
     componentsSection: "Komponen", lblLeft: "tersisa", lblGlobal: "global", uploadImgName: "Gambar terunggah",
-    clickReplaceQr: "Klik untuk mengganti gambar"
+    clickReplaceQr: "Klik untuk mengganti gambar",
+    logFuel: "⛽ Log Fuel", baseOdoAdj: "🏁 Penyesuaian Odometer Basis",
+    baseOdoDesc: "Atur offset konfigurasi awal. Masa pakai komponen aktif dihitung secara dinamis relatif terhadap indeks konfigurasi basis ini.",
+    fuelMasterTitle: "⛽ MASTER DATA BAHAN BAKAR", addFuelVariant: "＋ Tambah Varian BBM",
+    allRecords: "Semua Catatan", servicesOpt: "🔧 Servis", fuelLogsOpt: "⛽ Log BBM",
+    aboutTextareaLabel: "Teks Tentang", donationQrLabel: "Gambar QR Code Donasi",
+    qrUploadPlaceholder: "Drop atau Klik untuk mengunggah Gambar QR Donasi", removeQrBtn: "✕ Hapus QR",
+    lastFuelLogTitle: "⛽ PENGISIAN BBM TERAKHIR", distanceSinceLast: "🚀 Jarak sejak pengisian sebelumnya: <strong>{diff} KM</strong>",
+    firstFuelLogMsg: "Pengisian bbm pertama tercatat pada acuan Odometer.", totalCostLabel: "Total Biaya:",
+    fuelSummaryTitle: "📊 RINGKASAN KONSUMSI BBM", avgFuelLabel: "Rata-rata Konsumsi BBM",
+    totalDistLabel: "Total Jarak", totalVolLabel: "Total Volume", totalCostLabelGrid: "Total Biaya",
+    fuelSpecTitle: "Spesifikasi Bahan Bakar", fuelBrandLabel: "Merk / Brand", fuelNameLabel: "Nama Bensin / Fuel Name",
+    fuelRonLabel: "Angka RON", fuelPriceLabel: "Harga Perliter (Rp)", saveFuelBtn: "✓ Simpan Varian",
+    logFuelTitle: "⛽ Catat Pengisian BBM", selectFuelType: "Pilih Jenis Bensin", currentOdoLabel: "Odometer Saat Ini (KM)",
+    pricePerLiterLabel: "Harga Per Liter (Rp)", totalCostInputLabel: "Total Biaya Pengisian (Rp)",
+    litersReceivedLabel: "Jumlah Liter Yang Didapat", dateFillingLabel: "Tanggal Pengisian", saveFillingBtn: "✓ Simpan Pengisian",
+    fuelDataEmpty: "Data varian bensin masih kosong.", fuelLabelTag: "⛽ BBM", serviceLabelTag: "🔧 Servis",
+    volumeLabel: "Volume:", subtotalServiceLabel: "Subtotal Servis:", subtotalFuelLabel: "Subtotal BBM:",
+    monthlyTotalLabel: "Total Bulan ini:", grandTotalLabel: "GRAND TOTAL ALL TRANSACTIONS (PENGELUARAN KESELURUHAN)",
+    toLabel: "sampai", validFuelMsg: "Data pengisian bbm atau nominal belanja tidak valid.",
+    inputCompNameMsg: "⚠ Masukkan nama komponen", emptyFuelMasterMsg: "Nama Bensin & RON wajib diisi!",
+    confirmDeleteFuelMaster: "Hapus varian bensin ini dari data Master?",
+    themeLightActive: "Light Mode Aktif", themeDarkActive: "Dark Mode Aktif", themeTitleLabel: "🌓 Tema / Mode Malam"
   }
 };
 
 const STORE_KEY = 'mototrack_v2';
 let DB = {
   odometer: 0,
+  startOdometer: 0,
   theme: 'dark',
   warningThreshold: 20,
   components: [],
@@ -812,7 +870,10 @@ let DB = {
   lang: 'id',
   fuelPeriod: 'weekly',
   fuelCustomStart: '',
-  fuelCustomEnd: ''
+  fuelCustomEnd: '',
+  fuelSummaryVisible: true,
+  historyIntervalStart: '',
+  historyIntervalEnd: ''
 };
 
 const DEFAULT_FUELS = [
@@ -848,7 +909,9 @@ function loadDB() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) {
       DB = JSON.parse(raw);
+      if (DB.theme == null) DB.theme = 'dark';
       if (DB.warningThreshold == null) DB.warningThreshold = 20;
+      if (DB.startOdometer == null) DB.startOdometer = 0;
       if (!DB.fuels || DB.fuels.length === 0) DB.fuels = [...DEFAULT_FUELS];
       if (!('readme'      in DB)) DB.readme      = null;
       if (!('donationQr'  in DB)) DB.donationQr  = null;
@@ -856,13 +919,21 @@ function loadDB() {
       if (!('fuelPeriod'  in DB)) DB.fuelPeriod  = 'weekly';
       if (!('fuelCustomStart' in DB)) DB.fuelCustomStart = '';
       if (!('fuelCustomEnd'   in DB)) DB.fuelCustomEnd = '';
+      if (!('fuelSummaryVisible' in DB)) DB.fuelSummaryVisible = true;
+      if (!('historyIntervalStart' in DB)) DB.historyIntervalStart = '';
+      if (!('historyIntervalEnd' in DB)) DB.historyIntervalEnd = '';
       DB.components.forEach(c => { if (c.warningThreshold === undefined) c.warningThreshold = null; });
     } else {
       DB.lang = 'id';
+      DB.theme = 'dark';
       DB.fuels = [...DEFAULT_FUELS];
       DB.fuelPeriod = 'weekly';
       DB.fuelCustomStart = '';
       DB.fuelCustomEnd = '';
+      DB.fuelSummaryVisible = true;
+      DB.historyIntervalStart = '';
+      DB.historyIntervalEnd = '';
+      DB.startOdometer = 0;
       DB.components = DEFAULT_COMPONENTS.map(c => ({
         ...c,
         id: genId(),
@@ -906,6 +977,7 @@ function applyLanguage() {
   document.getElementById('lbl-sort-alpha').textContent = l.alphaSort;
   document.getElementById('btn-add-comp-dash').textContent = l.addComponent;
   document.getElementById('btn-export-dash').textContent = l.export;
+  document.getElementById('btn-add-fuel-dash').textContent = l.logFuel;
   
   const importLabel = document.getElementById('lbl-import-dash');
   if (importLabel) {
@@ -923,6 +995,18 @@ function applyLanguage() {
   document.getElementById('historySearch').placeholder = l.placeholderSearch;
   document.getElementById('lbl-settings-title').textContent = l.settingsTitle;
   document.getElementById('lbl-lang-select').textContent = `🌐 Language / Bahasa`;
+  document.getElementById('lbl-theme-title').textContent = l.themeTitleLabel;
+  document.getElementById('lbl-theme-text').textContent = DB.theme === 'light' ? l.themeLightActive : l.themeDarkActive;
+  
+  document.getElementById('lbl-base-odo-adjustment').textContent = l.baseOdoAdj;
+  document.getElementById('lbl-base-odo-desc').textContent = l.baseOdoDesc;
+  document.getElementById('lbl-fuel-master-title').textContent = l.fuelMasterTitle;
+  document.getElementById('btn-add-fuel-variant').textContent = l.addFuelVariant;
+  
+  document.getElementById('opt-all-records').textContent = l.allRecords;
+  document.getElementById('opt-services').textContent = l.servicesOpt;
+  document.getElementById('opt-fuel-logs').textContent = l.fuelLogsOpt;
+
   document.getElementById('lbl-ews-title').textContent = l.ewsTitle;
   document.getElementById('lbl-ews-desc').textContent = l.ewsDesc;
   document.getElementById('lbl-global-threshold-input').textContent = l.globalThresh;
@@ -933,6 +1017,47 @@ function applyLanguage() {
   document.getElementById('lbl-donation-section').textContent = l.donationSection;
   document.getElementById('lbl-scan-donate').textContent = l.scanDonate;
   document.getElementById('lbl-license-section').textContent = l.license;
+  
+  document.getElementById('lbl-about-edit-title').textContent = l.aboutEditTitle;
+  document.getElementById('btn-about-cancel').textContent = l.cancel;
+  document.getElementById('btn-about-save').textContent = l.save;
+  document.getElementById('lbl-about-textarea-label').textContent = l.aboutTextareaLabel;
+  document.getElementById('lbl-donation-qr-label').textContent = l.donationQrLabel;
+  document.getElementById('btn-qr-remove').textContent = l.removeQrBtn;
+  
+  document.getElementById('lbl-modal-datetime').textContent = l.mDateTime;
+  document.getElementById('lbl-modal-location').textContent = l.mLocation;
+  document.getElementById('lbl-modal-cost').textContent = l.mCost;
+  document.getElementById('lbl-modal-odo').textContent = l.mOdo;
+  document.getElementById('lbl-modal-notes').textContent = l.mNotes;
+  document.getElementById('btn-modal-log-cancel').textContent = l.cancel;
+  document.getElementById('btn-modal-log-save').textContent = l.mSaveRecord;
+  
+  document.getElementById('lbl-comp-name').textContent = l.compName;
+  document.getElementById('lbl-comp-type').textContent = l.compType;
+  document.getElementById('lbl-comp-interval-km').textContent = l.compIntKm;
+  document.getElementById('lbl-comp-interval-mo').textContent = l.compIntMo;
+  document.getElementById('lbl-comp-last-km').textContent = l.compLastKm;
+  document.getElementById('lbl-comp-last-date').textContent = l.compLastDate;
+  document.getElementById('lbl-comp-wto-title').textContent = l.compWtoTitle;
+  document.getElementById('btn-comp-cancel').textContent = l.cancel;
+  document.getElementById('btn-comp-save').textContent = l.save;
+  
+  document.getElementById('lbl-fuel-brand').textContent = l.fuelBrandLabel;
+  document.getElementById('lbl-fuel-name').textContent = l.fuelNameLabel;
+  document.getElementById('lbl-fuel-ron').textContent = l.fuelRonLabel;
+  document.getElementById('lbl-fuel-price').textContent = l.fuelPriceLabel;
+  document.getElementById('btn-fuel-cancel').textContent = l.cancel;
+  document.getElementById('btn-fuel-save').textContent = l.saveFuelBtn;
+  
+  document.getElementById('lbl-fuel-log-select').textContent = l.selectFuelType;
+  document.getElementById('lbl-fuel-log-odo').textContent = l.currentOdoLabel;
+  document.getElementById('lbl-fuel-log-price').textContent = l.pricePerLiterLabel;
+  document.getElementById('lbl-fuel-log-cost').textContent = l.totalCostInputLabel;
+  document.getElementById('lbl-fuel-log-liters').textContent = l.litersReceivedLabel;
+  document.getElementById('lbl-fuel-log-date').textContent = l.dateFillingLabel;
+  document.getElementById('btn-fuel-log-cancel').textContent = l.cancel;
+  document.getElementById('btn-fuel-log-save').textContent = l.saveFillingBtn;
 
   const typeSelect = document.getElementById('compType');
   if (typeSelect) {
@@ -944,11 +1069,13 @@ function applyLanguage() {
 }
 
 function getStatus(comp) {
-  const odo = DB.odometer;
+  const odo = Math.max(DB.odometer, DB.startOdometer);
   const now = new Date();
   const lastDate = comp.lastDate ? new Date(comp.lastDate) : now;
   const monthsElapsed = (now - lastDate) / (1000 * 60 * 60 * 24 * 30.44);
-  const kmElapsed = odo - (comp.lastKm || 0);
+  
+  const baseTrackingPoint = Math.max(comp.lastKm || 0, DB.startOdometer);
+  const kmElapsed = Math.max(0, odo - baseTrackingPoint);
 
   let kmPct = null, moPct = null;
   if (comp.intervalKm) kmPct = Math.min(kmElapsed / comp.intervalKm * 100, 100);
@@ -967,7 +1094,7 @@ function getStatus(comp) {
   else if (remaining <= warnAt) statusClass = 'warning';
 
   let kmLeft = null, daysLeft = null;
-  if (comp.intervalKm) kmLeft = Math.max(0, (comp.lastKm || 0) + comp.intervalKm - odo);
+  if (comp.intervalKm) kmLeft = Math.max(0, baseTrackingPoint + comp.intervalKm - odo);
   if (comp.intervalMonths) {
     const nextDate = new Date(lastDate);
     nextDate.setMonth(nextDate.getMonth() + comp.intervalMonths);
@@ -978,14 +1105,33 @@ function getStatus(comp) {
 }
 
 function toggleTheme(isLight) {
+  const l = LANG_DICT[DB.lang || 'id'];
   document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
   DB.theme = isLight ? 'light' : 'dark';
-  document.getElementById('lbl-theme-text').textContent = isLight ? 'Light Mode Active' : 'Dark Mode Active';
+  document.getElementById('lbl-theme-text').textContent = isLight ? l.themeLightActive : l.themeDarkActive;
   saveDB();
 }
 
 function updateOdo(val) {
-  DB.odometer = parseFloat(val) || 0;
+  const parsedVal = parseFloat(val) || 0;
+  if (parsedVal < DB.startOdometer) {
+    alert(`Odometer cannot be below Base Odometer (${DB.startOdometer} KM)`);
+    document.getElementById('odoInput').value = DB.odometer;
+    return;
+  }
+  DB.odometer = parsedVal;
+  saveDB();
+  renderDashboard();
+  renderStats();
+}
+
+function updateStartOdo(val) {
+  const parsedStart = parseFloat(val) || 0;
+  DB.startOdometer = parsedStart;
+  if (DB.odometer < parsedStart) {
+    DB.odometer = parsedStart;
+    document.getElementById('odoInput').value = parsedStart;
+  }
   saveDB();
   renderDashboard();
   renderStats();
@@ -1146,14 +1292,21 @@ function changeFuelCustomDates() {
   renderFuelDashboardWidget();
 }
 
+function toggleFuelSummary() {
+  DB.fuelSummaryVisible = !DB.fuelSummaryVisible;
+  saveDB();
+  renderFuelDashboardWidget();
+}
+
 function renderFuelDashboardWidget() {
   const container = document.getElementById('fuelStatusContainer');
   const fuelLogs = DB.history.filter(h => h.isFuel);
+  const l = LANG_DICT[DB.lang || 'id'];
 
   if (fuelLogs.length === 0) {
     container.innerHTML = `
       <div class="stat-card text-center py-4" style="border: 1px dashed var(--border)">
-        <span style="color:var(--muted); font-size:13px;">Belum ada riwayat pengisian BBM. Klik tombol <strong>⛽ Log Fuel</strong> untuk mencatat.</span>
+        <span style="color:var(--muted); font-size:13px;">${l.msgNoHistory}</span>
       </div>`;
     return;
   }
@@ -1216,37 +1369,39 @@ function renderFuelDashboardWidget() {
   if (fuelLogs.length > 1) {
     const prevLog = fuelLogs[1];
     const diff = lastLog.odo - prevLog.odo;
-    distanceInfo = `<span class="text-sm" style="color:var(--accent2)">🚀 Jarak sejak pengisian sebelumnya: <strong>${diff.toLocaleString()} KM</strong></span>`;
+    distanceInfo = `<span class="text-sm" style="color:var(--accent2)">${l.distanceSinceLast.replace('{diff}', diff.toLocaleString())}</span>`;
   } else {
-    distanceInfo = `<span class="text-sm" style="color:var(--muted)">Pengisian bbm pertama tercatat pada acuan Odometer.</span>`;
+    distanceInfo = `<span class="text-sm" style="color:var(--muted)">${l.firstFuelLogMsg}</span>`;
   }
+
+  const toggleBtnText = DB.fuelSummaryVisible ? (DB.lang === 'id' ? 'Sembunyikan' : 'Hide') : (DB.lang === 'id' ? 'Tampilkan' : 'Show');
 
   container.innerHTML = `
     <div class="flex flex-col gap-4">
       <div class="stat-card" style="border-left: 4px solid var(--green)">
         <div class="flex flex-wrap justify-between items-center gap-2">
           <div>
-            <div class="section-label mb-1" style="color:var(--green)">⛽ PENGISIAN BBM TERAKHIR</div>
+            <div class="section-label mb-1" style="color:var(--green)">${l.lastFuelLogTitle}</div>
             <div class="font-display font-bold text-lg text-white">
-              [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} Liter
+              [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} ${DB.lang==='id'?'Liter':'Liters'}
             </div>
             <div class="mt-1">${distanceInfo}</div>
           </div>
           <div class="text-right">
-            <div style="font-size:10px;color:var(--muted); font-weight:700">PADA ODOMETER</div>
+            <div style="font-size:10px;color:var(--muted); font-weight:700">${DB.lang==='id'?'PADA ODOMETER':'AT ODOMETER'}</div>
             <div class="font-mono text-xl font-bold" style="color:var(--green)">${lastLog.odo.toLocaleString()} KM</div>
-            <div style="font-size:12px; color:var(--muted)">Total Biaya: <span style="color:var(--text)">Rp ${lastLog.cost.toLocaleString('id-ID')}</span></div>
+            <div style="font-size:12px; color:var(--muted)">${l.totalCostLabel} <span style="color:var(--text)">Rp ${lastLog.cost.toLocaleString('id-ID')}</span></div>
           </div>
         </div>
       </div>
 
       <div class="stat-card border border-[var(--border)]" style="background: var(--surface)">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-3 mb-3">
-          <div class="section-label text-[var(--text)] font-bold tracking-wide" style="color: var(--accent2)">📊 RINGKASAN KONSUMSI BBM</div>
+          <div class="section-label text-[var(--text)] font-bold tracking-wide" style="color: var(--accent2)">${l.fuelSummaryTitle}</div>
           <div class="flex flex-wrap items-center gap-2">
             <div id="fuelCustomDatePickers" class="gap-2 items-center text-xs" style="display: ${DB.fuelPeriod === 'custom' ? 'flex' : 'none'};">
               <input type="date" id="fuelCustomStartInput" value="${DB.fuelCustomStart || ''}" onchange="changeFuelCustomDates()" style="padding: 3px 6px; width: auto;" />
-              <span class="text-[var(--muted)]">to</span>
+              <span class="text-[var(--muted)]">${l.toLabel}</span>
               <input type="date" id="fuelCustomEndInput" value="${DB.fuelCustomEnd || ''}" onchange="changeFuelCustomDates()" style="padding: 3px 6px; width: auto;" />
             </div>
             <div style="width: 150px;">
@@ -1256,23 +1411,24 @@ function renderFuelDashboardWidget() {
                 <option value="custom" ${DB.fuelPeriod === 'custom' ? 'selected' : ''}>Custom Review</option>
               </select>
             </div>
+            <button class="btn btn-ghost btn-sm" onclick="toggleFuelSummary()">${toggleBtnText}</button>
           </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4" id="fuelSummaryGrid" style="display: ${DB.fuelSummaryVisible ? 'grid' : 'none'};">
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
-            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Average Fuel Consumption</div>
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.avgFuelLabel}</div>
             <div class="font-display font-bold text-2xl style-text" style="color:var(--green)">${aggregateAvg > 0 ? aggregateAvg.toFixed(2) : '—'} <span class="text-xs text-[var(--muted)]">km/L</span></div>
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
-            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Distance</div>
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalDistLabel}</div>
             <div class="font-display font-bold text-2xl text-white">${aggregateKm > 0 ? aggregateKm.toLocaleString() : '0'} <span class="text-xs text-[var(--muted)]">KM</span></div>
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
-            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Volume</div>
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalVolLabel}</div>
             <div class="font-display font-bold text-2xl text-white">${aggregateLiters > 0 ? aggregateLiters.toFixed(2) : '0.00'} <span class="text-xs text-[var(--muted)]">Liters</span></div>
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
-            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Cost</div>
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalCostLabelGrid}</div>
             <div class="font-display font-bold text-2xl" style="color:var(--accent)">Rp ${aggregatePrice.toLocaleString('id-ID')}</div>
           </div>
         </div>
@@ -1314,6 +1470,7 @@ function renderGrid(gridId, comps) {
       nextInfo = `<span style="color:var(--muted);font-size:12px">${l.next}: <span style="color:var(--text)">${parts.join(' / ')}</span></span>`;
     }
 
+    const baseTrackingPoint = Math.max(comp.lastKm || 0, DB.startOdometer);
     const lastServiced = comp.lastDate
       ? new Date(comp.lastDate).toLocaleDateString(DB.lang === 'id' ? 'id-ID' : 'en-US', {day:'2-digit',month:'short',year:'numeric'})
       : '—';
@@ -1335,7 +1492,7 @@ function renderGrid(gridId, comps) {
         </div>
         <div class="flex items-center justify-between mb-3">
           ${nextInfo}
-          <span style="color:var(--muted);font-size:11px">${l.last}: ${lastServiced} · ${(comp.lastKm||0).toLocaleString()} KM</span>
+          <span style="color:var(--muted);font-size:11px">${l.last}: ${lastServiced} · ${baseTrackingPoint.toLocaleString()} KM</span>
         </div>
         <div class="flex gap-2">
           <button class="btn btn-primary btn-sm flex-1" onclick="openLogModal('${comp.id}')">${l.logService}</button>
@@ -1357,7 +1514,7 @@ function openLogModal(compId) {
   document.getElementById('logDate').value = now.toISOString().slice(0,16);
   document.getElementById('logLocation').value = '';
   document.getElementById('logCost').value = '';
-  document.getElementById('logOdo').value = DB.odometer;
+  document.getElementById('logOdo').value = Math.max(DB.odometer, DB.startOdometer);
   document.getElementById('logNotes').value = '';
   openModal('logModal');
 }
@@ -1366,6 +1523,12 @@ function confirmLog() {
   const comp = DB.components.find(c => c.id === logTargetId);
   if (!comp) return;
   const odoVal = parseFloat(document.getElementById('logOdo').value) || DB.odometer;
+  
+  if (odoVal < DB.startOdometer) {
+    alert(`Odometer cannot be below Base Odometer (${DB.startOdometer} KM)`);
+    return;
+  }
+
   const dateVal = document.getElementById('logDate').value;
   const costVal = parseFloat(document.getElementById('logCost').value) || 0;
   const locVal  = document.getElementById('logLocation').value.trim();
@@ -1394,7 +1557,7 @@ function confirmLog() {
   saveDB();
   closeModal('logModal');
   renderDashboard();
-  幕renderStats();
+  renderStats();
 }
 
 let editingCompId = null;
@@ -1421,7 +1584,7 @@ function openAddModal() {
   document.getElementById('compType').value = 'fast';
   document.getElementById('compKm').value = '';
   document.getElementById('compMonths').value = '';
-  document.getElementById('compLastKm').value = DB.odometer;
+  document.getElementById('compLastKm').value = Math.max(DB.odometer, DB.startOdometer);
   document.getElementById('compLastDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('compThreshold').value = '';
   document.getElementById('compEditId').value = '';
@@ -1431,7 +1594,7 @@ function openAddModal() {
 function saveComponent() {
   const name = document.getElementById('compName').value.trim();
   const l = LANG_DICT[DB.lang || 'id'];
-  if (!name) { toast(DB.lang === 'id' ? '⚠ Masukkan nama komponen':'⚠ Enter a component name'); return; }
+  if (!name) { toast(l.inputCompNameMsg); return; }
   const type = document.getElementById('compType').value;
   const km   = parseFloat(document.getElementById('compKm').value) || null;
   const mo   = parseFloat(document.getElementById('compMonths').value) || null;
@@ -1482,16 +1645,17 @@ function deleteComponent(compId) {
 
 // ===== MANAJEMEN MASTER FUEL =====
 function openFuelModal(fuelId = null) {
+  const l = LANG_DICT[DB.lang || 'id'];
   if (fuelId) {
     const f = DB.fuels.find(x => x.id === fuelId);
-    document.getElementById('fuelModalTitle').textContent = "Edit Fuel Variant";
+    document.getElementById('fuelModalTitle').textContent = l.fuelSpecTitle;
     document.getElementById('fuelBrand').value = f.brand;
     document.getElementById('fuelName').value = f.name;
     document.getElementById('fuelRon').value = f.ron;
     document.getElementById('fuelPrice').value = f.price;
     document.getElementById('fuelEditId').value = f.id;
   } else {
-    document.getElementById('fuelModalTitle').textContent = "Add Fuel Variant";
+    document.getElementById('fuelModalTitle').textContent = l.fuelSpecTitle;
     document.getElementById('fuelBrand').value = '';
     document.getElementById('fuelName').value = '';
     document.getElementById('fuelRon').value = '';
@@ -1507,8 +1671,9 @@ function saveFuelMaster() {
   const ron = document.getElementById('fuelRon').value.trim();
   const price = parseFloat(document.getElementById('fuelPrice').value) || 0;
   const editId = document.getElementById('fuelEditId').value;
+  const l = LANG_DICT[DB.lang || 'id'];
 
-  if (!name || !ron) { alert("Nama Bensin & RON wajib diisi!"); return; }
+  if (!name || !ron) { alert(l.emptyFuelMasterMsg); return; }
 
   if (editId) {
     const f = DB.fuels.find(x => x.id === editId);
@@ -1520,23 +1685,26 @@ function saveFuelMaster() {
   saveDB();
   closeModal('fuelModal');
   renderSettings();
-  toast(LANG_DICT[DB.lang || 'id'].toastSaved);
+  toast(l.toastSaved);
 }
 
 function deleteFuelMaster(fuelId) {
-  if (!confirm("Hapus varian bensin ini dari data Master?")) return;
+  const l = LANG_DICT[DB.lang || 'id'];
+  if (!confirm(l.confirmDeleteFuelMaster)) return;
   DB.fuels = DB.fuels.filter(x => x.id !== fuelId);
   saveDB();
   renderSettings();
-  toast(LANG_DICT[DB.lang || 'id'].toastDeleted);
+  toast(l.toastDeleted);
 }
 
 // ===== TRANSACTION BBM / LOG FUEL LOGIC (REVERSED: NOMINAL DRIVEN) =====
 function openFuelLogModal() {
+  const l = LANG_DICT[DB.lang || 'id'];
+  document.getElementById('fuelLogModalTitle').textContent = l.logFuelTitle;
   const select = document.getElementById('fuelLogSelect');
   select.innerHTML = DB.fuels.map(f => `<option value="${f.id}">[${f.brand}] ${f.name} (${f.ron}) — Rp ${f.price.toLocaleString('id-ID')}/L</option>`).join('');
   
-  document.getElementById('fuelLogOdo').value = DB.odometer;
+  document.getElementById('fuelLogOdo').value = Math.max(DB.odometer, DB.startOdometer);
   document.getElementById('fuelLogTotalCost').value = '';
   document.getElementById('fuelLogLiters').value = '';
   document.getElementById('fuelLogDate').value = new Date().toISOString().slice(0,16);
@@ -1569,12 +1737,19 @@ function calculateFuelLitersTotal() {
 function submitFuelLog() {
   const fuelId = document.getElementById('fuelLogSelect').value;
   const odoVal = parseFloat(document.getElementById('fuelLogOdo').value) || DB.odometer;
+  const l = LANG_DICT[DB.lang || 'id'];
+  
+  if (odoVal < DB.startOdometer) {
+    alert(`Odometer cannot be below Base Odometer (${DB.startOdometer} KM)`);
+    return;
+  }
+
   const totalCost = parseFloat(document.getElementById('fuelLogTotalCost').value) || 0;
   const liters = parseFloat(document.getElementById('fuelLogLiters').value) || 0;
   const dateVal = document.getElementById('fuelLogDate').value;
 
   const f = DB.fuels.find(x => x.id === fuelId);
-  if (!f || totalCost <= 0 || liters <= 0) { alert("Data pengisian bbm atau nominal belanja tidak valid."); return; }
+  if (!f || totalCost <= 0 || liters <= 0) { alert(l.validFuelMsg); return; }
 
   DB.history.unshift({
     id: genId(),
@@ -1586,7 +1761,7 @@ function submitFuelLog() {
     cost: totalCost,
     odo: odoVal,
     date: dateVal,
-    compName: `Pengisian BBM (${f.name})`
+    compName: DB.lang === 'id' ? `Pengisian BBM (${f.name})` : `Fuel Filling (${f.name})`
   });
 
   if (odoVal > DB.odometer) {
@@ -1597,7 +1772,13 @@ function submitFuelLog() {
   saveDB();
   closeModal('fuelLogModal');
   renderDashboard();
-  toast(LANG_DICT[DB.lang || 'id'].toastSaved);
+  toast(l.toastSaved);
+}
+
+// ===== HISTORY INTERVAL CHANGED =====
+function changeHistoryIntervalDates() {
+  saveDB();
+  renderHistory();
 }
 
 // ===== HISTORY RENDER WITH SUB-TOTALS & GRAND TOTAL =====
@@ -1627,17 +1808,24 @@ function renderHistory() {
 
   let grandTotalCost = 0;
   
+  const startTime = DB.historyIntervalStart ? new Date(DB.historyIntervalStart).getTime() : 0;
+  const endTime = DB.historyIntervalEnd ? new Date(DB.historyIntervalEnd).setHours(23, 59, 59, 999) : Infinity;
+
   let html = Object.entries(groups).map(([month, entries]) => {
     let subTotalService = 0;
     let subTotalFuel = 0;
     
     const entriesHtml = entries.map(h => {
-      grandTotalCost += (h.cost || 0);
+      const logTime = new Date(h.date).getTime();
+      if (logTime >= startTime && logTime <= endTime) {
+        grandTotalCost += (h.cost || 0);
+      }
+      
       if (h.isFuel) subTotalFuel += (h.cost || 0);
       else subTotalService += (h.cost || 0);
 
       const entryClass = h.isFuel ? "history-entry fuel-entry" : "history-entry";
-      const typeLabel = h.isFuel ? `<span class="badge badge-fuel">⛽ Fuel</span>` : `<span class="badge badge-fast">🔧 Service</span>`;
+      const typeLabel = h.isFuel ? `<span class="badge badge-fuel">${l.fuelLabelTag}</span>` : `<span class="badge badge-fast">${l.serviceLabelTag}</span>`;
 
       return `
         <div class="${entryClass} fade-in">
@@ -1648,7 +1836,7 @@ function renderHistory() {
                 ${new Date(h.date).toLocaleString(DB.lang==='id'?'id-ID':'en-US',{dateStyle:'medium',timeStyle:'short'})}
                 ${h.location ? ` · 📍 ${h.location}` : ''} ${typeLabel}
               </div>
-              ${h.liters ? `<div style="font-size:12px;color:var(--muted);margin-top:2px;">Volume: ${h.liters.toFixed(2)} Liter</div>`:''}
+              ${h.liters ? `<div style="font-size:12px;color:var(--muted);margin-top:2px;">${l.volumeLabel} ${h.liters.toFixed(2)} ${DB.lang==='id'?'Liter':'Liters'}</div>`:''}
               ${h.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${h.notes}</div>` : ''}
             </div>
             <div class="text-right flex-shrink-0">
@@ -1670,10 +1858,10 @@ function renderHistory() {
           ${entriesHtml}
         </div>
         <div class="border-t border-[var(--border)] pt-3 text-right text-xs" style="color: var(--muted)">
-          <div>Subtotal Servis: <span class="font-mono font-bold text-white text-sm">Rp ${subTotalService.toLocaleString('id-ID')}</span></div>
-          <div class="mt-1">Subtotal BBM: <span class="font-mono font-bold text-white text-sm">Rp ${subTotalFuel.toLocaleString('id-ID')}</span></div>
+          <div>${l.subtotalServiceLabel} <span class="font-mono font-bold text-white text-sm">Rp ${subTotalService.toLocaleString('id-ID')}</span></div>
+          <div class="mt-1">${l.subtotalFuelLabel} <span class="font-mono font-bold text-white text-sm">Rp ${subTotalFuel.toLocaleString('id-ID')}</span></div>
           <div class="mt-2 text-sm pt-2 border-dashed border-t border-[var(--border)]" style="color:var(--accent2)">
-            Total Bulan ini: <span class="font-mono font-bold text-base">Rp ${subTotalCombined.toLocaleString('id-ID')}</span>
+            ${l.monthlyTotalLabel} <span class="font-mono font-bold text-base">Rp ${subTotalCombined.toLocaleString('id-ID')}</span>
           </div>
         </div>
       </div>
@@ -1681,9 +1869,16 @@ function renderHistory() {
   }).join('');
 
   html = `
-    <div class="stat-card mb-4 border border-[var(--accent)]" style="background:var(--card)">
-      <div class="text-xs font-bold text-[var(--muted)] tracking-wider">GRAND TOTAL ALL TRANSACTIONS (PENGELUARAN KESELURUHAN)</div>
-      <div class="font-display font-bold text-3xl font-mono mt-1" style="color:var(--accent)">Rp ${grandTotalCost.toLocaleString('id-ID')}</div>
+    <div class="stat-card mb-4 border border-[var(--accent)] flex flex-wrap items-center justify-between gap-4" style="background:var(--card)">
+      <div>
+        <div class="text-xs font-bold text-[var(--muted)] tracking-wider">${l.grandTotalLabel}</div>
+        <div class="font-display font-bold text-3xl font-mono mt-1" style="color:var(--accent)">Rp ${grandTotalCost.toLocaleString('id-ID')}</div>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <input type="date" id="histIntervalStartInput" value="${DB.historyIntervalStart || ''}" onchange="changeHistoryIntervalDates()" style="padding: 4px 8px; width: auto;" />
+        <span class="text-[var(--muted)]">${l.toLabel}</span>
+        <input type="date" id="histIntervalEndInput" value="${DB.historyIntervalEnd || ''}" onchange="changeHistoryIntervalDates()" style="padding: 4px 8px; width: auto;" />
+      </div>
     </div>
     ${html}
   `;
@@ -1705,16 +1900,20 @@ function renderSettings() {
   initThresholdPanel();
   const l = LANG_DICT[DB.lang || 'id'];
   
+  if (document.getElementById('startOdoInput')) {
+    document.getElementById('startOdoInput').value = DB.startOdometer || 0;
+  }
+
   const fuelContainer = document.getElementById('settingsFuelList');
   if(DB.fuels.length === 0) {
-    fuelContainer.innerHTML = `<div style="color:var(--muted); font-size:12px;">Data bensin kosong.</div>`;
+    fuelContainer.innerHTML = `<div style="color:var(--muted); font-size:12px;">${l.fuelDataEmpty}</div>`;
   } else {
     fuelContainer.innerHTML = DB.fuels.map(f => `
       <div class="p-3 rounded flex items-center justify-between" style="background:var(--bg); border: 1px solid var(--border)">
         <div>
-          <span class="font-bold text-white">[${f.brand}] ${f.name}</span>
+          <span class="font-bold" style="color:var(--text)">[${f.brand}] ${f.name}</span>
           <span class="text-xs px-2 py-0.5 ml-2 rounded bg-neutral-800 text-amber-500 font-mono">${f.ron}</span>
-          <div class="text-xs text-[var(--muted)] mt-1">Harga perliter: <span class="text-[var(--green)] font-mono font-bold">Rp ${f.price.toLocaleString('id-ID')}</span></div>
+          <div class="text-xs text-[var(--muted)] mt-1">${DB.lang==='id'?'Harga perliter':'Price per liter'}: <span class="text-[var(--green)] font-mono font-bold">Rp ${f.price.toLocaleString('id-ID')}</span></div>
         </div>
         <div class="flex gap-2">
           <button class="btn btn-ghost btn-sm" onclick="openFuelModal('${f.id}')">✎</button>
@@ -1769,6 +1968,7 @@ function resetAllData() {
   localStorage.removeItem(STORE_KEY);
   loadDB();
   document.getElementById('odoInput').value = 0;
+  if(document.getElementById('startOdoInput')) document.getElementById('startOdoInput').value = 0;
   applyLanguage();
   renderDashboard();
   renderSettings();
@@ -1795,7 +1995,9 @@ function importData(event) {
       const imported = JSON.parse(e.target.result);
       if (!imported.components || !Array.isArray(imported.components)) throw new Error('Invalid format');
       DB = imported;
+      if (DB.theme == null) DB.theme = 'dark';
       if (DB.warningThreshold == null) DB.warningThreshold = 20;
+      if (DB.startOdometer == null) DB.startOdometer = 0;
       if (!('lang'       in DB)) DB.lang       = 'id';
       if (!('fuels'      in DB)) DB.fuels      = [];
       if (!('readme'     in DB)) DB.readme     = null;
@@ -1803,15 +2005,19 @@ function importData(event) {
       if (!('fuelPeriod' in DB)) DB.fuelPeriod = 'weekly';
       if (!('fuelCustomStart' in DB)) DB.fuelCustomStart = '';
       if (!('fuelCustomEnd'   in DB)) DB.fuelCustomEnd = '';
+      if (!('fuelSummaryVisible' in DB)) DB.fuelSummaryVisible = true;
+      if (!('historyIntervalStart' in DB)) DB.historyIntervalStart = '';
+      if (!('historyIntervalEnd' in DB)) DB.historyIntervalEnd = '';
       DB.components.forEach(c => { if (c.warningThreshold === undefined) c.warningThreshold = null; });
       saveDB();
       document.getElementById('odoInput').value = DB.odometer;
+      if(document.getElementById('startOdoInput')) document.getElementById('startOdoInput').value = DB.startOdometer;
+      
       const isLight = DB.theme === 'light';
       document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
       const themeToggle = document.getElementById('themeToggle');
       if (themeToggle) themeToggle.checked = isLight;
-      const themeLbl = document.getElementById('lbl-theme-text');
-      if (themeLbl) themeLbl.textContent = isLight ? 'Light Mode Active' : 'Dark Mode Active';
+      
       applyLanguage();
       renderDashboard();
       renderSettings();
@@ -1825,8 +2031,8 @@ function importData(event) {
   event.target.value = '';
 }
 
-const DEFAULT_README_EN = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> is a comprehensive, web-based application designed to track your motorcycle's component lifetimes and fuel analysis.</p>`;
-const DEFAULT_README_ID = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> adalah aplikasi gratis berbasis web untuk memantau usia komponen, pencatatan servis secara berkala, dan penjejakan konsumsi BBM sepeda motor secara detail.</p>`;
+const DEFAULT_README_EN = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> is a comprehensive, free, web-based application designed to track your motorcycle's component lifetimes and maintenance schedule. Running fully client-side, no backend accounts or internet connections are required — all your personal data resides completely within your secure browser database.<br><br>Core features include global odometer tracking, real-time visual progress bars, customized early notification warning systems, full itemized diagnostic logs, and dynamic portability utilizing clean JSON Import/Export architectures.<br><br>This program is created entirely for free for everyone.</p>`;
+const DEFAULT_README_ID = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> is a comprehensive, free, web-based application designed to track your motorcycle's component lifetimes and maintenance schedule. Running fully client-side, no backend accounts or internet connections are required — all your personal data resides completely within your secure browser database.<br><br>Core features include global odometer tracking, real-time visual progress bars, customized early notification warning systems, full itemized diagnostic logs, and dynamic portability utilizing clean JSON Import/Export architectures.<br><br>This program is created entirely for free for everyone.</p>`;
 
 let _editQrBase64 = null;
 
@@ -1874,10 +2080,11 @@ function saveAboutEdit() {
 
 function refreshQrEditPreview() {
   const prev = document.getElementById('qrUploadPreview');
+  const l = LANG_DICT[DB.lang || 'id'];
   if (_editQrBase64) {
     prev.innerHTML = `<img src="${_editQrBase64}" style="max-width:180px; width:100%; border-radius:6px; margin:0 auto;" />`;
   } else {
-    prev.innerHTML = `<div class="text-neutral-500 text-xs">Drop or Click to upload QR Donation Image</div>`;
+    prev.innerHTML = `<div class="text-neutral-500 text-xs">${l.qrUploadPlaceholder}</div>`;
   }
 }
 
@@ -1920,7 +2127,6 @@ function init() {
   const isLight = DB.theme === 'light';
   document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
   document.getElementById('themeToggle').checked = isLight;
-  document.getElementById('lbl-theme-text').textContent = isLight ? 'Light Mode Active' : 'Dark Mode Active';
 
   applyLanguage();
   filterComponents('all');
