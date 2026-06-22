@@ -1382,7 +1382,7 @@ function renderFuelDashboardWidget() {
         <div class="flex flex-wrap justify-between items-center gap-2">
           <div>
             <div class="section-label mb-1" style="color:var(--green)">${l.lastFuelLogTitle}</div>
-            <div class="font-display font-bold text-lg text-white">
+            <div class="font-display font-bold text-lg" style="color:var(--text)">
               [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} ${DB.lang==='id'?'Liter':'Liters'}
             </div>
             <div class="mt-1">${distanceInfo}</div>
@@ -1421,11 +1421,11 @@ function renderFuelDashboardWidget() {
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
             <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalDistLabel}</div>
-            <div class="font-display font-bold text-2xl text-white">${aggregateKm > 0 ? aggregateKm.toLocaleString() : '0'} <span class="text-xs text-[var(--muted)]">KM</span></div>
+            <div class="font-display font-bold text-2xl" style="color:var(--text)">${aggregateKm > 0 ? aggregateKm.toLocaleString() : '0'} <span class="text-xs text-[var(--muted)]">KM</span></div>
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
             <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalVolLabel}</div>
-            <div class="font-display font-bold text-2xl text-white">${aggregateLiters > 0 ? aggregateLiters.toFixed(2) : '0.00'} <span class="text-xs text-[var(--muted)]">Liters</span></div>
+            <div class="font-display font-bold text-2xl" style="color:var(--text)">${aggregateLiters > 0 ? aggregateLiters.toFixed(2) : '0.00'} <span class="text-xs text-[var(--muted)]">Liters</span></div>
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
             <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalCostLabelGrid}</div>
@@ -1777,6 +1777,8 @@ function submitFuelLog() {
 
 // ===== HISTORY INTERVAL CHANGED =====
 function changeHistoryIntervalDates() {
+  DB.historyIntervalStart = document.getElementById('histIntervalStartInput').value;
+  DB.historyIntervalEnd = document.getElementById('histIntervalEndInput').value;
   saveDB();
   renderHistory();
 }
@@ -1787,14 +1789,45 @@ function renderHistory() {
   const typeFilter = document.getElementById('historyTypeFilter').value;
   const l = LANG_DICT[DB.lang || 'id'];
   
+  const startTime = DB.historyIntervalStart ? new Date(DB.historyIntervalStart).getTime() : 0;
+  const endTime = DB.historyIntervalEnd ? new Date(DB.historyIntervalEnd).setHours(23, 59, 59, 999) : Infinity;
+
+  // 1. Filter the entire history array based on dates, search text, and types.
   let filtered = DB.history.filter(h => {
     if (typeFilter === 'fuel' && !h.isFuel) return false;
     if (typeFilter === 'service' && h.isFuel) return false;
+    
+    const logTime = new Date(h.date).getTime();
+    if (logTime < startTime || logTime > endTime) return false;
+
     return !search || h.compName.toLowerCase().includes(search) || (h.location||'').toLowerCase().includes(search);
   });
 
+  // 2. Pre-calculate Grand Total so it stays decoupled from the mapping loop below.
+  let grandTotalCost = 0;
+  filtered.forEach(h => grandTotalCost += (h.cost || 0));
+
+  // 3. Render Top Header unconditionally so the user isn't trapped if a selected date returns 0 items.
+  const headerHtml = `
+    <div class="stat-card mb-4 border border-[var(--accent)] flex flex-wrap items-center justify-between gap-4" style="background:var(--card)">
+      <div>
+        <div class="text-xs font-bold text-[var(--muted)] tracking-wider">${l.grandTotalLabel}</div>
+        <div class="font-display font-bold text-3xl font-mono mt-1" style="color:var(--accent)">Rp ${grandTotalCost.toLocaleString('id-ID')}</div>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <input type="date" id="histIntervalStartInput" value="${DB.historyIntervalStart || ''}" onchange="changeHistoryIntervalDates()" style="padding: 4px 8px; width: auto;" />
+        <span class="text-[var(--muted)]">${l.toLabel}</span>
+        <input type="date" id="histIntervalEndInput" value="${DB.historyIntervalEnd || ''}" onchange="changeHistoryIntervalDates()" style="padding: 4px 8px; width: auto;" />
+      </div>
+    </div>
+  `;
+
   if (filtered.length === 0) {
-    document.getElementById('historyList').innerHTML = `<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">${l.msgNoHistory}</div>`;
+    if (DB.history.length === 0) {
+      document.getElementById('historyList').innerHTML = `<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">${l.msgNoHistory}</div>`;
+    } else {
+      document.getElementById('historyList').innerHTML = headerHtml + `<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">${l.msgNoComponentMatch || 'No records match the selected filter/dates.'}</div>`;
+    }
     return;
   }
 
@@ -1806,21 +1839,11 @@ function renderHistory() {
     groups[key].push(h);
   });
 
-  let grandTotalCost = 0;
-  
-  const startTime = DB.historyIntervalStart ? new Date(DB.historyIntervalStart).getTime() : 0;
-  const endTime = DB.historyIntervalEnd ? new Date(DB.historyIntervalEnd).setHours(23, 59, 59, 999) : Infinity;
-
   let html = Object.entries(groups).map(([month, entries]) => {
     let subTotalService = 0;
     let subTotalFuel = 0;
     
     const entriesHtml = entries.map(h => {
-      const logTime = new Date(h.date).getTime();
-      if (logTime >= startTime && logTime <= endTime) {
-        grandTotalCost += (h.cost || 0);
-      }
-      
       if (h.isFuel) subTotalFuel += (h.cost || 0);
       else subTotalService += (h.cost || 0);
 
@@ -1868,22 +1891,7 @@ function renderHistory() {
     `;
   }).join('');
 
-  html = `
-    <div class="stat-card mb-4 border border-[var(--accent)] flex flex-wrap items-center justify-between gap-4" style="background:var(--card)">
-      <div>
-        <div class="text-xs font-bold text-[var(--muted)] tracking-wider">${l.grandTotalLabel}</div>
-        <div class="font-display font-bold text-3xl font-mono mt-1" style="color:var(--accent)">Rp ${grandTotalCost.toLocaleString('id-ID')}</div>
-      </div>
-      <div class="flex items-center gap-2 text-xs">
-        <input type="date" id="histIntervalStartInput" value="${DB.historyIntervalStart || ''}" onchange="changeHistoryIntervalDates()" style="padding: 4px 8px; width: auto;" />
-        <span class="text-[var(--muted)]">${l.toLabel}</span>
-        <input type="date" id="histIntervalEndInput" value="${DB.historyIntervalEnd || ''}" onchange="changeHistoryIntervalDates()" style="padding: 4px 8px; width: auto;" />
-      </div>
-    </div>
-    ${html}
-  `;
-
-  document.getElementById('historyList').innerHTML = html;
+  document.getElementById('historyList').innerHTML = headerHtml + html;
 }
 
 function deleteHistory(hId) {
