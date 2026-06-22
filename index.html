@@ -809,7 +809,10 @@ let DB = {
   fuels: [], 
   readme: null,
   donationQr: null,
-  lang: 'id'
+  lang: 'id',
+  fuelPeriod: 'weekly',
+  fuelCustomStart: '',
+  fuelCustomEnd: ''
 };
 
 const DEFAULT_FUELS = [
@@ -850,10 +853,16 @@ function loadDB() {
       if (!('readme'      in DB)) DB.readme      = null;
       if (!('donationQr'  in DB)) DB.donationQr  = null;
       if (!('lang'        in DB)) DB.lang        = 'id';
+      if (!('fuelPeriod'  in DB)) DB.fuelPeriod  = 'weekly';
+      if (!('fuelCustomStart' in DB)) DB.fuelCustomStart = '';
+      if (!('fuelCustomEnd'   in DB)) DB.fuelCustomEnd = '';
       DB.components.forEach(c => { if (c.warningThreshold === undefined) c.warningThreshold = null; });
     } else {
       DB.lang = 'id';
       DB.fuels = [...DEFAULT_FUELS];
+      DB.fuelPeriod = 'weekly';
+      DB.fuelCustomStart = '';
+      DB.fuelCustomEnd = '';
       DB.components = DEFAULT_COMPONENTS.map(c => ({
         ...c,
         id: genId(),
@@ -1120,6 +1129,23 @@ function renderDashboard() {
   renderStats();
 }
 
+function changeFuelPeriod(val) {
+  DB.fuelPeriod = val;
+  saveDB();
+  const customPickers = document.getElementById('fuelCustomDatePickers');
+  if (customPickers) {
+    customPickers.style.display = val === 'custom' ? 'flex' : 'none';
+  }
+  renderFuelDashboardWidget();
+}
+
+function changeFuelCustomDates() {
+  DB.fuelCustomStart = document.getElementById('fuelCustomStartInput').value;
+  DB.fuelCustomEnd = document.getElementById('fuelCustomEndInput').value;
+  saveDB();
+  renderFuelDashboardWidget();
+}
+
 function renderFuelDashboardWidget() {
   const container = document.getElementById('fuelStatusContainer');
   const fuelLogs = DB.history.filter(h => h.isFuel);
@@ -1130,6 +1156,59 @@ function renderFuelDashboardWidget() {
         <span style="color:var(--muted); font-size:13px;">Belum ada riwayat pengisian BBM. Klik tombol <strong>⛽ Log Fuel</strong> untuk mencatat.</span>
       </div>`;
     return;
+  }
+
+  const now = new Date();
+  let periodLogs = [];
+  
+  if (DB.fuelPeriod === 'custom') {
+    const startStr = DB.fuelCustomStart;
+    const endStr = DB.fuelCustomEnd;
+    const startTime = startStr ? new Date(startStr).getTime() : 0;
+    const endTime = endStr ? new Date(endStr).setHours(23, 59, 59, 999) : Infinity;
+    
+    periodLogs = fuelLogs.filter(log => {
+      const logTime = new Date(log.date).getTime();
+      return logTime >= startTime && logTime <= endTime;
+    });
+  } else {
+    let filterMs = 7 * 24 * 60 * 60 * 1000;
+    if (DB.fuelPeriod === 'monthly') {
+      filterMs = 30.44 * 24 * 60 * 60 * 1000;
+    }
+    periodLogs = fuelLogs.filter(log => {
+      const logDate = new Date(log.date);
+      return (now - logDate) <= filterMs;
+    });
+  }
+
+  let aggregateAvg = 0;
+  let aggregateLiters = 0;
+  let aggregatePrice = 0;
+  let aggregateKm = 0;
+
+  if (periodLogs.length > 0) {
+    const chronoLogs = [...periodLogs].sort((a, b) => new Date(a.date) - new Date(b.date));
+    aggregateLiters = periodLogs.reduce((sum, h) => sum + (h.liters || 0), 0);
+    aggregatePrice = periodLogs.reduce((sum, h) => sum + (h.cost || 0), 0);
+
+    const minOdo = chronoLogs[0].odo;
+    const maxOdo = chronoLogs[chronoLogs.length - 1].odo;
+    const diffOdo = maxOdo - minOdo;
+
+    if (diffOdo > 0) {
+      aggregateKm = diffOdo;
+    } else if (chronoLogs.length === 1) {
+      const latest = chronoLogs[0];
+      const overallIndex = fuelLogs.findIndex(x => x.id === latest.id);
+      if (overallIndex !== -1 && fuelLogs[overallIndex + 1]) {
+        aggregateKm = latest.odo - fuelLogs[overallIndex + 1].odo;
+      }
+    }
+
+    if (aggregateKm > 0 && aggregateLiters > 0) {
+      aggregateAvg = aggregateKm / aggregateLiters;
+    }
   }
 
   const lastLog = fuelLogs[0];
@@ -1143,19 +1222,59 @@ function renderFuelDashboardWidget() {
   }
 
   container.innerHTML = `
-    <div class="stat-card" style="border-left: 4px solid var(--green)">
-      <div class="flex flex-wrap justify-between items-center gap-2">
-        <div>
-          <div class="section-label mb-1" style="color:var(--green)">⛽ PENGISIAN BBM TERAKHIR</div>
-          <div class="font-display font-bold text-lg text-white">
-            [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} Liter
+    <div class="flex flex-col gap-4">
+      <div class="stat-card" style="border-left: 4px solid var(--green)">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <div class="section-label mb-1" style="color:var(--green)">⛽ PENGISIAN BBM TERAKHIR</div>
+            <div class="font-display font-bold text-lg text-white">
+              [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} Liter
+            </div>
+            <div class="mt-1">${distanceInfo}</div>
           </div>
-          <div class="mt-1">${distanceInfo}</div>
+          <div class="text-right">
+            <div style="font-size:10px;color:var(--muted); font-weight:700">PADA ODOMETER</div>
+            <div class="font-mono text-xl font-bold" style="color:var(--green)">${lastLog.odo.toLocaleString()} KM</div>
+            <div style="font-size:12px; color:var(--muted)">Total Biaya: <span style="color:var(--text)">Rp ${lastLog.cost.toLocaleString('id-ID')}</span></div>
+          </div>
         </div>
-        <div class="text-right">
-          <div style="font-size:10px;color:var(--muted); font-weight:700">PADA ODOMETER</div>
-          <div class="font-mono text-xl font-bold" style="color:var(--green)">${lastLog.odo.toLocaleString()} KM</div>
-          <div style="font-size:12px; color:var(--muted)">Total Biaya: <span style="color:var(--text)">Rp ${lastLog.cost.toLocaleString('id-ID')}</span></div>
+      </div>
+
+      <div class="stat-card border border-[var(--border)]" style="background: var(--surface)">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-3 mb-3">
+          <div class="section-label text-[var(--text)] font-bold tracking-wide" style="color: var(--accent2)">📊 RINGKASAN KONSUMSI BBM</div>
+          <div class="flex flex-wrap items-center gap-2">
+            <div id="fuelCustomDatePickers" class="gap-2 items-center text-xs" style="display: ${DB.fuelPeriod === 'custom' ? 'flex' : 'none'};">
+              <input type="date" id="fuelCustomStartInput" value="${DB.fuelCustomStart || ''}" onchange="changeFuelCustomDates()" style="padding: 3px 6px; width: auto;" />
+              <span class="text-[var(--muted)]">to</span>
+              <input type="date" id="fuelCustomEndInput" value="${DB.fuelCustomEnd || ''}" onchange="changeFuelCustomDates()" style="padding: 3px 6px; width: auto;" />
+            </div>
+            <div style="width: 150px;">
+              <select id="fuelDashboardPeriodSelect" onchange="changeFuelPeriod(this.value)" style="padding: 4px 8px; font-size:12px; font-weight:700; text-transform:uppercase;">
+                <option value="weekly" ${DB.fuelPeriod === 'weekly' ? 'selected' : ''}>Weekly Review</option>
+                <option value="monthly" ${DB.fuelPeriod === 'monthly' ? 'selected' : ''}>Monthly Review</option>
+                <option value="custom" ${DB.fuelPeriod === 'custom' ? 'selected' : ''}>Custom Review</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Average Fuel Consumption</div>
+            <div class="font-display font-bold text-2xl style-text" style="color:var(--green)">${aggregateAvg > 0 ? aggregateAvg.toFixed(2) : '—'} <span class="text-xs text-[var(--muted)]">km/L</span></div>
+          </div>
+          <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Distance</div>
+            <div class="font-display font-bold text-2xl text-white">${aggregateKm > 0 ? aggregateKm.toLocaleString() : '0'} <span class="text-xs text-[var(--muted)]">KM</span></div>
+          </div>
+          <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Volume</div>
+            <div class="font-display font-bold text-2xl text-white">${aggregateLiters > 0 ? aggregateLiters.toFixed(2) : '0.00'} <span class="text-xs text-[var(--muted)]">Liters</span></div>
+          </div>
+          <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
+            <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">Total Cost</div>
+            <div class="font-display font-bold text-2xl" style="color:var(--accent)">Rp ${aggregatePrice.toLocaleString('id-ID')}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1275,7 +1394,7 @@ function confirmLog() {
   saveDB();
   closeModal('logModal');
   renderDashboard();
-  toast(LANG_DICT[DB.lang || 'id'].toastSaved);
+  幕renderStats();
 }
 
 let editingCompId = null;
@@ -1676,16 +1795,17 @@ function importData(event) {
       const imported = JSON.parse(e.target.result);
       if (!imported.components || !Array.isArray(imported.components)) throw new Error('Invalid format');
       DB = imported;
-      // Migration: fill in any fields this version needs that older exports won't have
       if (DB.warningThreshold == null) DB.warningThreshold = 20;
       if (!('lang'       in DB)) DB.lang       = 'id';
       if (!('fuels'      in DB)) DB.fuels      = [];
       if (!('readme'     in DB)) DB.readme     = null;
       if (!('donationQr' in DB)) DB.donationQr = null;
+      if (!('fuelPeriod' in DB)) DB.fuelPeriod = 'weekly';
+      if (!('fuelCustomStart' in DB)) DB.fuelCustomStart = '';
+      if (!('fuelCustomEnd'   in DB)) DB.fuelCustomEnd = '';
       DB.components.forEach(c => { if (c.warningThreshold === undefined) c.warningThreshold = null; });
       saveDB();
       document.getElementById('odoInput').value = DB.odometer;
-      // Apply theme (toggleTheme is the correct function name in this file)
       const isLight = DB.theme === 'light';
       document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
       const themeToggle = document.getElementById('themeToggle');
