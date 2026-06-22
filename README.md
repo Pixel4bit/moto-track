@@ -1,7 +1,7 @@
 # MotoTrack — Motorcycle Component Lifetime Tracker & Maintenance Log
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.0-f06a00?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-3.i-f06a00?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Architecture-Pure%20SPA%20%2F%20Client--Side-blue?style=for-the-badge" alt="Type">
   <img src="https://img.shields.io/badge/Privacy-100%25%20Offline%20%2F%20Local-success?style=for-the-badge" alt="Privacy">
@@ -14,7 +14,7 @@
 ### 📌 Tentang MotoTrack
 **MotoTrack** adalah aplikasi berbasis web (*Single Page Application*) modern dengan estetika industri-cyberpunk yang dirancang khusus untuk memantau sisa masa pakai (umur) komponen serta jadwal perawatan sepeda motor secara *real-time*. 
 
-Berbeda dengan aplikasi pelacak kendaraan lain yang mewajibkan pendaftaran akun atau koneksi internet, MotoTrack mengusung prinsip **100% Privacy-Focused & Offline-First**. Seluruh data motor, parameter komponen, QR Code eksternal, hingga catatan finansial servis Anda diproses dan disimpan sepenuhnya di dalam penyimpanan lokal (*localStorage*) browser Anda sendiri. **Tidak ada data yang dikirim ke server luar, bebas pelacakan, dan sepenuhnya aman.**
+Berbeda dengan aplikasi pelacak kendaraan lain yang mewajibkan pendaftaran akun atau koneksi internet, MotoTrack mengusung prinsip **100% Privacy-Focused & Offline-First**. Seluruh data motor, parameter komponen, QR Code eksternal, hingga catatan finansial servis, serta riwayat konsumsi bahan bakar (BBM) Anda diproses dan disimpan sepenuhnya di dalam penyimpanan lokal (*localStorage*) browser Anda sendiri. **Tidak ada data yang dikirim ke server luar, bebas pelacakan, dan sepenuhnya aman.**
 
 ---
 
@@ -28,6 +28,7 @@ Berbeda dengan aplikasi pelacak kendaraan lain yang mewajibkan pendaftaran akun 
   * *Fast Moving:* Pelacakan ganda berdasarkan kombinasi jarak tempuh (KM) dan batas waktu (Bulan), seperti Oli Mesin, Oli Gardan, atau Minyak Rem.
   * *Slow Moving:* Pelacakan fokus berdasarkan interval jarak tempuh saja, seperti Vanbelt (V-Belt), Kampas Kopling, Roler, atau Busi.
 * **Log Perawatan Komprehensif (Finansial & Mekanik):** Catat riwayat penggantian komponen lengkap dengan tanggal, posisi odometer saat servis, nama bengkel, rincian biaya itemized, serta catatan khusus dari mekanik untuk memantau total pengeluaran servis berkala.
+* **Log Konsumsi Bahan Bakar (BBM):** Simpan riwayat pengisian bahan bakar, pantau konsumsi kendaraan dari waktu ke waktu, dan bangun catatan operasional yang lebih akurat untuk kebutuhan analisis maupun perawatan preventif.
 * **Penyimpanan Gambar QR Code:** Menyimpan gambar QR Code referensi (seperti link manual servis digital, tautan toko sparepart langganan, atau nomor kontak mekanik) langsung di dalam aplikasi menggunakan konversi *Base64*.
 * **Portabilitas Data (Ekspor/Impor JSON):** Anda memiliki kendali penuh atas data Anda. Ekspor seluruh basis data ke dalam satu berkas `.json` ringkas kapan saja sebagai cadangan (*backup*) atau untuk migrasi data antar-perangkat (misal dari HP ke Laptop) secara instan.
 * **Antarmuka Modern & Responsif:** Menggunakan font *Barlow Condensed*, *Barlow*, dan *Share Tech Mono* dipadukan dengan utility-first styling dari Tailwind CSS. Dilengkapi mode gelap (*Dark Mode*) industrial yang pekat dan mode terang (*Light Mode*) yang bersih, serta sepenuhnya responsif untuk perangkat seluler maupun desktop.
@@ -58,7 +59,7 @@ Karena aplikasi ini murni berjalan di sisi klien (*client-side*), Anda tidak mem
 # MotoTrack — Motorcycle Component Lifetime Tracker & Maintenance Log
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.0-f06a00?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-3.i-f06a00?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Architecture-Pure%20SPA%20%2F%20Client--Side-blue?style=for-the-badge" alt="Architecture">
   <img src="https://img.shields.io/badge/Privacy-100%25%20Offline%20%2F%20Local-success?style=for-the-badge" alt="Privacy">
@@ -69,7 +70,7 @@ Karena aplikasi ini murni berjalan di sisi klien (*client-side*), Anda tidak mem
 ### 📌 About MotoTrack
 **MotoTrack** is a sleek, cyber-industrial web application (Single Page Application) meticulously engineered to track your motorcycle's spare part lifespans, component wear, and service intervals in real-time.
 
-Unlike standard vehicle management tools that require cloud accounts, active internet connections, or personal data tracking, MotoTrack is built with a strict **100% Privacy-Focused & Offline-First** philosophy. Your mileage dashboard, component parameters, custom maintenance costs, and bookmarked reference QR codes are processed and stored entirely within your browser's local sandbox storage (`localStorage`). **Your data never leaves your device.**
+Unlike standard vehicle management tools that require cloud accounts, active internet connections, or personal data tracking, MotoTrack is built with a strict **100% Privacy-Focused & Offline-First** philosophy. Your mileage dashboard, component parameters, custom maintenance costs, fuel consumption records, and bookmarked reference QR codes are processed and stored entirely within your browser's local sandbox storage (`localStorage`). **Your data never leaves your device.**
 
 ---
 
@@ -83,6 +84,7 @@ Unlike standard vehicle management tools that require cloud accounts, active int
   * *Fast Moving:* Dual-tracking metric combo based on both accumulated mileage (KM) and elapsed duration (Months)—perfect for Engine Oil, Gear Oil, or Brake Fluid.
   * *Slow Moving:* Single-metric focus based strictly on custom mileage limits—ideal for V-Belts, Spark Plugs, Rollers, or Clutch Plates.
 * **Detailed Maintenance Ledger:** Keep a granular, permanent logbook of all historical part replacements featuring exact calendar dates, odometer records during service, workshop locations, itemized pricing, and notes to easily evaluate total ownership costs.
+* **Fuel Consumption Tracking:** Record fuel refills and maintain a historical fuel usage log to better understand efficiency trends and overall motorcycle operating costs.
 * **Embedded QR Code Storage:** Store reference images (such as digital factory service manuals, online spare part catalog links, or mechanic contact information) directly inside your offline storage using local *Base64* encoding.
 * **Data Sovereignty (JSON Export/Import):** Because there is no external database, you own your data completely. Backup or seamlessly migrate your database across multiple devices (e.g., phone to desktop laptop) via a single, lightweight `.json` file backup.
 * **Cyber-Industrial UI Design:** Powered by a customized blend of *Barlow Condensed*, *Barlow*, and *Share Tech Mono* typography wrapped around Tailwind CSS utilities. Built with an ultra-deep industrial Dark Mode, a clean alternative Light Mode, and an ergonomic mobile-first responsive layout.
