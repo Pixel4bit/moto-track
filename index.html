@@ -27,7 +27,7 @@
     --surface:   #e8e2da;
     --card:      #fff8f2;
     --border:    #d4c9be;
-    --text:      #1e1a16;
+    --text: #1e1a16;
     --muted:     #8c7f74;
     --accent:    #d95c00;
     --accent2:   #f07020;
@@ -48,7 +48,6 @@
     transition: background 0.3s, color 0.3s;
   }
 
-  /* Grain overlay */
   body::before {
     content: '';
     position: fixed;
@@ -62,13 +61,11 @@
   .font-mono { font-family: 'Share Tech Mono', monospace; }
   .font-display { font-family: 'Barlow Condensed', sans-serif; }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-  /* Header */
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -77,7 +74,6 @@
     z-index: 100;
   }
 
-  /* Odo box */
   .odo-box {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -86,7 +82,6 @@
   }
   .odo-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
 
-  /* Cards */
   .comp-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -100,7 +95,6 @@
   .comp-card.warning  { border-color: var(--yellow) !important; }
   .comp-card.ok       { border-color: var(--border); }
 
-  /* Progress bar */
   .progress-track {
     background: var(--border);
     border-radius: 99px;
@@ -116,7 +110,6 @@
   .bar-warning { background: linear-gradient(90deg, var(--yellow), #f0c060); }
   .bar-critical{ background: linear-gradient(90deg, var(--red), #ff6b6b); box-shadow: 0 0 8px rgba(232,75,75,0.5); }
 
-  /* Pill badges */
   .badge {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 700;
@@ -132,8 +125,8 @@
   .badge-due      { background: rgba(240,106,0,0.18); color: var(--accent2); }
   .badge-fast     { background: rgba(240,106,0,0.1); color: var(--accent); }
   .badge-slow     { background: rgba(122,117,112,0.15); color: var(--muted); }
+  .badge-fuel     { background: rgba(76,175,125,0.15); color: var(--green); }
 
-  /* Buttons */
   .btn {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 700;
@@ -159,7 +152,6 @@
   .btn-sm { font-size: 11px; padding: 4px 10px; }
   .btn-icon { padding: 6px; }
 
-  /* Inputs */
   input, select, textarea {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -179,7 +171,6 @@
   input[type="number"] { font-family: 'Share Tech Mono', monospace; }
   label { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
 
-  /* Modal */
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.7);
@@ -203,7 +194,6 @@
   }
   .modal-overlay.open .modal-box { transform: translateY(0); }
 
-  /* Tabs */
   .tab-btn {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 700;
@@ -222,7 +212,6 @@
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
   .tab-btn:hover:not(.active) { color: var(--text); }
 
-  /* Accent stripe on critical card */
   .comp-card.critical::before {
     content: '';
     position: absolute;
@@ -238,7 +227,6 @@
     background: var(--yellow);
   }
 
-  /* Section dividers */
   .section-label {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 800;
@@ -257,7 +245,6 @@
     background: var(--border);
   }
 
-  /* History entry */
   .history-entry {
     border-left: 2px solid var(--accent);
     padding-left: 14px;
@@ -271,8 +258,13 @@
     background: var(--accent);
     border-radius: 50%;
   }
+  .history-entry.fuel-entry {
+    border-left-color: var(--green);
+  }
+  .history-entry.fuel-entry::before {
+    background: var(--green);
+  }
 
-  /* Toggle switch */
   .toggle-wrap { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
   .toggle-input { opacity: 0; width: 0; height: 0; position: absolute; }
   .toggle-slider {
@@ -294,7 +286,6 @@
   .toggle-input:checked + .toggle-slider { background: var(--accent); }
   .toggle-input:checked + .toggle-slider::after { left: 21px; }
 
-  /* Animations */
   @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
   .fade-in { animation: fadeIn 0.25s ease both; }
 
@@ -304,33 +295,12 @@
   }
   .comp-card.critical { animation: pulse-glow 2.5s infinite; }
 
-  /* Responsive grid */
   .comp-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 12px;
   }
 
-  /* Tooltip */
-  .tooltip-wrap { position: relative; }
-  .tooltip-wrap .tooltip {
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%; transform: translateX(-50%);
-    background: #000;
-    color: #fff;
-    font-size: 11px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.15s;
-    z-index: 10;
-  }
-  .tooltip-wrap:hover .tooltip { opacity: 1; }
-
-  /* Stat cards */
   .stat-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -340,7 +310,6 @@
 
   select option { background: var(--card); }
 
-  /* Sort control */
   .sort-group {
     display: inline-flex;
     align-items: center;
@@ -403,12 +372,6 @@
         </div>
       </div>
     </div>
-
-    <label class="toggle-wrap gap-2" title="Toggle Light/Dark Mode">
-      <input type="checkbox" class="toggle-input" id="themeToggle" onchange="toggleTheme(this.checked)" />
-      <div class="toggle-slider"></div>
-      <span style="font-size:11px;color:var(--muted);font-weight:600">☀️</span>
-    </label>
   </div>
 </header>
 
@@ -450,11 +413,14 @@
       </div>
     </div>
     <div class="flex gap-2">
+      <button id="btn-add-fuel-dash" class="btn btn-primary btn-sm" onclick="openFuelLogModal()">⛽ Log Fuel</button>
       <button id="btn-add-comp-dash" class="btn btn-ghost btn-sm" onclick="openAddModal()">＋ Add Component</button>
       <button id="btn-export-dash" class="btn btn-ghost btn-sm" onclick="exportData()">⬆ Export</button>
       <label id="lbl-import-dash" class="btn btn-ghost btn-sm" style="cursor:pointer">⬇ Import<input type="file" accept=".json" style="display:none" onchange="importData(event)"/></label>
     </div>
   </div>
+
+  <div id="fuelStatusContainer" class="mb-6 fade-in"></div>
 
   <div id="lbl-section-fast" class="section-label mb-4">⚡ Fast Moving Components</div>
   <div class="comp-grid mb-8" id="fastGrid"></div>
@@ -467,7 +433,12 @@
   <div class="flex items-center justify-between mb-5">
     <h2 id="lbl-history-title" class="font-display font-bold text-xl tracking-wide">Maintenance History</h2>
     <div class="flex gap-2">
-      <input type="text" id="historySearch" placeholder="Search component…" style="width:200px" oninput="renderHistory()" />
+      <select id="historyTypeFilter" onchange="renderHistory()" style="width: 140px; padding: 4px 8px;">
+        <option value="all">All Records</option>
+        <option value="service">🔧 Services</option>
+        <option value="fuel">⛽ Fuel Logs</option>
+      </select>
+      <input type="text" id="historySearch" placeholder="Search item…" style="width:200px" oninput="renderHistory()" />
     </div>
   </div>
   <div id="historyList"></div>
@@ -476,13 +447,26 @@
 <div id="tab-settings" class="max-w-6xl mx-auto px-4 py-5 hidden">
   <h2 id="lbl-settings-title" class="font-display font-bold text-xl tracking-wide mb-5">Settings &amp; Customization</h2>
 
-  <div class="stat-card mb-6">
-    <label id="lbl-lang-select" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em">🌐 Language / Bahasa</label>
-    <div style="max-width: 240px">
-      <select id="langSelect" onchange="changeLanguage(this.value)">
-        <option value="id">Bahasa Indonesia</option>
-        <option value="en">English</option>
-      </select>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="stat-card">
+      <label id="lbl-lang-select" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em">🌐 Language / Bahasa</label>
+      <div style="max-width: 240px">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+          <option value="id">Bahasa Indonesia</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="stat-card flex flex-col justify-center">
+      <label class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em">🌓 Theme / Night Mode</label>
+      <div>
+        <label class="toggle-wrap gap-2" title="Toggle Light/Dark Mode">
+          <input type="checkbox" class="toggle-input" id="themeToggle" onchange="toggleTheme(this.checked)" />
+          <div class="toggle-slider"></div>
+          <span id="lbl-theme-text" style="font-size:11px;color:var(--muted);font-weight:600">Dark Mode Active</span>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -522,11 +506,18 @@
     </div>
   </div>
 
+  <div class="stat-card mb-6">
+    <div class="flex justify-between items-center mb-4">
+      <div class="font-display font-bold text-base tracking-wide">⛽ FUEL MASTER DATA</div>
+      <button class="btn btn-primary btn-sm" onclick="openFuelModal()">＋ Add Fuel Variant</button>
+    </div>
+    <div id="settingsFuelList" class="flex flex-col gap-2"></div>
+  </div>
+
   <div id="settingsCompList"></div>
 </div>
 
 <div id="tab-about" class="max-w-6xl mx-auto px-4 py-5 hidden">
-
   <div id="aboutView">
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
@@ -542,25 +533,14 @@
       <button id="btn-about-edit" class="btn btn-ghost btn-sm" onclick="enterAboutEdit()">✎ Edit</button>
     </div>
 
-    <div id="aboutContent" class="mb-8"
-      style="font-size:14px;line-height:1.75;color:var(--text)"></div>
+    <div id="aboutContent" class="mb-8" style="font-size:14px;line-height:1.75;color:var(--text)"></div>
 
     <div id="qrSection" style="display:none" class="mb-8">
       <div id="lbl-donation-section" class="section-label mb-4">💳 Donation / Support</div>
       <div style="display:flex;justify-content:center">
-        <div style="
-          background:var(--card);
-          border:1px solid var(--border);
-          border-radius:12px;
-          padding:20px;
-          display:inline-block;
-          text-align:center;
-        ">
-          <img id="qrImage" src="" alt="Donation QR Code"
-            style="max-width:240px;width:100%;border-radius:8px;display:block;margin:0 auto" />
-          <div id="lbl-scan-donate" style="font-size:11px;color:var(--muted);margin-top:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase">
-            Scan to Donate
-          </div>
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:inline-block; text-align:center;">
+          <img id="qrImage" src="" alt="Donation QR Code" style="max-width:240px;width:100%;border-radius:8px;display:block;margin:0 auto" />
+          <div id="lbl-scan-donate" style="font-size:11px;color:var(--muted);margin-top:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase">Scan to Donate</div>
         </div>
       </div>
     </div>
@@ -589,38 +569,14 @@
 
     <div class="flex flex-col gap-5">
       <div>
-        <label id="lbl-about-textarea-label">About Text
-          <span id="lbl-html-support-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">
-            Supports basic HTML tags (&lt;a&gt;, &lt;strong&gt;, &lt;br&gt;, &lt;p&gt;, etc.)
-          </span>
-        </label>
-        <textarea id="aboutTextarea" rows="12"
-          style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.6;resize:vertical"
-          placeholder="Write your About / README text here…"></textarea>
+        <label id="lbl-about-textarea-label">About Text</label>
+        <textarea id="aboutTextarea" rows="12" style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.6;resize:vertical"></textarea>
       </div>
-
       <div>
-        <label id="lbl-donation-qr-label">Donation QR Code Image
-          <span id="lbl-img-support-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">
-            PNG, JPG, or WebP — will be stored as Base64
-          </span>
-        </label>
-        <div id="qrUploadArea" style="
-          border:2px dashed var(--border);
-          border-radius:8px;
-          padding:24px;
-          text-align:center;
-          cursor:pointer;
-          transition:border-color 0.2s;
-          position:relative;
-        " onclick="document.getElementById('qrFileInput').click()"
-           ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
-           ondragleave="this.style.borderColor='var(--border)'"
-           ondrop="handleQrDrop(event)">
-          <input type="file" id="qrFileInput" accept="image/*"
-            style="display:none" onchange="handleQrUpload(event)" />
-          <div id="qrUploadPreview">
-            </div>
+        <label id="lbl-donation-qr-label">Donation QR Code Image</label>
+        <div id="qrUploadArea" style="border:2px dashed var(--border); border-radius:8px; padding:24px; text-align:center; cursor:pointer;" onclick="document.getElementById('qrFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border)'" ondrop="handleQrDrop(event)">
+          <input type="file" id="qrFileInput" accept="image/*" style="display:none" onchange="handleQrUpload(event)" />
+          <div id="qrUploadPreview"></div>
         </div>
         <div id="qrEditActions" style="display:none;margin-top:8px;display:flex;gap:8px;align-items:center">
           <span id="qrEditFilename" style="font-size:12px;color:var(--muted);flex:1"></span>
@@ -629,7 +585,6 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <div class="modal-overlay" id="logModal">
@@ -680,8 +635,7 @@
       </div>
       <div>
         <label id="lbl-comp-type">Type</label>
-        <select id="compType">
-          </select>
+        <select id="compType"></select>
       </div>
       <div id="compKmField">
         <label id="lbl-comp-interval-km">Interval KM</label>
@@ -699,41 +653,93 @@
         <label id="lbl-comp-last-date">Last Serviced Date</label>
         <input type="date" id="compLastDate" />
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:2px">
-        <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span id="lbl-comp-wto-title">Warning Threshold Override</span>
-          <span id="lbl-comp-wto-note" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px">(leave blank to use global)</span>
-        </label>
-        <div style="position:relative">
-          <input type="number" id="compThreshold" min="1" max="99" placeholder="e.g. 30" style="padding-right:36px" />
-          <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;font-weight:600;pointer-events:none">%</span>
-        </div>
-        <div id="lbl-comp-wto-desc" style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">
-          Warn when remaining lifetime ≤ this value. Overrides the global threshold for this component only.
-        </div>
+      <div>
+        <label id="lbl-comp-wto-title">Warning Threshold Override</label>
+        <input type="number" id="compThreshold" min="1" max="99" placeholder="e.g. 30" />
       </div>
       <input type="hidden" id="compEditId" />
       <div class="flex justify-end gap-3 mt-2">
         <button id="btn-comp-cancel" class="btn btn-ghost" onclick="closeModal('compModal')">Cancel</button>
-        <button id="btn-comp-save" class="btn var(--accent) btn-primary" onclick="saveComponent()">✓ Save</button>
+        <button id="btn-comp-save" class="btn btn-primary" onclick="saveComponent()">✓ Save</button>
       </div>
     </div>
   </div>
 </div>
 
-<div id="toast" style="
-  position:fixed; bottom:24px; right:24px; z-index:9998;
-  background:var(--card); border:1px solid var(--accent);
-  color:var(--text); padding:12px 20px; border-radius:8px;
-  font-size:13px; font-weight:500; font-family:'Barlow',sans-serif;
-  box-shadow:0 4px 20px rgba(0,0,0,0.4);
-  transform:translateY(80px); opacity:0;
-  transition:all 0.3s;
-  max-width:320px;
-"></div>
+<div class="modal-overlay" id="fuelModal">
+  <div class="modal-box p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-display font-bold text-lg tracking-wide" id="fuelModalTitle">Fuel Specification</h3>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('fuelModal')">✕</button>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div>
+        <label>Merk / Brand</label>
+        <input type="text" id="fuelBrand" placeholder="e.g. Pertamina, Shell" />
+      </div>
+      <div>
+        <label>Nama Bensin / Fuel Name</label>
+        <input type="text" id="fuelName" placeholder="e.g. Pertalite, V-Power" />
+      </div>
+      <div>
+        <label>Angka RON</label>
+        <input type="text" id="fuelRon" placeholder="e.g. RON 90, RON 92" />
+      </div>
+      <div>
+        <label>Harga Perliter (Rp)</label>
+        <input type="number" id="fuelPrice" placeholder="10000" />
+      </div>
+      <input type="hidden" id="fuelEditId" />
+      <div class="flex justify-end gap-3 mt-2">
+        <button class="btn btn-ghost" onclick="closeModal('fuelModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveFuelMaster()">✓ Save Fuel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="fuelLogModal">
+  <div class="modal-box p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-display font-bold text-lg tracking-wide">⛽ Catat Pengisian BBM</h3>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('fuelLogModal')">✕</button>
+    </div>
+    <div class="flex flex-col gap-4">
+      <div>
+        <label>Pilih Jenis Bensin</label>
+        <select id="fuelLogSelect" onchange="autoFillFuelPrice()"></select>
+      </div>
+      <div>
+        <label>Odometer Saat Ini (KM)</label>
+        <input type="number" id="fuelLogOdo" placeholder="Odometer KM" />
+      </div>
+      <div>
+        <label>Harga Per Liter (Rp)</label>
+        <input type="number" id="fuelLogPricePerLiter" placeholder="0" readonly style="opacity:0.6; cursor:not-allowed;" />
+      </div>
+      <div>
+        <label>Total Biaya Pengisian (Rp)</label>
+        <input type="number" id="fuelLogTotalCost" placeholder="Masukkan nominal belanja, cth: 82000" oninput="calculateFuelLitersTotal()" />
+      </div>
+      <div>
+        <label>Jumlah Liter Yang Didapat</label>
+        <input type="number" step="0.01" id="fuelLogLiters" placeholder="0.00" readonly style="opacity:0.8; font-weight:bold; color:var(--green);" />
+      </div>
+      <div>
+        <label>Tanggal Pengisian</label>
+        <input type="datetime-local" id="fuelLogDate" />
+      </div>
+      <div class="flex justify-end gap-3 mt-2">
+        <button class="btn btn-ghost" onclick="closeModal('fuelLogModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitFuelLog()">✓ Simpan Pengisian</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed; bottom:24px; right:24px; z-index:9998; background:var(--card); border:1px solid var(--accent); color:var(--text); padding:12px 20px; border-radius:8px; font-size:13px; font-weight:500; font-family:'Barlow',sans-serif; box-shadow:0 4px 20px rgba(0,0,0,0.4); transform:translateY(80px); opacity:0; transition:all 0.3s; max-width:320px;"></div>
 
 <script>
-// ===== DICTIONARY / LOKALISASI =====
 const LANG_DICT = {
   en: {
     dashboard: "Dashboard", history: "Services", settings: "Settings", about: "About",
@@ -742,7 +748,7 @@ const LANG_DICT = {
     addComponent: "＋ Add Component", export: "⬆ Export", import: "⬇ Import",
     fastMoving: "⚡ Fast Moving Components", slowMoving: "🔩 Slow Moving Components",
     overdue: "Overdue", soon: "Soon", ok: "Good", serviceOverdue: "⚠ Service overdue",
-    next: "Next", last: "Last", logService: "✓ Log Service", searchComp: "Search component…",
+    next: "Next", last: "Last", logService: "✓ Log Service", searchComp: "Search item…",
     maintHistory: "Maintenance History", settingsTitle: "Settings & Customization",
     ewsTitle: "🔔 Early Warning System",
     ewsDesc: "Trigger a Warning state when a component's remaining lifetime falls to or below this threshold. Set a per-component override in each component's Edit dialog.",
@@ -750,58 +756,49 @@ const LANG_DICT = {
     scanDonate: "Scan to Donate", license: "⚖️ License", donationSection: "💳 Donation / Support",
     odometerTitle: "Odometer", sliderStrict: "1% (Strict)", sliderEarly: "99% (Early)",
     aboutEditTitle: "Edit README / About", cancel: "Cancel", save: "✓ Save",
-    aboutTexareaLabel: "About Text", htmlSupportNote: "Supports basic HTML tags (<a>, <strong>, <br>, <p>, etc.)",
-    donationQrLabel: "Donation QR Code Image", imgSupportNote: "PNG, JPG, or WebP — will be stored as Base64",
-    clickDragQr: "Click or drag & drop a QR code image", qrTypesNote: "QRIS, GoPay, OVO, Bank Transfer, etc.",
-    removeQr: "✕ Remove QR", mDateTime: "Date & Time", mLocation: "Location / Shop Name", mCost: "Cost (Rp)",
+    mDateTime: "Date & Time", mLocation: "Location / Shop Name", mCost: "Cost (Rp)",
     mOdo: "Odometer at Service (KM)", mNotes: "Notes", mSaveRecord: "✓ Save Record", mLogReplacement: "Log Replacement",
     compName: "Component Name", compType: "Type", compIntKm: "Interval KM", compIntMo: "Interval Months",
     compLastKm: "Last Serviced Odometer (KM)", compLastDate: "Last Serviced Date", compWtoTitle: "Warning Threshold Override",
-    compWtoNote: "(leave blank to use global)", compWtoDesc: "Warn when remaining lifetime ≤ this value. Overrides the global threshold for this component only.",
-    optFast: "Fast Moving (KM + Months)", optSlow: "Slow Moving", placeholderSearch: "Search component…",
+    optFast: "Fast Moving (KM + Months)", optSlow: "Slow Moving", placeholderSearch: "Search item…",
     toastLangChanged: "✓ Language changed to English", toastSaved: "✓ Saved", toastDeleted: "Deleted",
-    confirmReset: "Reset ALL data? This cannot be undone.", confirmDeleteComp: "Delete \"{name}\"?", confirmDeleteHist: "Delete this services entry?",
+    confirmReset: "Reset ALL data? This cannot be undone.", confirmDeleteComp: "Delete \"{name}\"?", confirmDeleteHist: "Delete this entry?",
     affectedWarn: "{count} component{plural} would be in Warning state at {pct}%", enterRange: "Enter a value between 1 and 99",
     errThresholdRange: "⚠ Threshold must be between 1–99%", errImageSize: "⚠ Image too large — max 5 MB",
-    msgNoComponentMatch: "No components in this category match the filter.", msgNoHistory: "No service records yet. Log your first service from the Dashboard!",
+    msgNoComponentMatch: "No components match the filter.", msgNoHistory: "No records yet. Log your first action!",
     componentsSection: "Components", lblLeft: "left", lblGlobal: "global", uploadImgName: "Uploaded image",
     clickReplaceQr: "Click to replace image"
   },
   id: {
-    dashboard: "Dasbor", history: "Servis", settings: "Pengaturan", about: "Tentang",
+    dashboard: "Dasbor", history: "Riwayat", settings: "Pengaturan", about: "Tentang",
     all: "Semua", critical: "🔴 Kritis", warning: "🟡 Peringatan", good: "🟢 Bagus",
     defaultSort: "Bawaan", urgencySort: "Urgensi", alphaSort: "A–Z",
     addComponent: "＋ Tambah Komponen", export: "⬆ Ekspor", import: "⬇ Impor",
     fastMoving: "⚡ Komponen Fast Moving", slowMoving: "🔩 Komponen Slow Moving",
     overdue: "Telat Servis", soon: "Segera", ok: "Bagus", serviceOverdue: "⚠ Waktunya servis!",
-    next: "Berikutnya", last: "Terakhir", logService: "✓ Catat Servis", searchComp: "Cari komponen…",
-    maintHistory: "Riwayat Perawatan", settingsTitle: "Pengaturan & Kustomisasi",
+    next: "Berikutnya", last: "Terakhir", logService: "✓ Catat Servis", searchComp: "Cari item…",
+    maintHistory: "Riwayat Transaksi & Perawatan", settingsTitle: "Pengaturan & Kustomisasi",
     ewsTitle: "🔔 Sistem Peringatan Dini",
-    ewsDesc: "Memicu status Peringatan ketika sisa masa pakai komponen mencapai atau di bawah ambang batas ini. Anda bisa mengatur nilai khusus di tiap komponen.",
+    ewsDesc: "Memicu status Peringatan ketika sisa masa pakai komponen mencapai atau di bawah ambang batas ini.",
     globalThresh: "Ambang Batas Peringatan Global", apply: "Terapkan", resetAll: "⚠ Reset Semua Data",
     scanDonate: "Scan untuk Donasi", license: "⚖️ Lisensi", donationSection: "💳 Donasi / Dukungan",
     odometerTitle: "Odometer", sliderStrict: "1% (Ketat)", sliderEarly: "99% (Cepat)",
     aboutEditTitle: "Edit Catatan / Tentang", cancel: "Batal", save: "✓ Simpan",
-    aboutTexareaLabel: "Teks Pengumuman", htmlSupportNote: "Mendukung tag HTML dasar (<a>, <strong>, <br>, <p>, dll.)",
-    donationQrLabel: "Gambar QR Code Pembayaran", imgSupportNote: "PNG, JPG, atau WebP — akan disimpan sebagai Base64",
-    clickDragQr: "Klik atau seret & lepas gambar QR code di sini", qrTypesNote: "QRIS, GoPay, OVO, Transfer Bank, dll.",
-    removeQr: "✕ Hapus QR", mDateTime: "Tanggal & Waktu", mLocation: "Lokasi / Nama Bengkel", mCost: "Biaya (Rp)",
+    mDateTime: "Tanggal & Waktu", mLocation: "Lokasi / Nama Bengkel", mCost: "Biaya (Rp)",
     mOdo: "Odometer Saat Servis (KM)", mNotes: "Catatan Tambahan", mSaveRecord: "✓ Simpan Catatan", mLogReplacement: "Catat Penggantian/Servis",
     compName: "Nama Komponen", compType: "Tipe Pergerakan", compIntKm: "Interval KM", compIntMo: "Interval Bulan",
     compLastKm: "Odometer Servis Terakhir (KM)", compLastDate: "Tanggal Servis Terakhir", compWtoTitle: "Override Batas Peringatan",
-    compWtoNote: "(kosongkan untuk menggunakan batas global)", compWtoDesc: "Beri peringatan jika sisa umur ≤ nilai ini. Mengesampingkan ambang batas global hanya untuk komponen ini.",
-    optFast: "Fast Moving (KM + Bulan)", optSlow: "Slow Moving", placeholderSearch: "Cari komponen…",
+    optFast: "Fast Moving (KM + Bulan)", optSlow: "Slow Moving", placeholderSearch: "Cari item…",
     toastLangChanged: "✓ Bahasa diubah ke Indonesia", toastSaved: "✓ Berhasil disimpan", toastDeleted: "Berhasil dihapus",
-    confirmReset: "Reset SEMUA data? Tindakan ini tidak dapat dibatalkan.", confirmDeleteComp: "Hapus \"{name}\"?", confirmDeleteHist: "Hapus catatan servis ini?",
+    confirmReset: "Reset SEMUA data? Tindakan ini tidak dapat dibatalkan.", confirmDeleteComp: "Hapus \"{name}\"?", confirmDeleteHist: "Hapus catatan ini?",
     affectedWarn: "{count} komponen akan berstatus Peringatan pada tingkat {pct}%", enterRange: "Masukkan nilai antara 1 sampai 99",
     errThresholdRange: "⚠ Ambang batas harus di antara 1–99%", errImageSize: "⚠ Ukuran gambar terlalu besar — maksimal 5 MB",
-    msgNoComponentMatch: "Tidak ada komponen di kategori ini yang cocok dengan filter.", msgNoHistory: "Belum ada riwayat perawatan. Catat servis pertama Anda melalui Dashboard!",
+    msgNoComponentMatch: "Tidak ada komponen di kategori ini yang cocok dengan filter.", msgNoHistory: "Belum ada riwayat perawatan atau pengisian BBM.",
     componentsSection: "Komponen", lblLeft: "tersisa", lblGlobal: "global", uploadImgName: "Gambar terunggah",
     clickReplaceQr: "Klik untuk mengganti gambar"
   }
 };
 
-// ===== DATA LAYER =====
 const STORE_KEY = 'mototrack_v2';
 let DB = {
   odometer: 0,
@@ -809,10 +806,18 @@ let DB = {
   warningThreshold: 20,
   components: [],
   history: [],
-  readme: null,       // custom README text (null = use default)
-  donationQr: null,   // base64 data URL of QR image
-  lang: 'id'          // default language language selection
+  fuels: [], 
+  readme: null,
+  donationQr: null,
+  lang: 'id'
 };
+
+const DEFAULT_FUELS = [
+  { id: 'f_1', ron: 'RON 90', name: 'Pertalite', price: 10000, brand: 'Pertamina' },
+  { id: 'f_2', ron: 'RON 92', name: 'Pertamax', price: 16250, brand: 'Pertamina' },
+  { id: 'f_3', ron: 'RON 95', name: 'Green', price: 17000, brand: 'Pertamina' },
+  { id: 'f_4', ron: 'RON 98 Turbo', name: 'Pertamax Turbo', price: 20750, brand: 'Pertamina' }
+];
 
 const DEFAULT_COMPONENTS = [
   { name:'Engine Oil',          type:'fast', intervalKm:2000,  intervalMonths:2,  category:'fast' },
@@ -841,12 +846,14 @@ function loadDB() {
     if (raw) {
       DB = JSON.parse(raw);
       if (DB.warningThreshold == null) DB.warningThreshold = 20;
+      if (!DB.fuels || DB.fuels.length === 0) DB.fuels = [...DEFAULT_FUELS];
       if (!('readme'      in DB)) DB.readme      = null;
       if (!('donationQr'  in DB)) DB.donationQr  = null;
       if (!('lang'        in DB)) DB.lang        = 'id';
       DB.components.forEach(c => { if (c.warningThreshold === undefined) c.warningThreshold = null; });
     } else {
       DB.lang = 'id';
+      DB.fuels = [...DEFAULT_FUELS];
       DB.components = DEFAULT_COMPONENTS.map(c => ({
         ...c,
         id: genId(),
@@ -863,7 +870,6 @@ function saveDB() {
   localStorage.setItem(STORE_KEY, JSON.stringify(DB));
 }
 
-// ===== LANGUAGE CHANGER =====
 function changeLanguage(lang) {
   DB.lang = lang;
   saveDB();
@@ -876,20 +882,12 @@ function changeLanguage(lang) {
 
 function applyLanguage() {
   const l = LANG_DICT[DB.lang || 'id'];
-
-  // Document language element sync
   document.getElementById('langSelect').value = DB.lang || 'id';
-
-  // Navigation tab components
   document.getElementById('tab-btn-dashboard').textContent = l.dashboard;
   document.getElementById('tab-btn-history').textContent = l.history;
   document.getElementById('tab-btn-settings').textContent = l.settings;
   document.getElementById('tab-btn-about').textContent = l.about;
-
-  // Header Elements
   document.getElementById('lbl-odometer-title').textContent = l.odometerTitle;
-
-  // Filters and sorting labels
   document.getElementById('filter-all').textContent = l.all;
   document.getElementById('filter-critical').textContent = l.critical;
   document.getElementById('filter-warning').textContent = l.warning;
@@ -897,58 +895,36 @@ function applyLanguage() {
   document.getElementById('lbl-sort-default').textContent = l.defaultSort;
   document.getElementById('lbl-sort-urgency').textContent = l.urgencySort;
   document.getElementById('lbl-sort-alpha').textContent = l.alphaSort;
-
-  // Dash Action Control Elements
   document.getElementById('btn-add-comp-dash').textContent = l.addComponent;
   document.getElementById('btn-export-dash').textContent = l.export;
   
   const importLabel = document.getElementById('lbl-import-dash');
   if (importLabel) {
-    importLabel.innerHTML = `${l.import}<input type="file" accept=".json" style="display:none" onchange="importData(event)"/>`;
+    const existingInput = importLabel.querySelector('input[type="file"]');
+    if (existingInput) {
+      importLabel.childNodes[0].textContent = l.import;
+    } else {
+      importLabel.innerHTML = `${l.import}<input type="file" accept=".json" style="display:none" onchange="importData(event)"/>`;
+    }
   }
 
-  // Segment labels
   document.getElementById('lbl-section-fast').textContent = l.fastMoving;
   document.getElementById('lbl-section-slow').textContent = l.slowMoving;
-
-  // History Tab labels
   document.getElementById('lbl-history-title').textContent = l.maintHistory;
   document.getElementById('historySearch').placeholder = l.placeholderSearch;
-
-  // Settings tab elements
   document.getElementById('lbl-settings-title').textContent = l.settingsTitle;
-  document.getElementById('lbl-lang-select').textContent = `🌐 ${l.compType} / Language`;
+  document.getElementById('lbl-lang-select').textContent = `🌐 Language / Bahasa`;
   document.getElementById('lbl-ews-title').textContent = l.ewsTitle;
   document.getElementById('lbl-ews-desc').textContent = l.ewsDesc;
   document.getElementById('lbl-global-threshold-input').textContent = l.globalThresh;
   document.getElementById('btn-threshold-apply').textContent = l.apply;
   document.getElementById('lbl-slider-strict').textContent = l.sliderStrict;
   document.getElementById('lbl-slider-early').textContent = l.sliderEarly;
-
-  // About Tab static labels
-  document.getElementById('btn-about-edit').textContent = `✎ ${l.cancel.replace('Cancel', 'Edit').replace('Batal', 'Edit')}`;
+  document.getElementById('btn-about-edit').textContent = `✎ Edit`;
   document.getElementById('lbl-donation-section').textContent = l.donationSection;
   document.getElementById('lbl-scan-donate').textContent = l.scanDonate;
   document.getElementById('lbl-license-section').textContent = l.license;
 
-  // About Edit view labels
-  document.getElementById('lbl-about-edit-title').textContent = l.aboutEditTitle;
-  document.getElementById('btn-about-cancel').textContent = l.cancel;
-  document.getElementById('btn-about-save').textContent = l.save;
-  document.getElementById('lbl-about-textarea-label').innerHTML = `${l.aboutTexareaLabel} <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">${l.htmlSupportNote}</span>`;
-  document.getElementById('lbl-donation-qr-label').innerHTML = `${l.donationQrLabel} <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px;margin-left:6px">${l.imgSupportNote}</span>`;
-  document.getElementById('btn-qr-remove').textContent = l.removeQr;
-
-  // Replacement Logs modal labels
-  document.getElementById('lbl-modal-datetime').textContent = l.mDateTime;
-  document.getElementById('lbl-modal-location').textContent = l.mLocation;
-  document.getElementById('lbl-modal-cost').textContent = l.mCost;
-  document.getElementById('lbl-modal-odo').textContent = l.mOdo;
-  document.getElementById('lbl-modal-notes').textContent = l.mNotes;
-  document.getElementById('btn-modal-log-cancel').textContent = l.cancel;
-  document.getElementById('btn-modal-log-save').textContent = l.mSaveRecord;
-
-  // Component Modals Select options 
   const typeSelect = document.getElementById('compType');
   if (typeSelect) {
     typeSelect.innerHTML = `
@@ -956,20 +932,8 @@ function applyLanguage() {
       <option value="slow">${l.optSlow}</option>
     `;
   }
-  document.getElementById('lbl-comp-name').textContent = l.compName;
-  document.getElementById('lbl-comp-type').textContent = l.compType;
-  document.getElementById('lbl-comp-interval-km').textContent = l.compIntKm;
-  document.getElementById('lbl-comp-interval-mo').textContent = l.compIntMo;
-  document.getElementById('lbl-comp-last-km').textContent = l.compLastKm;
-  document.getElementById('lbl-comp-last-date').textContent = l.compLastDate;
-  document.getElementById('lbl-comp-wto-title').textContent = l.compWtoTitle;
-  document.getElementById('lbl-comp-wto-note').textContent = l.compWtoNote;
-  document.getElementById('lbl-comp-wto-desc').textContent = l.compWtoDesc;
-  document.getElementById('btn-comp-cancel').textContent = l.cancel;
-  document.getElementById('btn-comp-save').textContent = l.save;
 }
 
-// ===== CALCULATIONS =====
 function getStatus(comp) {
   const odo = DB.odometer;
   const now = new Date();
@@ -1004,14 +968,13 @@ function getStatus(comp) {
   return { pct, remaining, statusClass, kmLeft, daysLeft, kmPct, moPct };
 }
 
-// ===== THEME =====
 function toggleTheme(isLight) {
   document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
   DB.theme = isLight ? 'light' : 'dark';
+  document.getElementById('lbl-theme-text').textContent = isLight ? 'Light Mode Active' : 'Dark Mode Active';
   saveDB();
 }
 
-// ===== ODO =====
 function updateOdo(val) {
   DB.odometer = parseFloat(val) || 0;
   saveDB();
@@ -1019,7 +982,6 @@ function updateOdo(val) {
   renderStats();
 }
 
-// ===== TOAST =====
 let toastTimer;
 function toast(msg) {
   const el = document.getElementById('toast');
@@ -1033,21 +995,19 @@ function toast(msg) {
   }, 2800);
 }
 
-// ===== TABS =====
 function switchTab(name, btn) {
   ['dashboard','history','settings','about'].forEach(t => {
     document.getElementById('tab-'+t).classList.toggle('hidden', t !== name);
   });
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  if (name === 'dashboard') renderDashboard();
   if (name === 'history') renderHistory();
   if (name === 'settings') renderSettings();
   if (name === 'about') renderAbout();
 }
 
-// ===== SORT =====
 let currentSort = 'urgency';
-
 function setSort(mode) {
   currentSort = mode;
   document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
@@ -1066,7 +1026,6 @@ function applySortOrder(comps) {
   return list;
 }
 
-// ===== THRESHOLD =====
 function getEffectiveThreshold(comp) {
   return (comp.warningThreshold != null) ? comp.warningThreshold : (DB.warningThreshold ?? 20);
 }
@@ -1086,7 +1045,6 @@ function previewThreshold(val) {
     return s.remaining <= n && s.remaining > 0;
   }).length;
   el.style.color = 'var(--muted)';
-  
   let formatted = l.affectedWarn.replace('{count}', affected).replace('{pct}', n);
   if (DB.lang === 'en') {
     formatted = formatted.replace('{plural}', affected !== 1 ? 's' : '');
@@ -1124,7 +1082,6 @@ function initThresholdPanel() {
   previewThreshold(n);
 }
 
-// ===== FILTER =====
 let currentFilter = 'all';
 function filterComponents(f) {
   currentFilter = f;
@@ -1133,7 +1090,6 @@ function filterComponents(f) {
   renderDashboard();
 }
 
-// ===== RENDER STATS =====
 function renderStats() {
   const comps = DB.components;
   const l = LANG_DICT[DB.lang || 'id'];
@@ -1155,13 +1111,55 @@ function renderStats() {
   `).join('');
 }
 
-// ===== RENDER DASHBOARD =====
 function renderDashboard() {
   const fast = DB.components.filter(c => c.category === 'fast');
   const slow = DB.components.filter(c => c.category === 'slow');
   renderGrid('fastGrid', fast);
   renderGrid('slowGrid', slow);
+  renderFuelDashboardWidget();
   renderStats();
+}
+
+function renderFuelDashboardWidget() {
+  const container = document.getElementById('fuelStatusContainer');
+  const fuelLogs = DB.history.filter(h => h.isFuel);
+
+  if (fuelLogs.length === 0) {
+    container.innerHTML = `
+      <div class="stat-card text-center py-4" style="border: 1px dashed var(--border)">
+        <span style="color:var(--muted); font-size:13px;">Belum ada riwayat pengisian BBM. Klik tombol <strong>⛽ Log Fuel</strong> untuk mencatat.</span>
+      </div>`;
+    return;
+  }
+
+  const lastLog = fuelLogs[0];
+  let distanceInfo = "";
+  if (fuelLogs.length > 1) {
+    const prevLog = fuelLogs[1];
+    const diff = lastLog.odo - prevLog.odo;
+    distanceInfo = `<span class="text-sm" style="color:var(--accent2)">🚀 Jarak sejak pengisian sebelumnya: <strong>${diff.toLocaleString()} KM</strong></span>`;
+  } else {
+    distanceInfo = `<span class="text-sm" style="color:var(--muted)">Pengisian bbm pertama tercatat pada acuan Odometer.</span>`;
+  }
+
+  container.innerHTML = `
+    <div class="stat-card" style="border-left: 4px solid var(--green)">
+      <div class="flex flex-wrap justify-between items-center gap-2">
+        <div>
+          <div class="section-label mb-1" style="color:var(--green)">⛽ PENGISIAN BBM TERAKHIR</div>
+          <div class="font-display font-bold text-lg text-white">
+            [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} Liter
+          </div>
+          <div class="mt-1">${distanceInfo}</div>
+        </div>
+        <div class="text-right">
+          <div style="font-size:10px;color:var(--muted); font-weight:700">PADA ODOMETER</div>
+          <div class="font-mono text-xl font-bold" style="color:var(--green)">${lastLog.odo.toLocaleString()} KM</div>
+          <div style="font-size:12px; color:var(--muted)">Total Biaya: <span style="color:var(--text)">Rp ${lastLog.cost.toLocaleString('id-ID')}</span></div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderGrid(gridId, comps) {
@@ -1230,7 +1228,6 @@ function renderGrid(gridId, comps) {
   }).join('');
 }
 
-// ===== LOG MODAL =====
 let logTargetId = null;
 function openLogModal(compId) {
   logTargetId = compId;
@@ -1266,7 +1263,8 @@ function confirmLog() {
     location: locVal,
     cost: costVal,
     odo: odoVal,
-    notes: notes
+    notes: notes,
+    isFuel: false
   });
 
   if (odoVal > DB.odometer) {
@@ -1280,13 +1278,11 @@ function confirmLog() {
   toast(LANG_DICT[DB.lang || 'id'].toastSaved);
 }
 
-// ===== EDIT COMPONENT MODAL =====
 let editingCompId = null;
 function openEditModal(compId) {
   editingCompId = compId;
   const comp = DB.components.find(c => c.id === compId);
-  const l = LANG_DICT[DB.lang || 'id'];
-  document.getElementById('compModalTitle').textContent = `${l.cancel.replace('Cancel', 'Edit').replace('Batal', 'Edit')} ${l.componentsSection}`;
+  document.getElementById('compModalTitle').textContent = `Edit Component`;
   document.getElementById('compName').value = comp.name;
   document.getElementById('compType').value = comp.type;
   document.getElementById('compKm').value = comp.intervalKm || '';
@@ -1295,7 +1291,6 @@ function openEditModal(compId) {
   document.getElementById('compLastDate').value = comp.lastDate || '';
   document.getElementById('compThreshold').value = comp.warningThreshold != null ? comp.warningThreshold : '';
   document.getElementById('compEditId').value = compId;
-  toggleCompFields();
   openModal('compModal');
 }
 
@@ -1311,15 +1306,7 @@ function openAddModal() {
   document.getElementById('compLastDate').value = new Date().toISOString().split('T')[0];
   document.getElementById('compThreshold').value = '';
   document.getElementById('compEditId').value = '';
-  toggleCompFields();
   openModal('compModal');
-}
-
-document.getElementById('compType').addEventListener('change', function() {
-  toggleCompFields();
-});
-function toggleCompFields() {
-  // logic configuration defaults placeholder — flexible setup layout keeps both inputs visible
 }
 
 function saveComponent() {
@@ -1374,19 +1361,140 @@ function deleteComponent(compId) {
   toast(l.toastDeleted);
 }
 
-// ===== HISTORY =====
+// ===== MANAJEMEN MASTER FUEL =====
+function openFuelModal(fuelId = null) {
+  if (fuelId) {
+    const f = DB.fuels.find(x => x.id === fuelId);
+    document.getElementById('fuelModalTitle').textContent = "Edit Fuel Variant";
+    document.getElementById('fuelBrand').value = f.brand;
+    document.getElementById('fuelName').value = f.name;
+    document.getElementById('fuelRon').value = f.ron;
+    document.getElementById('fuelPrice').value = f.price;
+    document.getElementById('fuelEditId').value = f.id;
+  } else {
+    document.getElementById('fuelModalTitle').textContent = "Add Fuel Variant";
+    document.getElementById('fuelBrand').value = '';
+    document.getElementById('fuelName').value = '';
+    document.getElementById('fuelRon').value = '';
+    document.getElementById('fuelPrice').value = '';
+    document.getElementById('fuelEditId').value = '';
+  }
+  openModal('fuelModal');
+}
+
+function saveFuelMaster() {
+  const brand = document.getElementById('fuelBrand').value.trim();
+  const name = document.getElementById('fuelName').value.trim();
+  const ron = document.getElementById('fuelRon').value.trim();
+  const price = parseFloat(document.getElementById('fuelPrice').value) || 0;
+  const editId = document.getElementById('fuelEditId').value;
+
+  if (!name || !ron) { alert("Nama Bensin & RON wajib diisi!"); return; }
+
+  if (editId) {
+    const f = DB.fuels.find(x => x.id === editId);
+    if (f) { f.brand = brand; f.name = name; f.ron = ron; f.price = price; }
+  } else {
+    DB.fuels.push({ id: 'f_' + Date.now(), brand, name, ron, price });
+  }
+
+  saveDB();
+  closeModal('fuelModal');
+  renderSettings();
+  toast(LANG_DICT[DB.lang || 'id'].toastSaved);
+}
+
+function deleteFuelMaster(fuelId) {
+  if (!confirm("Hapus varian bensin ini dari data Master?")) return;
+  DB.fuels = DB.fuels.filter(x => x.id !== fuelId);
+  saveDB();
+  renderSettings();
+  toast(LANG_DICT[DB.lang || 'id'].toastDeleted);
+}
+
+// ===== TRANSACTION BBM / LOG FUEL LOGIC (REVERSED: NOMINAL DRIVEN) =====
+function openFuelLogModal() {
+  const select = document.getElementById('fuelLogSelect');
+  select.innerHTML = DB.fuels.map(f => `<option value="${f.id}">[${f.brand}] ${f.name} (${f.ron}) — Rp ${f.price.toLocaleString('id-ID')}/L</option>`).join('');
+  
+  document.getElementById('fuelLogOdo').value = DB.odometer;
+  document.getElementById('fuelLogTotalCost').value = '';
+  document.getElementById('fuelLogLiters').value = '';
+  document.getElementById('fuelLogDate').value = new Date().toISOString().slice(0,16);
+  autoFillFuelPrice();
+  openModal('fuelLogModal');
+}
+
+function autoFillFuelPrice() {
+  const fuelId = document.getElementById('fuelLogSelect').value;
+  const f = DB.fuels.find(x => x.id === fuelId);
+  if (f) {
+    document.getElementById('fuelLogPricePerLiter').value = f.price;
+    calculateFuelLitersTotal();
+  }
+}
+
+function calculateFuelLitersTotal() {
+  const cost = parseFloat(document.getElementById('fuelLogTotalCost').value) || 0;
+  const pricePerLiter = parseFloat(document.getElementById('fuelLogPricePerLiter').value) || 0;
+  const litersInput = document.getElementById('fuelLogLiters');
+  
+  if (cost > 0 && pricePerLiter > 0) {
+    const totalLiters = cost / pricePerLiter;
+    litersInput.value = totalLiters.toFixed(2);
+  } else {
+    litersInput.value = '';
+  }
+}
+
+function submitFuelLog() {
+  const fuelId = document.getElementById('fuelLogSelect').value;
+  const odoVal = parseFloat(document.getElementById('fuelLogOdo').value) || DB.odometer;
+  const totalCost = parseFloat(document.getElementById('fuelLogTotalCost').value) || 0;
+  const liters = parseFloat(document.getElementById('fuelLogLiters').value) || 0;
+  const dateVal = document.getElementById('fuelLogDate').value;
+
+  const f = DB.fuels.find(x => x.id === fuelId);
+  if (!f || totalCost <= 0 || liters <= 0) { alert("Data pengisian bbm atau nominal belanja tidak valid."); return; }
+
+  DB.history.unshift({
+    id: genId(),
+    isFuel: true,
+    fuelBrand: f.brand,
+    fuelName: f.name,
+    fuelRon: f.ron,
+    liters: liters,
+    cost: totalCost,
+    odo: odoVal,
+    date: dateVal,
+    compName: `Pengisian BBM (${f.name})`
+  });
+
+  if (odoVal > DB.odometer) {
+    DB.odometer = odoVal;
+    document.getElementById('odoInput').value = odoVal;
+  }
+
+  saveDB();
+  closeModal('fuelLogModal');
+  renderDashboard();
+  toast(LANG_DICT[DB.lang || 'id'].toastSaved);
+}
+
+// ===== HISTORY RENDER WITH SUB-TOTALS & GRAND TOTAL =====
 function renderHistory() {
   const search = document.getElementById('historySearch').value.toLowerCase();
+  const typeFilter = document.getElementById('historyTypeFilter').value;
   const l = LANG_DICT[DB.lang || 'id'];
-  const filtered = DB.history.filter(h =>
-    !search || h.compName.toLowerCase().includes(search) || (h.location||'').toLowerCase().includes(search)
-  );
+  
+  let filtered = DB.history.filter(h => {
+    if (typeFilter === 'fuel' && !h.isFuel) return false;
+    if (typeFilter === 'service' && h.isFuel) return false;
+    return !search || h.compName.toLowerCase().includes(search) || (h.location||'').toLowerCase().includes(search);
+  });
 
   if (filtered.length === 0) {
-    document.getElementById('historyList').innerHTML = `
-      <div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">
-        ${l.msgNoHistory}
-      </div>`;
+    document.getElementById('historyList').innerHTML = `<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">${l.msgNoHistory}</div>`;
     return;
   }
 
@@ -1398,32 +1506,70 @@ function renderHistory() {
     groups[key].push(h);
   });
 
-  document.getElementById('historyList').innerHTML = Object.entries(groups).map(([month, entries]) => `
-    <div class="mb-6">
-      <div class="section-label mb-4">${month}</div>
-      <div class="flex flex-col gap-3">
-        ${entries.map(h => `
-          <div class="history-entry fade-in">
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <div class="font-display font-bold text-base" style="letter-spacing:0.02em">${h.compName}</div>
-                <div style="font-size:12px;color:var(--muted);margin-top:2px">
-                  ${new Date(h.date).toLocaleString(DB.lang==='id'?'id-ID':'en-US',{dateStyle:'medium',timeStyle:'short'})}
-                  ${h.location ? ` · 📍 ${h.location}` : ''}
-                </div>
-                ${h.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${h.notes}</div>` : ''}
+  let grandTotalCost = 0;
+  
+  let html = Object.entries(groups).map(([month, entries]) => {
+    let subTotalService = 0;
+    let subTotalFuel = 0;
+    
+    const entriesHtml = entries.map(h => {
+      grandTotalCost += (h.cost || 0);
+      if (h.isFuel) subTotalFuel += (h.cost || 0);
+      else subTotalService += (h.cost || 0);
+
+      const entryClass = h.isFuel ? "history-entry fuel-entry" : "history-entry";
+      const typeLabel = h.isFuel ? `<span class="badge badge-fuel">⛽ Fuel</span>` : `<span class="badge badge-fast">🔧 Service</span>`;
+
+      return `
+        <div class="${entryClass} fade-in">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <div class="font-display font-bold text-base" style="letter-spacing:0.02em">${h.compName}</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px">
+                ${new Date(h.date).toLocaleString(DB.lang==='id'?'id-ID':'en-US',{dateStyle:'medium',timeStyle:'short'})}
+                ${h.location ? ` · 📍 ${h.location}` : ''} ${typeLabel}
               </div>
-              <div class="text-right flex-shrink-0">
-                ${h.cost ? `<div class="font-mono font-bold" style="color:var(--accent)">Rp ${h.cost.toLocaleString('id-ID')}</div>` : ''}
-                <div style="font-size:11px;color:var(--muted)">${h.odo?.toLocaleString()} KM</div>
-                <button class="btn btn-danger btn-sm mt-2" onclick="deleteHistory('${h.id}')">✕</button>
-              </div>
+              ${h.liters ? `<div style="font-size:12px;color:var(--muted);margin-top:2px;">Volume: ${h.liters.toFixed(2)} Liter</div>`:''}
+              ${h.notes ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${h.notes}</div>` : ''}
+            </div>
+            <div class="text-right flex-shrink-0">
+              ${h.cost ? `<div class="font-mono font-bold" style="color:${h.isFuel?'var(--green)':'var(--accent)'}">Rp ${h.cost.toLocaleString('id-ID')}</div>` : ''}
+              <div style="font-size:11px;color:var(--muted)">${h.odo?.toLocaleString()} KM</div>
+              <button class="btn btn-danger btn-sm mt-2" onclick="deleteHistory('${h.id}')">✕</button>
             </div>
           </div>
-        `).join('')}
+        </div>
+      `;
+    }).join('');
+
+    const subTotalCombined = subTotalService + subTotalFuel;
+
+    return `
+      <div class="mb-6 stat-card" style="background: var(--surface)">
+        <div class="section-label mb-4">${month}</div>
+        <div class="flex flex-col gap-3 mb-4">
+          ${entriesHtml}
+        </div>
+        <div class="border-t border-[var(--border)] pt-3 text-right text-xs" style="color: var(--muted)">
+          <div>Subtotal Servis: <span class="font-mono font-bold text-white text-sm">Rp ${subTotalService.toLocaleString('id-ID')}</span></div>
+          <div class="mt-1">Subtotal BBM: <span class="font-mono font-bold text-white text-sm">Rp ${subTotalFuel.toLocaleString('id-ID')}</span></div>
+          <div class="mt-2 text-sm pt-2 border-dashed border-t border-[var(--border)]" style="color:var(--accent2)">
+            Total Bulan ini: <span class="font-mono font-bold text-base">Rp ${subTotalCombined.toLocaleString('id-ID')}</span>
+          </div>
+        </div>
       </div>
+    `;
+  }).join('');
+
+  html = `
+    <div class="stat-card mb-4 border border-[var(--accent)]" style="background:var(--card)">
+      <div class="text-xs font-bold text-[var(--muted)] tracking-wider">GRAND TOTAL ALL TRANSACTIONS (PENGELUARAN KESELURUHAN)</div>
+      <div class="font-display font-bold text-3xl font-mono mt-1" style="color:var(--accent)">Rp ${grandTotalCost.toLocaleString('id-ID')}</div>
     </div>
-  `).join('');
+    ${html}
+  `;
+
+  document.getElementById('historyList').innerHTML = html;
 }
 
 function deleteHistory(hId) {
@@ -1436,10 +1582,29 @@ function deleteHistory(hId) {
   toast(l.toastDeleted);
 }
 
-// ===== SETTINGS =====
 function renderSettings() {
   initThresholdPanel();
   const l = LANG_DICT[DB.lang || 'id'];
+  
+  const fuelContainer = document.getElementById('settingsFuelList');
+  if(DB.fuels.length === 0) {
+    fuelContainer.innerHTML = `<div style="color:var(--muted); font-size:12px;">Data bensin kosong.</div>`;
+  } else {
+    fuelContainer.innerHTML = DB.fuels.map(f => `
+      <div class="p-3 rounded flex items-center justify-between" style="background:var(--bg); border: 1px solid var(--border)">
+        <div>
+          <span class="font-bold text-white">[${f.brand}] ${f.name}</span>
+          <span class="text-xs px-2 py-0.5 ml-2 rounded bg-neutral-800 text-amber-500 font-mono">${f.ron}</span>
+          <div class="text-xs text-[var(--muted)] mt-1">Harga perliter: <span class="text-[var(--green)] font-mono font-bold">Rp ${f.price.toLocaleString('id-ID')}</span></div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm" onclick="openFuelModal('${f.id}')">✎</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteFuelMaster('${f.id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
   const container = document.getElementById('settingsCompList');
   container.innerHTML = `
     <div class="section-label mb-4">${l.componentsSection}</div>
@@ -1459,7 +1624,7 @@ function renderSettings() {
               ${comp.intervalKm && comp.intervalMonths ? ' / ' : ''}
               ${comp.intervalMonths ? `${comp.intervalMonths} ${DB.lang==='id'?'bln':'mo'}` : ''}
               <span class="badge ${comp.category === 'fast' ? 'badge-fast' : 'badge-slow'}">${mappedCat}</span>
-              <span class="badge" style="background:rgba(232,184,75,0.12);color:var(--yellow)" title="${hasOverride ? 'Override khusus' : 'Menggunakan global'}">
+              <span class="badge" style="background:rgba(232,184,75,0.12);color:var(--yellow)">
                 🔔 ${hasOverride ? `${comp.warningThreshold}%` : `${effectiveThresh}% (${l.lblGlobal})`}
               </span>
             </div>
@@ -1474,7 +1639,7 @@ function renderSettings() {
     </div>
     <div class="mt-6 flex gap-3 flex-wrap">
       <button class="btn btn-primary" onclick="openAddModal()">${l.addComponent}</button>
-      <button class="btn btn-ghost" onclick="resetAllData()">${l.resetAll}</button>
+      <button class="btn btn-danger" onclick="resetAllData()">${l.resetAll}</button>
     </div>
   `;
 }
@@ -1491,7 +1656,6 @@ function resetAllData() {
   toast(l.toastDeleted);
 }
 
-// ===== IMPORT / EXPORT =====
 function exportData() {
   const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -1510,16 +1674,30 @@ function importData(event) {
   reader.onload = e => {
     try {
       const imported = JSON.parse(e.target.result);
-      if (!imported.components) throw new Error('Invalid format');
+      if (!imported.components || !Array.isArray(imported.components)) throw new Error('Invalid format');
       DB = imported;
+      // Migration: fill in any fields this version needs that older exports won't have
+      if (DB.warningThreshold == null) DB.warningThreshold = 20;
+      if (!('lang'       in DB)) DB.lang       = 'id';
+      if (!('fuels'      in DB)) DB.fuels      = [];
+      if (!('readme'     in DB)) DB.readme     = null;
+      if (!('donationQr' in DB)) DB.donationQr = null;
+      DB.components.forEach(c => { if (c.warningThreshold === undefined) c.warningThreshold = null; });
       saveDB();
       document.getElementById('odoInput').value = DB.odometer;
-      applyTheme();
+      // Apply theme (toggleTheme is the correct function name in this file)
+      const isLight = DB.theme === 'light';
+      document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) themeToggle.checked = isLight;
+      const themeLbl = document.getElementById('lbl-theme-text');
+      if (themeLbl) themeLbl.textContent = isLight ? 'Light Mode Active' : 'Dark Mode Active';
       applyLanguage();
       renderDashboard();
       renderSettings();
       toast('✓ Import OK');
     } catch(err) {
+      console.error('Import error:', err);
       alert('Import failed: invalid file format.');
     }
   };
@@ -1527,50 +1705,17 @@ function importData(event) {
   event.target.value = '';
 }
 
-// ===== README / ABOUT CONTENT MATRIX =====
-const DEFAULT_README_EN = `<p style="margin-bottom:14px">
-  <strong>MotoTrack</strong> is a comprehensive, free, web-based application designed to track your motorcycle's component lifetimes and maintenance schedule. Running fully client-side, no backend accounts or internet connections are required — all your personal data resides completely within your secure browser database.
-</p>
-<p style="margin-bottom:14px">
-  Core features include global odometer tracking, real-time visual progress bars, customized early notification warning systems, full itemized diagnostic logs, and dynamic portability utilizing clean JSON Import/Export architectures.
-</p>
-<p style="margin-bottom:14px">
-  This program is created entirely for free for everyone. <!-- Anyone who finds this app helpful can make a donation to support the project at: --> <br>
-  <!-- <a href="https://saweria.co" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline">
-    [Insert Your Donation Link Here — e.g. Saweria / Trakteer / Crypto Wallet]
-  </a> -->
-</p>
-<p style="color:var(--muted);font-size:13px">
-  MotoTrack is open-source software, free to use, modify, and distribute under the MIT License.
-</p>`;
-
-const DEFAULT_README_ID = `<p style="margin-bottom:14px">
-  <strong>MotoTrack</strong> adalah aplikasi gratis berbasis web untuk memantau usia komponen dan jadwal perawatan sepeda motor kamu. Tidak perlu internet, tidak perlu akun — semua data tersimpan langsung di browser-mu secara aman.
-</p>
-<p style="margin-bottom:14px">
-  Fitur utama meliputi pelacakan kilometer global (odometer), visualisasi sisa persentase performa sparepart, konfigurasi batas peringatan dini (early warning system), histori rincian servis terintegrasi, serta penanganan cadangan data ringkas via ekspor/impor JSON.
-</p>
-<p style="margin-bottom:14px">
-  Program ini diciptakan secara gratis untuk semua orang. <!-- Bagi yang merasa terbantu dengan aplikasi ini bisa melakukan donasi ke: --> <br>
-  <!-- <a href="https://saweria.co" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;text-decoration:underline">
-    [Masukkan Link Donasi Anda di Sini — misal Saweria / Trakteer / Crypto Wallet]
-  </a> -->
-</p>
-<p style="color:var(--muted);font-size:13px">
-  MotoTrack adalah perangkat lunak open-source, bebas digunakan, dimodifikasi, dan didistribusikan secara gratis di bawah naungan Lisensi MIT.
-</p>`;
+const DEFAULT_README_EN = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> is a comprehensive, web-based application designed to track your motorcycle's component lifetimes and fuel analysis.</p>`;
+const DEFAULT_README_ID = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> adalah aplikasi gratis berbasis web untuk memantau usia komponen, pencatatan servis secara berkala, dan penjejakan konsumsi BBM sepeda motor secara detail.</p>`;
 
 let _editQrBase64 = null;
-let _editQrFilename = '';
 
 function renderAbout() {
   document.getElementById('aboutView').style.display = '';
   document.getElementById('aboutEdit').style.display = 'none';
   document.getElementById('licenseYear').textContent = new Date().getFullYear();
-
   const fallbackReadme = (DB.lang === 'id') ? DEFAULT_README_ID : DEFAULT_README_EN;
-  const content = DB.readme || fallbackReadme;
-  document.getElementById('aboutContent').innerHTML = content;
+  document.getElementById('aboutContent').innerHTML = DB.readme || fallbackReadme;
 
   const qrSec = document.getElementById('qrSection');
   const qrImg = document.getElementById('qrImage');
@@ -1585,11 +1730,8 @@ function renderAbout() {
 
 function enterAboutEdit() {
   _editQrBase64 = DB.donationQr || null;
-  _editQrFilename = '';
-
   document.getElementById('aboutView').style.display = 'none';
   document.getElementById('aboutEdit').style.display = '';
-  
   const fallbackReadme = (DB.lang === 'id') ? DEFAULT_README_ID : DEFAULT_README_EN;
   document.getElementById('aboutTextarea').value = DB.readme || fallbackReadme;
   refreshQrEditPreview();
@@ -1606,107 +1748,66 @@ function saveAboutEdit() {
   DB.donationQr = _editQrBase64;
   saveDB();
   _editQrBase64 = null;
-  document.getElementById('aboutView').style.display = '';
-  document.getElementById('aboutEdit').style.display = 'none';
   renderAbout();
   toast(LANG_DICT[DB.lang || 'id'].toastSaved);
 }
 
 function refreshQrEditPreview() {
-  const area   = document.getElementById('qrUploadArea');
-  const prev   = document.getElementById('qrUploadPreview');
-  const actions= document.getElementById('qrEditActions');
-  const fname  = document.getElementById('qrEditFilename');
-  const l = LANG_DICT[DB.lang || 'id'];
-
+  const prev = document.getElementById('qrUploadPreview');
   if (_editQrBase64) {
-    prev.innerHTML = `
-      <img src="${_editQrBase64}" alt="QR Preview"
-        style="max-width:180px;width:100%;border-radius:6px;margin:0 auto 8px;display:block" />
-      <div style="font-size:11px;color:var(--muted)">${l.clickReplaceQr}</div>`;
-    area.style.borderColor = 'var(--accent)';
-    if (actions) { actions.style.display = 'flex'; }
-    if (fname)   { fname.textContent = _editQrFilename || l.uploadImgName; }
+    prev.innerHTML = `<img src="${_editQrBase64}" style="max-width:180px; width:100%; border-radius:6px; margin:0 auto;" />`;
   } else {
-    prev.innerHTML = `
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" style="margin:0 auto 10px">
-        <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
-        <rect x="3" y="13" width="8" height="8" rx="1"/>
-        <rect x="13" y="13" width="3" height="3"/><rect x="18" y="13" width="3" height="3"/>
-        <rect x="13" y="18" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/>
-      </svg>
-      <div style="font-size:13px;color:var(--muted)">${l.clickDragQr}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:4px">${l.qrTypesNote}</div>`;
-    area.style.borderColor = 'var(--border)';
-    if (actions) { actions.style.display = 'none'; }
+    prev.innerHTML = `<div class="text-neutral-500 text-xs">Drop or Click to upload QR Donation Image</div>`;
   }
 }
 
 function handleQrUpload(event) {
   const file = event.target.files[0];
-  if (!file) return;
-  readQrFile(file);
-  event.target.value = '';
+  if (file) readQrFile(file);
 }
 
 function handleQrDrop(event) {
   event.preventDefault();
-  document.getElementById('qrUploadArea').style.borderColor = 'var(--border)';
   const file = event.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) readQrFile(file);
+  if (file) readQrFile(file);
 }
 
 function readQrFile(file) {
-  const l = LANG_DICT[DB.lang || 'id'];
-  if (file.size > 5 * 1024 * 1024) { toast(l.errImageSize); return; }
   const reader = new FileReader();
   reader.onload = e => {
     _editQrBase64 = e.target.result;
-    _editQrFilename = file.name;
     refreshQrEditPreview();
-    toast('✓ QR Loaded');
   };
   reader.readAsDataURL(file);
 }
 
 function removeQrImage() {
   _editQrBase64 = null;
-  _editQrFilename = '';
   refreshQrEditPreview();
 }
 
-// ===== MODAL HELPERS =====
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-document.querySelectorAll('.modal-overlay').forEach(el => {
-  el.addEventListener('click', e => {
-    if (e.target === el) closeModal(el.id);
-  });
-});
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ===== INIT =====
-function applyTheme() {
-  const isLight = DB.theme === 'light';
-  document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
-  document.getElementById('themeToggle').checked = isLight;
-}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); });
+});
 
 function init() {
   loadDB();
   document.getElementById('odoInput').value = DB.odometer;
-  applyTheme();
+  
+  const isLight = DB.theme === 'light';
+  document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeToggle').checked = isLight;
+  document.getElementById('lbl-theme-text').textContent = isLight ? 'Light Mode Active' : 'Dark Mode Active';
+
   applyLanguage();
   filterComponents('all');
   renderDashboard();
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
-    }
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
   });
 }
 
