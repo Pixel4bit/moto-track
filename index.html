@@ -572,7 +572,7 @@
       <button id="btn-add-fuel-dash" class="btn btn-primary btn-sm" onclick="openFuelLogModal()">⛽ Log Fuel</button>
       <button id="btn-add-comp-dash" class="btn btn-ghost btn-sm" onclick="openAddModal()">＋ Add Component</button>
       <button id="btn-export-dash" class="btn btn-ghost btn-sm" onclick="exportData()">⬆ Export</button>
-      <label id="lbl-import-dash" class="btn btn-ghost btn-sm" style="cursor:pointer">⬇ Import<input type="file" accept=".json" style="display:none" onchange="importData(event)"/></label>
+      <button id="lbl-import-dash" class="btn btn-ghost btn-sm" style="cursor:pointer">⬇ Import<input type="file" accept=".json" style="display:none" onchange="importData(event)"/></label>
     </div>
   </div>
 
@@ -2102,7 +2102,7 @@ function renderStats() {
   document.getElementById('statsRow').innerHTML = stats.map(s => `
     <div class="stat-card">
       <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">${s.label}</div>
-      <div class="font-display font-bold" style="font-size:28px;color:${s.color};line-height:1">${s.value}</div>
+      <div class="font-display font-bold" style="font-size:24px;color:${s.color};line-height:1">${s.value}</div>
     </div>
   `).join('');
 }
@@ -2218,24 +2218,6 @@ function renderFuelDashboardWidget() {
   const toggleBtnText = DB.fuelSummaryVisible ? (DB.lang === 'id' ? 'Sembunyikan' : 'Hide') : (DB.lang === 'id' ? 'Tampilkan' : 'Show');
 
   container.innerHTML = `
-    <div class="flex flex-col gap-4">
-      <div class="stat-card" style="border-left: 4px solid var(--green)">
-        <div class="flex flex-wrap justify-between items-center gap-2">
-          <div>
-            <div class="section-label mb-1" style="color:var(--green)">${l.lastFuelLogTitle}</div>
-            <div class="font-display font-bold text-lg" style="color:var(--text)">
-              [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} ${DB.lang==='id'?'Liter':'Liters'}
-            </div>
-            <div class="mt-1">${distanceInfo}</div>
-          </div>
-          <div class="text-right">
-            <div style="font-size:10px;color:var(--muted); font-weight:700">${DB.lang==='id'?'PADA ODOMETER':'AT ODOMETER'}</div>
-            <div class="font-mono text-xl font-bold" style="color:var(--green)">${lastLog.odo.toLocaleString()} KM</div>
-            <div style="font-size:12px; color:var(--muted)">${l.totalCostLabel} <span style="color:var(--text)">Rp ${lastLog.cost.toLocaleString('id-ID')}</span></div>
-          </div>
-        </div>
-      </div>
-
       <div class="stat-card border border-[var(--border)]" style="background: var(--surface)">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] pb-3 mb-3">
           <div class="section-label text-[var(--text)] font-bold tracking-wide" style="color: var(--accent2)">${l.fuelSummaryTitle}</div>
@@ -2255,6 +2237,25 @@ function renderFuelDashboardWidget() {
             <button class="btn btn-ghost btn-sm" onclick="toggleFuelSummary()">${toggleBtnText}</button>
           </div>
         </div>
+
+<div class="flex flex-col gap-4" style="display: ${DB.fuelSummaryVisible ? 'grid' : 'none'};">
+      <div class="stat-card" style="border-left: 4px solid var(--green)">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <div>
+            <div class="section-label mb-1" style="color:var(--green)">${l.lastFuelLogTitle}</div>
+            <div class="font-display font-bold text-lg" style="color:var(--text)">
+              [${lastLog.fuelBrand}] ${lastLog.fuelName} (${lastLog.fuelRon}) — ${lastLog.liters.toFixed(2)} ${DB.lang==='id'?'Liter':'Liters'}
+            </div>
+            <div class="mt-1">${distanceInfo}</div>
+          </div>
+          <div class="text-right">
+            <div style="font-size:10px;color:var(--muted); font-weight:700">${DB.lang==='id'?'PADA ODOMETER':'AT ODOMETER'}</div>
+            <div class="font-mono text-xl font-bold" style="color:var(--green)">${lastLog.odo.toLocaleString()} KM</div>
+            <div style="font-size:12px; color:var(--muted)">${l.totalCostLabel} <span style="color:var(--text)">Rp ${lastLog.cost.toLocaleString('id-ID')}</span></div>
+          </div>
+        </div>
+      </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4" id="fuelSummaryGrid" style="display: ${DB.fuelSummaryVisible ? 'grid' : 'none'};">
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
             <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.avgFuelLabel}</div>
@@ -2723,9 +2724,9 @@ function renderHistory() {
         <div class="flex flex-col gap-3 mb-4">
           ${entriesHtml}
         </div>
-        <div class="border-t border-[var(--border)] pt-3 text-right text-xs" style="color: var(--muted)">
-          <div>${l.subtotalServiceLabel} <span class="font-mono font-bold text-white text-sm">Rp ${subTotalService.toLocaleString('id-ID')}</span></div>
-          <div class="mt-1">${l.subtotalFuelLabel} <span class="font-mono font-bold text-white text-sm">Rp ${subTotalFuel.toLocaleString('id-ID')}</span></div>
+        <div class="border-t border-[var(--border)] pt-3 text-right text-xs" style="color: var(--text)">
+          <div>${l.subtotalServiceLabel} <span class="font-mono font-bold text-sm">Rp ${subTotalService.toLocaleString('id-ID')}</span></div>
+          <div class="mt-1">${l.subtotalFuelLabel} <span class="font-mono font-bold text-sm">Rp ${subTotalFuel.toLocaleString('id-ID')}</span></div>
           <div class="mt-2 text-sm pt-2 border-dashed border-t border-[var(--border)]" style="color:var(--accent2)">
             ${l.monthlyTotalLabel} <span class="font-mono font-bold text-base">Rp ${subTotalCombined.toLocaleString('id-ID')}</span>
           </div>
