@@ -5,36 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>MotoTrack — Pemantau Umur Komponen Motor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
+  /* ─── Modern SaaS Dashboard Token System ─── */
   :root {
-    --bg:        #0f0f0f;
-    --surface:   #181818;
-    --card:      #1e1e1e;
-    --border:    #2e2e2e;
-    --text:      #e8e4de;
-    --muted:     #7a7570;
-    --accent:    #f06a00;
-    --accent2:   #ff9a3c;
-    --green:     #4caf7d;
-    --yellow:    #e8b84b;
-    --red:       #e84b4b;
-    --glow:      rgba(240,106,0,0.18);
+    --bg:        #0a0b0f;
+    --surface:   #111318;
+    --card:      #161922;
+    --card2:     #1c2030;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.12);
+    --text:      #e2e8f0;
+    --text-dim:  #94a3b8;
+    --muted:     #475569;
+    --accent:    #6366f1;
+    --accent2:   #818cf8;
+    --accent-glow: rgba(99,102,241,0.2);
+    --green:     #10b981;
+    --yellow:    #f59e0b;
+    --red:       #ef4444;
+    --glow:      rgba(99,102,241,0.15);
+    --sidebar-w: 220px;
   }
   [data-theme="light"] {
-    --bg:        #f2ede8;
-    --surface:   #e8e2da;
-    --card:      #fff8f2;
-    --border:    #d4c9be;
-    --text: #1e1a16;
-    --muted:     #8c7f74;
-    --accent:    #d95c00;
-    --accent2:   #f07020;
-    --green:     #2e7a52;
-    --yellow:    #b88c18;
-    --red:       #c43030;
-    --glow:      rgba(217,92,0,0.12);
+    --bg:        #f1f5f9;
+    --surface:   #ffffff;
+    --card:      #ffffff;
+    --card2:     #f8fafc;
+    --border:    rgba(0,0,0,0.08);
+    --border2:   rgba(0,0,0,0.14);
+    --text:      #0f172a;
+    --text-dim:  #475569;
+    --muted:     #94a3b8;
+    --accent:    #4f46e5;
+    --accent2:   #6366f1;
+    --accent-glow: rgba(79,70,229,0.15);
+    --green:     #059669;
+    --yellow:    #d97706;
+    --red:       #dc2626;
+    --glow:      rgba(79,70,229,0.12);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,124 +52,150 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
     min-height: 100vh;
     transition: background 0.3s, color 0.3s;
+    -webkit-font-smoothing: antialiased;
   }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.6;
-  }
+  /* Remove old noise texture */
+  body::before { display: none; }
 
-  .font-mono { font-family: 'Share Tech Mono', monospace; }
-  .font-display { font-family: 'Barlow Condensed', sans-serif; }
+  .font-mono { font-family: 'JetBrains Mono', monospace; }
+  .font-display { font-family: 'Inter', sans-serif; font-weight: 700; letter-spacing: -0.02em; }
 
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
+  /* ─── Header ─── */
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  [data-theme="dark"] header {
+    background: rgba(17,19,24,0.85);
   }
 
+  /* ─── Odometer box ─── */
   .odo-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    transition: border-color 0.2s;
+    background: var(--card2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .odo-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+  .odo-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
 
+  /* ─── Component cards ─── */
   .comp-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: border-color 0.2s, transform 0.15s;
+    border-radius: 12px;
+    transition: border-color 0.18s, transform 0.15s, box-shadow 0.18s;
     position: relative;
     overflow: hidden;
   }
-  .comp-card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .comp-card.critical { border-color: var(--red) !important; }
-  .comp-card.warning  { border-color: var(--yellow) !important; }
+  .comp-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .comp-card.critical { border-color: rgba(239,68,68,0.5) !important; box-shadow: 0 0 0 1px rgba(239,68,68,0.12); }
+  .comp-card.warning  { border-color: rgba(245,158,11,0.45) !important; }
   .comp-card.ok       { border-color: var(--border); }
 
+  /* ─── Progress bars ─── */
   .progress-track {
     background: var(--border);
     border-radius: 99px;
-    height: 6px;
+    height: 5px;
     overflow: hidden;
   }
   .progress-bar {
     height: 100%;
     border-radius: 99px;
-    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    transition: width 0.55s cubic-bezier(.4,0,.2,1);
   }
-  .bar-ok      { background: linear-gradient(90deg, var(--green), #6fcf97); }
-  .bar-warning { background: linear-gradient(90deg, var(--yellow), #f0c060); }
-  .bar-critical{ background: linear-gradient(90deg, var(--red), #ff6b6b); box-shadow: 0 0 8px rgba(232,75,75,0.5); }
+  .bar-ok      { background: linear-gradient(90deg, var(--green), #34d399); }
+  .bar-warning { background: linear-gradient(90deg, var(--yellow), #fbbf24); }
+  .bar-critical{ background: linear-gradient(90deg, var(--red), #f87171); box-shadow: 0 0 6px rgba(239,68,68,0.45); }
 
+  /* ─── Badges ─── */
   .badge {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.06em;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     padding: 2px 8px;
-    border-radius: 3px;
+    border-radius: 99px;
   }
-  .badge-ok       { background: rgba(76,175,125,0.15); color: var(--green); }
-  .badge-warning  { background: rgba(232,184,75,0.15); color: var(--yellow); }
-  .badge-critical { background: rgba(232,75,75,0.18); color: var(--red); }
-  .badge-due      { background: rgba(240,106,0,0.18); color: var(--accent2); }
-  .badge-fast     { background: rgba(240,106,0,0.1); color: var(--accent); }
-  .badge-slow     { background: rgba(122,117,112,0.15); color: var(--muted); }
-  .badge-fuel     { background: rgba(76,175,125,0.15); color: var(--green); }
+  .badge-ok       { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .badge-warning  { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1px solid rgba(245,158,11,0.2); }
+  .badge-critical { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .badge-due      { background: rgba(99,102,241,0.14); color: var(--accent2); border: 1px solid rgba(99,102,241,0.2); }
+  .badge-fast     { background: rgba(99,102,241,0.1); color: var(--accent); border: 1px solid rgba(99,102,241,0.15); }
+  .badge-slow     { background: rgba(148,163,184,0.1); color: var(--text-dim); border: 1px solid rgba(148,163,184,0.15); }
+  .badge-fuel     { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.18); }
 
+  /* ─── Buttons ─── */
   .btn {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
     font-size: 13px;
-    padding: 7px 16px;
-    border-radius: 5px;
+    padding: 7px 14px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
     transition: all 0.15s;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
   }
   .btn:active { transform: scale(0.97); }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent2); }
-  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-danger { background: rgba(232,75,75,0.12); color: var(--red); border: 1px solid rgba(232,75,75,0.2); }
-  .btn-danger:hover { background: rgba(232,75,75,0.22); }
-  .btn-sm { font-size: 11px; padding: 4px 10px; }
-  .btn-icon { padding: 6px; }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(99,102,241,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .btn-primary:hover { background: var(--accent2); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+  .btn-danger {
+    background: rgba(239,68,68,0.08);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.18);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.16); }
+  .btn-sm { font-size: 11.5px; padding: 4px 10px; border-radius: 6px; }
+  .btn-icon { padding: 6px 8px; }
 
+  /* ─── Form elements ─── */
   input, select, textarea {
-    background: var(--bg);
-    border: 1px solid var(--border);
+    background: var(--card2);
+    border: 1px solid var(--border2);
     color: var(--text);
-    border-radius: 5px;
-    padding: 8px 12px;
-    font-family: 'Barlow', sans-serif;
-    font-size: 14px;
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
     width: 100%;
     transition: border-color 0.2s, box-shadow 0.2s;
     outline: none;
@@ -168,13 +204,24 @@
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--glow);
   }
-  input[type="number"] { font-family: 'Share Tech Mono', monospace; }
-  label { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 5px; }
+  input[type="number"] { font-family: 'JetBrains Mono', monospace; }
+  label {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: block;
+    margin-bottom: 5px;
+  }
+  input[type="range"] { background: transparent; }
 
+  /* ─── Modal ─── */
   .modal-overlay {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 500;
     display: flex; align-items: center; justify-content: center;
     padding: 16px;
@@ -184,23 +231,25 @@
   .modal-overlay.open { opacity: 1; pointer-events: all; }
   .modal-box {
     background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    border: 1px solid var(--border2);
+    border-radius: 16px;
     width: 100%; max-width: 520px;
     max-height: 90vh;
     overflow-y: auto;
-    transform: translateY(16px);
-    transition: transform 0.2s;
+    transform: translateY(20px) scale(0.98);
+    transition: transform 0.22s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
   }
-  .modal-overlay.open .modal-box { transform: translateY(0); }
+  .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
 
+  /* ─── Tabs ─── */
   .tab-btn {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-size: 14px;
-    padding: 10px 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 13.5px;
+    padding: 11px 18px;
     border: none;
     background: none;
     cursor: pointer;
@@ -209,29 +258,33 @@
     transition: all 0.15s;
     white-space: nowrap;
   }
-  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .tab-btn:hover:not(.active) { color: var(--text); }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab-btn:hover:not(.active) { color: var(--text-dim); }
 
+  /* ─── Status side-stripe on comp-card ─── */
   .comp-card.critical::before {
     content: '';
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 3px;
-    background: var(--red);
+    background: linear-gradient(180deg, var(--red), rgba(239,68,68,0.4));
+    border-radius: 3px 0 0 3px;
   }
   .comp-card.warning::before {
     content: '';
     position: absolute;
     left: 0; top: 0; bottom: 0;
     width: 3px;
-    background: var(--yellow);
+    background: linear-gradient(180deg, var(--yellow), rgba(245,158,11,0.4));
+    border-radius: 3px 0 0 3px;
   }
 
+  /* ─── Section labels ─── */
   .section-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 800;
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted);
     display: flex;
@@ -245,31 +298,33 @@
     background: var(--border);
   }
 
+  /* ─── History timeline ─── */
   .history-entry {
     border-left: 2px solid var(--accent);
-    padding-left: 14px;
+    padding-left: 16px;
     position: relative;
   }
   .history-entry::before {
     content: '';
     position: absolute;
-    left: -5px; top: 5px;
+    left: -5px; top: 6px;
     width: 8px; height: 8px;
     background: var(--accent);
     border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--accent-glow);
   }
-  .history-entry.fuel-entry {
-    border-left-color: var(--green);
-  }
+  .history-entry.fuel-entry { border-left-color: var(--green); }
   .history-entry.fuel-entry::before {
     background: var(--green);
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
   }
 
+  /* ─── Toggle switch ─── */
   .toggle-wrap { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
   .toggle-input { opacity: 0; width: 0; height: 0; position: absolute; }
   .toggle-slider {
     width: 40px; height: 22px;
-    background: var(--border);
+    background: var(--border2);
     border-radius: 99px;
     transition: background 0.2s;
     position: relative;
@@ -282,48 +337,112 @@
     background: #fff;
     border-radius: 50%;
     transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
   .toggle-input:checked + .toggle-slider { background: var(--accent); }
   .toggle-input:checked + .toggle-slider::after { left: 21px; }
 
-  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-  .fade-in { animation: fadeIn 0.25s ease both; }
+  /* ─── Animations ─── */
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+  .fade-in { animation: fadeIn 0.22s ease both; }
+
+  @keyframes fadeInUp   { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeInDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeInLeft { from { opacity:0; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
+  @keyframes scaleIn    { from { opacity:0; transform:scale(0.94); } to { opacity:1; transform:scale(1); } }
+  @keyframes slideInRight { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:translateX(0); } }
+
+  /* staggered card entrance */
+  @keyframes cardEntrance { from { opacity:0; transform:translateY(12px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+  .comp-card { animation: cardEntrance 0.28s cubic-bezier(.22,1,.36,1) both; }
+  .comp-card:nth-child(1)  { animation-delay: 0.04s; }
+  .comp-card:nth-child(2)  { animation-delay: 0.08s; }
+  .comp-card:nth-child(3)  { animation-delay: 0.12s; }
+  .comp-card:nth-child(4)  { animation-delay: 0.16s; }
+  .comp-card:nth-child(5)  { animation-delay: 0.20s; }
+  .comp-card:nth-child(6)  { animation-delay: 0.24s; }
+  .comp-card:nth-child(n+7){ animation-delay: 0.28s; }
+
+  /* header entrance */
+  header { animation: fadeInDown 0.35s cubic-bezier(.22,1,.36,1) both; }
+
+  /* stat row */
+  #statsRow > * { animation: scaleIn 0.3s cubic-bezier(.22,1,.36,1) both; }
+  #statsRow > *:nth-child(1) { animation-delay:0.05s; }
+  #statsRow > *:nth-child(2) { animation-delay:0.10s; }
+  #statsRow > *:nth-child(3) { animation-delay:0.15s; }
+  #statsRow > *:nth-child(4) { animation-delay:0.20s; }
+
+  /* tab panel transitions */
+  .tab-panel-enter { animation: fadeInUp 0.22s cubic-bezier(.22,1,.36,1) both; }
+
+  /* sidebar entrance */
+  #sidebarNav { animation: fadeInLeft 0.22s cubic-bezier(.22,1,.36,1) both; }
+
+  /* history entries */
+  .history-entry { animation: slideInRight 0.22s cubic-bezier(.22,1,.36,1) both; }
+  .history-entry:nth-child(1) { animation-delay:0.03s; }
+  .history-entry:nth-child(2) { animation-delay:0.06s; }
+  .history-entry:nth-child(3) { animation-delay:0.09s; }
+  .history-entry:nth-child(n+4){ animation-delay:0.12s; }
+
+  /* progress bar shine sweep */
+  @keyframes barShine { 0% { background-position:200% center; } 100% { background-position:-200% center; } }
+  .progress-bar { background-size: 200% auto; }
+  .bar-ok      { background: linear-gradient(90deg, var(--green), #34d399, var(--green)); background-size:200% auto; animation: barShine 3s linear infinite; }
+  .bar-warning { background: linear-gradient(90deg, var(--yellow), #fbbf24, var(--yellow)); background-size:200% auto; animation: barShine 3s linear infinite; }
+  .bar-critical{ background: linear-gradient(90deg, var(--red), #f87171, var(--red)); background-size:200% auto; animation: barShine 2.5s linear infinite; box-shadow: 0 0 6px rgba(239,68,68,0.45); }
+
+  /* button ripple feel */
+  .btn { position: relative; overflow: hidden; }
+  .btn::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0); transition: background 0.15s; }
+  .btn:active::after { background:rgba(255,255,255,0.08); }
+
+  /* swatch hover bounce */
+  #baseSwatches button, #accentSwatches button { transition: transform 0.15s cubic-bezier(.34,1.56,.64,1), border 0.15s; }
+  #baseSwatches button:hover, #accentSwatches button:hover { transform: scale(1.2); }
+
+  /* toggle thumb spring */
+  .toggle-slider::after { transition: left 0.22s cubic-bezier(.34,1.56,.64,1), background 0.2s; }
 
   @keyframes pulse-glow {
-    0%,100% { box-shadow: 0 0 0 0 rgba(232,75,75,0); }
-    50% { box-shadow: 0 0 0 4px rgba(232,75,75,0.2); }
+    0%,100% { box-shadow: 0 0 0 1px rgba(239,68,68,0.12); }
+    50% { box-shadow: 0 0 0 3px rgba(239,68,68,0.22), 0 0 20px rgba(239,68,68,0.08); }
   }
-  .comp-card.critical { animation: pulse-glow 2.5s infinite; }
+  .comp-card.critical { animation: pulse-glow 3s infinite, cardEntrance 0.28s cubic-bezier(.22,1,.36,1) both; }
 
+  /* ─── Component grid ─── */
   .comp-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 12px;
+    gap: 14px;
   }
 
+  /* ─── Stat cards ─── */
   .stat-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
+    border-radius: 12px;
+    padding: 18px;
   }
 
   select option { background: var(--card); }
 
+  /* ─── Sort group ─── */
   .sort-group {
     display: inline-flex;
     align-items: center;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
     overflow: hidden;
     background: var(--surface);
   }
   .sort-btn {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
     font-size: 12px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    letter-spacing: 0;
+    text-transform: none;
     padding: 6px 13px;
     background: none;
     border: none;
@@ -338,16 +457,32 @@
   }
   .sort-btn:last-child { border-right: none; }
   .sort-btn:hover { color: var(--text); background: var(--card); }
-  .sort-btn.active {
-    background: var(--accent);
-    color: #fff;
+  .sort-btn.active { background: var(--accent); color: #fff; }
+
+  /* ─── Misc enhancements ─── */
+  .stat-card.border-accent { border-color: var(--accent) !important; }
+
+  /* Subtle inset top highlight on dark cards */
+  [data-theme="dark"] .comp-card,
+  [data-theme="dark"] .stat-card,
+  [data-theme="dark"] .modal-box {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
   }
+
+  /* Filter buttons active state */
+  #filter-all.btn-primary,
+  #filter-critical.btn-primary,
+  #filter-warning.btn-primary,
+  #filter-ok.btn-primary { box-shadow: 0 0 0 3px var(--glow); }
 </style>
 </head>
 <body>
 
 <header>
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+    <button id="sidebarToggleBtn" class="btn btn-ghost btn-icon" style="display:none" onclick="toggleSidebarNav()" title="Show/Hide Sidebar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    </button>
     <div class="flex items-center gap-3 flex-1">
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
         <circle cx="7" cy="20" r="5" stroke="var(--accent)" stroke-width="2"/>
@@ -366,7 +501,7 @@
         <span id="lbl-odometer-title" style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.08em;text-transform:uppercase">Odometer</span>
         <div class="flex items-center gap-2">
           <input id="odoInput" type="number" min="0" placeholder="0"
-            style="background:transparent;border:none;box-shadow:none;padding:0;font-size:18px;font-family:'Share Tech Mono',monospace;font-weight:600;color:var(--accent);width:100px"
+            style="background:transparent;border:none;box-shadow:none;padding:0;font-size:18px;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent);width:100px"
             onchange="updateOdo(this.value)" />
           <span style="font-size:11px;color:var(--muted);font-weight:600">KM</span>
         </div>
@@ -375,12 +510,33 @@
   </div>
 </header>
 
+<!-- Sidebar nav (hidden by default, shown in sidebar layout) -->
+<nav id="sidebarNav">
+  <button class="snav-item active" id="snav-dashboard" onclick="switchTab('dashboard',document.getElementById('tab-btn-dashboard'));highlightSideNav('snav-dashboard')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    <span id="snav-lbl-dashboard">Dashboard</span>
+  </button>
+  <button class="snav-item" id="snav-history" onclick="switchTab('history',document.getElementById('tab-btn-history'));highlightSideNav('snav-history')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    <span id="snav-lbl-history">History</span>
+  </button>
+  <button class="snav-item" id="snav-settings" onclick="switchTab('settings',document.getElementById('tab-btn-settings'));highlightSideNav('snav-settings')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span id="snav-lbl-settings">Settings</span>
+  </button>
+  <button class="snav-item" id="snav-about" onclick="switchTab('about',document.getElementById('tab-btn-about'));highlightSideNav('snav-about')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="snav-lbl-about">About</span>
+  </button>
+</nav>
+
+<div class="layout-main-content">
 <div class="max-w-6xl mx-auto px-4 pt-5 pb-3">
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="statsRow"></div>
 </div>
 
 <div class="max-w-6xl mx-auto px-4">
-  <div style="border-bottom:1px solid var(--border); display:flex; gap:0; overflow-x:auto;">
+  <div id="topTabBar" style="border-bottom:1px solid var(--border); display:flex; gap:0; overflow-x:auto;">
     <button id="tab-btn-dashboard" class="tab-btn active" onclick="switchTab('dashboard',this)">Dashboard</button>
     <button id="tab-btn-history" class="tab-btn" onclick="switchTab('history',this)">History</button>
     <button id="tab-btn-settings" class="tab-btn" onclick="switchTab('settings',this)">Settings</button>
@@ -397,7 +553,7 @@
         <button class="btn btn-ghost btn-sm" onclick="filterComponents('warning')" id="filter-warning">🟡 Warning</button>
         <button class="btn btn-ghost btn-sm" onclick="filterComponents('ok')" id="filter-ok">🟢 Good</button>
       </div>
-      <div class="sort-group" title="Sort components">
+      <div class="sort-group" id="sortGroupWrap" title="Sort components">
         <button class="sort-btn" id="sort-default"  onclick="setSort('default')">
           <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="1" width="10" height="2" rx="1"/><rect x="1" y="5" width="7" height="2" rx="1"/><rect x="1" y="9" width="4" height="2" rx="1"/></svg>
           <span id="lbl-sort-default">Default</span>
@@ -458,30 +614,631 @@
       </div>
     </div>
     
-    <div class="stat-card flex flex-col justify-center">
-      <label id="lbl-theme-title" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em">🌓 Theme / Night Mode</label>
-      <div>
-        <label class="toggle-wrap gap-2" title="Toggle Light/Dark Mode">
-          <input type="checkbox" class="toggle-input" id="themeToggle" onchange="toggleTheme(this.checked)" />
-          <div class="toggle-slider"></div>
-          <span id="lbl-theme-text" style="font-size:11px;color:var(--muted);font-weight:600">Dark Mode Active</span>
-        </label>
+    <div class="stat-card border border-neutral-800">
+      <label id="lbl-base-odo-adjustment" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em; color:var(--text)">🏁 Base Odometer Adjustment</label>
+      <div class="flex items-center gap-3" style="max-width: 320px">
+        <div style="position:relative; flex:1;">
+          <input type="number" id="startOdoInput" min="0" placeholder="0" style="padding-right:36px" onchange="updateStartOdo(this.value)" />
+          <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:13px; font-weight:600; pointer-events:none;">KM</span>
+        </div>
+      </div>
+      <p id="lbl-base-odo-desc" style="font-size:12px; color:var(--muted); margin-top:6px; line-height:1.4;">
+        Set initial configuration offsets. Active component ages compute values dynamic relative against this base index configuration.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="stat-card" id="appStylingCard">
+      <label id="lbl-app-styling-title" class="font-display font-bold text-sm mb-3" style="letter-spacing:0.04em; color:var(--text)">🎨 App Styling</label>
+
+      <!-- Base colour swatches -->
+      <div id="lbl-base-color" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px">Base Color</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="baseSwatches">
+        <button onclick="applyBase('#0a0b0f','#111318','#161922','#1c2030')" title="Void (Default Dark)"
+          style="width:26px;height:26px;border-radius:50%;background:#0a0b0f;border:2px solid rgba(255,255,255,0.2);cursor:pointer;transition:all 0.15s;outline:none" id="base-swatch-void"></button>
+        <button onclick="applyBase('#0f172a','#1e293b','#1e293b','#273549')" title="Slate"
+          style="width:26px;height:26px;border-radius:50%;background:#0f172a;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="base-swatch-slate"></button>
+        <button onclick="applyBase('#0d1117','#161b22','#1c2128','#21262d')" title="GitHub Dark"
+          style="width:26px;height:26px;border-radius:50%;background:#0d1117;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="base-swatch-github"></button>
+        <button onclick="applyBase('#1a1a2e','#16213e','#1f2d50','#253660')" title="Midnight Blue"
+          style="width:26px;height:26px;border-radius:50%;background:#1a1a2e;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="base-swatch-midnight"></button>
+        <button onclick="applyBase('#0f0f0f','#181818','#1e1e1e','#252525')" title="Pure Black"
+          style="width:26px;height:26px;border-radius:50%;background:#0f0f0f;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="base-swatch-black"></button>
+        <button onclick="applyBase('#f1f5f9','#ffffff','#ffffff','#f8fafc')" title="Light (Slate White)"
+          style="width:26px;height:26px;border-radius:50%;background:#f1f5f9;border:2px solid rgba(0,0,0,0.15);cursor:pointer;transition:all 0.15s;outline:none" id="base-swatch-light"></button>
+        <button onclick="applyBase('#fdf6ec','#fffaf4','#fffaf4','#fef9f0')" title="Warm Paper"
+          style="width:26px;height:26px;border-radius:50%;background:#fdf6ec;border:2px solid rgba(0,0,0,0.12);cursor:pointer;transition:all 0.15s;outline:none" id="base-swatch-warm"></button>
+      </div>
+
+      <!-- Accent colour swatches -->
+      <div id="lbl-accent-color" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px">Accent Color</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="accentSwatches">
+        <button onclick="applyAccent('#6366f1','#818cf8','rgba(99,102,241,0.15)','rgba(99,102,241,0.2)')" title="Indigo (Default)"
+          style="width:26px;height:26px;border-radius:50%;background:#6366f1;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="swatch-indigo"></button>
+        <button onclick="applyAccent('#f06a00','#ff9a3c','rgba(240,106,0,0.15)','rgba(240,106,0,0.2)')" title="Moto Orange"
+          style="width:26px;height:26px;border-radius:50%;background:#f06a00;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="swatch-orange"></button>
+        <button onclick="applyAccent('#10b981','#34d399','rgba(16,185,129,0.15)','rgba(16,185,129,0.2)')" title="Emerald"
+          style="width:26px;height:26px;border-radius:50%;background:#10b981;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="swatch-green"></button>
+        <button onclick="applyAccent('#3b82f6','#60a5fa','rgba(59,130,246,0.15)','rgba(59,130,246,0.2)')" title="Blue"
+          style="width:26px;height:26px;border-radius:50%;background:#3b82f6;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="swatch-blue"></button>
+        <button onclick="applyAccent('#ec4899','#f472b6','rgba(236,72,153,0.15)','rgba(236,72,153,0.2)')" title="Pink"
+          style="width:26px;height:26px;border-radius:50%;background:#ec4899;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="swatch-pink"></button>
+        <button onclick="applyAccent('#f59e0b','#fbbf24','rgba(245,158,11,0.15)','rgba(245,158,11,0.2)')" title="Amber"
+          style="width:26px;height:26px;border-radius:50%;background:#f59e0b;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="swatch-amber"></button>
+        <button onclick="applyAccent('#8b5cf6','#a78bfa','rgba(139,92,246,0.15)','rgba(139,92,246,0.2)')" title="Violet"
+          style="width:26px;height:26px;border-radius:50%;background:#8b5cf6;border:2px solid transparent;cursor:pointer;transition:all 0.15s;outline:none" id="swatch-violet"></button>
+      </div>
+
+      <!-- Border radius selector -->
+      <div id="lbl-card-radius" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px">Card Radius</div>
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button onclick="applyRadius('4px')" class="btn btn-ghost btn-sm" id="radius-sharp" style="font-size:11px">Sharp</button>
+        <button onclick="applyRadius('12px')" class="btn btn-ghost btn-sm" id="radius-rounded" style="font-size:11px">Rounded</button>
+        <button onclick="applyRadius('20px')" class="btn btn-ghost btn-sm" id="radius-pill" style="font-size:11px">Soft</button>
+      </div>
+
+      <!-- Font density -->
+      <div id="lbl-ui-density" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px">UI Density</div>
+      <div style="display:flex;gap:6px">
+        <button onclick="applyDensity('compact')" class="btn btn-ghost btn-sm" id="density-compact" style="font-size:11px">Compact</button>
+        <button onclick="applyDensity('default')" class="btn btn-ghost btn-sm" id="density-default" style="font-size:11px">Default</button>
+        <button onclick="applyDensity('spacious')" class="btn btn-ghost btn-sm" id="density-spacious" style="font-size:11px">Spacious</button>
+      </div>
+    </div>
+
+    <!-- ── Layouting Card ── -->
+    <div class="stat-card" id="layoutingCard">
+      <label class="font-display font-bold text-sm mb-3" style="letter-spacing:0.04em; color:var(--text)">📐 Layouting</label>
+
+      <div id="lbl-choose-layout" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:10px">Choose Layout</div>
+
+      <!-- Layout option cards -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+
+        <!-- Layout A: Default Dashboard -->
+        <button id="layout-default" onclick="applyLayout('default')"
+          style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);cursor:pointer;transition:all 0.15s;text-align:left;width:100%">
+          <div style="flex-shrink:0;width:42px;height:30px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);display:grid;grid-template-rows:6px 1fr;gap:2px;padding:3px;overflow:hidden">
+            <div style="background:var(--border2);border-radius:2px"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">
+              <div style="background:var(--accent);opacity:0.5;border-radius:2px"></div>
+              <div style="background:var(--border2);border-radius:2px"></div>
+            </div>
+          </div>
+          <div>
+            <div id="lbl-layout-default-name" style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2">Default</div>
+            <div id="lbl-layout-default-desc" style="font-size:10px;color:var(--muted);margin-top:1px">Full-width header · card grid</div>
+          </div>
+        </button>
+
+        <!-- Layout B: Sidebar -->
+        <button id="layout-sidebar" onclick="applyLayout('sidebar')"
+          style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);cursor:pointer;transition:all 0.15s;text-align:left;width:100%">
+          <div style="flex-shrink:0;width:42px;height:30px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);display:grid;grid-template-columns:10px 1fr;gap:2px;padding:3px;overflow:hidden">
+            <div style="background:var(--accent);opacity:0.5;border-radius:2px"></div>
+            <div style="display:grid;grid-template-rows:1fr 1fr;gap:2px">
+              <div style="background:var(--border2);border-radius:2px"></div>
+              <div style="background:var(--border2);border-radius:2px"></div>
+            </div>
+          </div>
+          <div>
+            <div id="lbl-layout-sidebar-name" style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2">Sidebar</div>
+            <div id="lbl-layout-sidebar-desc" style="font-size:10px;color:var(--muted);margin-top:1px">Fixed nav sidebar · content right</div>
+          </div>
+        </button>
+
+        <!-- Layout C: Focused -->
+        <button id="layout-focused" onclick="applyLayout('focused')"
+          style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);cursor:pointer;transition:all 0.15s;text-align:left;width:100%">
+          <div style="flex-shrink:0;width:42px;height:30px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);display:grid;grid-template-rows:6px 1fr;gap:2px;padding:3px;overflow:hidden">
+            <div style="background:var(--border2);border-radius:2px"></div>
+            <div style="display:grid;grid-template-columns:1fr;gap:2px;padding:0 6px">
+              <div style="background:var(--accent);opacity:0.4;border-radius:2px"></div>
+            </div>
+          </div>
+          <div>
+            <div id="lbl-layout-centered-name" style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2">Centered</div>
+            <div id="lbl-layout-centered-desc" style="font-size:10px;color:var(--muted);margin-top:1px">Narrow centered · bottom navbar</div>
+          </div>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ── Design Card ── -->
+    <div class="stat-card" id="designCard">
+      <label id="lbl-design-title" class="font-display font-bold text-sm mb-3" style="letter-spacing:0.04em; color:var(--text)">✦ Design</label>
+      <div id="lbl-design-choose" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:10px">Choose Design System</div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+
+        <!-- Minimalist -->
+        <button id="design-minimalist" onclick="applyDesign('minimalist')"
+          style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);cursor:pointer;transition:all 0.15s;text-align:left;width:100%">
+          <div style="flex-shrink:0;width:42px;height:30px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);padding:4px;overflow:hidden;display:flex;flex-direction:column;gap:3px">
+            <div style="height:2px;background:var(--text-dim);border-radius:1px;width:70%"></div>
+            <div style="height:1px;background:var(--border2);border-radius:1px;width:100%"></div>
+            <div style="height:1px;background:var(--border2);border-radius:1px;width:85%"></div>
+          </div>
+          <div>
+            <div id="lbl-design-minimalist-name" style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2">Minimalist</div>
+            <div id="lbl-design-minimalist-desc" style="font-size:10px;color:var(--muted);margin-top:1px">Clean lines · no shadows · flat</div>
+          </div>
+        </button>
+
+        <!-- Premium Automotive -->
+        <button id="design-apple" onclick="applyDesign('apple')"
+          style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);cursor:pointer;transition:all 0.15s;text-align:left;width:100%">
+          <div style="flex-shrink:0;width:42px;height:30px;border-radius:4px;border:1px solid #3a3a3a;background:#0a0a0a;padding:3px;overflow:hidden;display:flex;flex-direction:column;gap:2px;box-shadow:0 0 0 1px #222, inset 0 1px 0 rgba(255,255,255,0.06)">
+            <div style="height:3px;background:linear-gradient(90deg,#888,#ccc,#888);border-radius:1px;width:100%"></div>
+            <div style="height:2px;background:#222;border-radius:1px;width:100%"></div>
+            <div style="height:2px;background:linear-gradient(90deg,#555,#999,#555);border-radius:1px;width:65%"></div>
+          </div>
+          <div>
+            <div id="lbl-design-apple-name" style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2">Premium Automotive</div>
+            <div id="lbl-design-apple-desc" style="font-size:10px;color:var(--muted);margin-top:1px">Black · metallic silver · racing</div>
+          </div>
+        </button>
+
+        <!-- Material Design 3 -->
+        <button id="design-material" onclick="applyDesign('material')"
+          style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);cursor:pointer;transition:all 0.15s;text-align:left;width:100%">
+          <div style="flex-shrink:0;width:42px;height:30px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);padding:3px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;gap:2px">
+            <div style="background:var(--accent);opacity:0.7;border-radius:3px"></div>
+            <div style="background:var(--border2);border-radius:3px"></div>
+            <div style="background:var(--border2);border-radius:3px"></div>
+            <div style="background:var(--accent);opacity:0.3;border-radius:3px"></div>
+          </div>
+          <div>
+            <div id="lbl-design-material-name" style="font-size:12px;font-weight:600;color:var(--text);line-height:1.2">Material Design 3</div>
+            <div id="lbl-design-material-desc" style="font-size:10px;color:var(--muted);margin-top:1px">Tonal surfaces · elevation · ripple</div>
+          </div>
+        </button>
+
+      </div>
+
+      <div style="display:flex;gap:8px;padding-top:10px;border-top:1px solid var(--border)">
+        <button onclick="commitDesign()" class="btn btn-primary btn-sm" id="design-apply-btn" style="flex:1;justify-content:center">Apply</button>
+        <button onclick="resetDesign()" class="btn btn-ghost btn-sm" id="design-reset-btn" style="flex:1;justify-content:center">↩ Reset</button>
       </div>
     </div>
   </div>
 
-  <div class="stat-card mb-6 border border-neutral-800">
-    <label id="lbl-base-odo-adjustment" class="font-display font-bold text-sm mb-2" style="letter-spacing:0.04em; color:var(--text)">🏁 Base Odometer Adjustment</label>
-    <div class="flex items-center gap-3" style="max-width: 320px">
-      <div style="position:relative; flex:1;">
-        <input type="number" id="startOdoInput" min="0" placeholder="0" style="padding-right:36px" onchange="updateStartOdo(this.value)" />
-        <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:13px; font-weight:600; pointer-events:none;">KM</span>
-      </div>
-    </div>
-    <p id="lbl-base-odo-desc" style="font-size:12px; color:var(--muted); margin-top:6px; line-height:1.4;">
-      Set initial configuration offsets. Active component ages compute values dynamic relative against this base index configuration.
-    </p>
-  </div>
+  <style>
+    /* ── Design: Minimalist ── */
+    body.design-minimalist .comp-card,
+    body.design-minimalist .stat-card,
+    body.design-minimalist .modal-box,
+    body.design-minimalist .sort-group { box-shadow:none !important; border-radius:4px !important; }
+    body.design-minimalist .comp-card { border-color:var(--border2) !important; }
+    body.design-minimalist .comp-card:hover { transform:none; box-shadow:none !important; border-color:var(--accent) !important; }
+    body.design-minimalist header { backdrop-filter:none; -webkit-backdrop-filter:none; box-shadow:none; }
+    body.design-minimalist .btn { border-radius:4px !important; box-shadow:none !important; }
+    body.design-minimalist .btn-primary { background:var(--text); color:var(--bg); }
+    body.design-minimalist .btn-primary:hover { background:var(--text-dim); box-shadow:none !important; }
+    body.design-minimalist .progress-track { border-radius:2px; }
+    body.design-minimalist .progress-bar { border-radius:2px; animation:none !important; background-size:auto !important; }
+    body.design-minimalist .bar-ok { background:var(--green) !important; }
+    body.design-minimalist .bar-warning { background:var(--yellow) !important; }
+    body.design-minimalist .bar-critical { background:var(--red) !important; box-shadow:none; }
+    body.design-minimalist .badge { border-radius:3px !important; border:none !important; }
+    body.design-minimalist .comp-card.critical::before,
+    body.design-minimalist .comp-card.warning::before { display:none; }
+    body.design-minimalist .comp-card.critical { animation:none !important; border-left:3px solid var(--red) !important; }
+    body.design-minimalist .comp-card.warning  { border-left:3px solid var(--yellow) !important; }
+    body.design-minimalist .toggle-slider { border-radius:3px; }
+    body.design-minimalist .toggle-slider::after { border-radius:2px; }
+    body.design-minimalist input, body.design-minimalist select, body.design-minimalist textarea { border-radius:4px; box-shadow:none !important; }
+    body.design-minimalist .history-entry::before { box-shadow:none; }
+    body.design-minimalist .section-label { letter-spacing:0.15em; }
+
+    /* ── Design: Premium Automotive ── */
+    body.design-apple {
+      --auto-silver:   #c0c0c0;
+      --auto-silver2:  #888;
+      --auto-chrome:   linear-gradient(180deg,#d0d0d0,#808080,#d0d0d0);
+      --auto-dark:     #0a0a0a;
+      --auto-panel:    #111111;
+      --auto-panel2:   #181818;
+      --auto-border:   #2e2e2e;
+      --auto-glow-r:   rgba(239,68,68,0.35);
+      background: #080808 !important;
+    }
+    body.design-apple .comp-card,
+    body.design-apple .stat-card {
+      background: linear-gradient(160deg,#161616,#0e0e0e) !important;
+      border: 1px solid #2a2a2a !important;
+      border-radius: 6px !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 16px rgba(0,0,0,0.6) !important;
+    }
+    body.design-apple .comp-card:hover {
+      border-color: var(--auto-silver2) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 0 0 1px #555, 0 8px 28px rgba(0,0,0,0.7) !important;
+      transform: translateY(-2px);
+    }
+    body.design-apple .comp-card.critical { border-color: rgba(239,68,68,0.6) !important; box-shadow: 0 0 12px var(--auto-glow-r), 0 4px 16px rgba(0,0,0,0.6) !important; }
+    /* carbon-fibre header */
+    body.design-apple header {
+      background: repeating-linear-gradient(45deg, #111 0px,#111 2px, #0d0d0d 2px,#0d0d0d 4px) !important;
+      border-bottom: 1px solid #2a2a2a !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.8) !important;
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
+    /* chrome top stripe on cards */
+    body.design-apple .comp-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(200,200,200,0.18) 30%, rgba(200,200,200,0.32) 50%, rgba(200,200,200,0.18) 70%, transparent 100%);
+      border-radius: 6px 6px 0 0;
+      pointer-events: none;
+    }
+    /* metallic silver progress bars — override accent with silver */
+    body.design-apple .progress-track { background: #1a1a1a; border-radius: 2px; height: 4px; }
+    body.design-apple .progress-bar { border-radius: 2px; }
+    body.design-apple .bar-ok       { background: linear-gradient(90deg,#1a6640,#28a060,#1a6640); background-size:200% auto; animation:barShine 3s linear infinite; box-shadow: 0 0 4px rgba(40,160,96,0.4); }
+    body.design-apple .bar-warning  { background: linear-gradient(90deg,#8a6000,#d4a010,#8a6000); background-size:200% auto; animation:barShine 3s linear infinite; }
+    body.design-apple .bar-critical { background: linear-gradient(90deg,#8a0000,#d42020,#8a0000); background-size:200% auto; animation:barShine 2.5s linear infinite; box-shadow: 0 0 6px rgba(200,0,0,0.5); }
+    /* silver/chrome badges */
+    body.design-apple .badge {
+      border-radius: 3px !important;
+      font-size: 9px; letter-spacing: 0.1em;
+      border: 1px solid #333 !important;
+    }
+    body.design-apple .badge-ok       { background: rgba(40,160,96,0.12) !important;  color: #28a060 !important; }
+    body.design-apple .badge-warning  { background: rgba(200,150,0,0.12) !important;  color: #c89600 !important; }
+    body.design-apple .badge-critical { background: rgba(200,20,20,0.14) !important;  color: #d42020 !important; }
+    body.design-apple .badge-due      { background: rgba(160,160,160,0.1) !important; color: #aaa !important; }
+    /* racing-stripe status bar */
+    body.design-apple .comp-card.critical::before { background: linear-gradient(180deg,#d42020,#800000) !important; width: 4px; }
+    body.design-apple .comp-card.warning::before  { background: linear-gradient(180deg,#d4a010,#806000) !important; width: 4px; }
+    /* metallic buttons */
+    body.design-apple .btn {
+      border-radius: 4px !important;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    body.design-apple .btn-primary {
+      background: linear-gradient(180deg,#444,#222) !important;
+      color: #d0d0d0 !important;
+      border: 1px solid #555 !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset, 0 2px 6px rgba(0,0,0,0.5) !important;
+    }
+    body.design-apple .btn-primary:hover {
+      background: linear-gradient(180deg,#555,#333) !important;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.14) inset, 0 0 0 1px #888, 0 4px 10px rgba(0,0,0,0.6) !important;
+    }
+    body.design-apple .btn-ghost {
+      border-color: #333 !important;
+      color: #888 !important;
+    }
+    body.design-apple .btn-ghost:hover { border-color: #777 !important; color: #ccc !important; background: rgba(255,255,255,0.04) !important; }
+    /* carbon sort group */
+    body.design-apple .sort-group { border-radius: 4px !important; border-color: #2a2a2a !important; background: #111 !important; }
+    body.design-apple .sort-btn.active { background: linear-gradient(180deg,#444,#222) !important; color: #ccc !important; }
+    /* dark inputs with chrome border-bottom accent */
+    body.design-apple input, body.design-apple select, body.design-apple textarea {
+      border-radius: 4px !important;
+      background: #0e0e0e !important;
+      border: 1px solid #2a2a2a !important;
+      color: #c0c0c0 !important;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    body.design-apple input:focus, body.design-apple select:focus, body.design-apple textarea:focus {
+      border-color: #888 !important;
+      box-shadow: 0 0 0 2px rgba(160,160,160,0.12) !important;
+    }
+    /* odometer — full racing dash style */
+    body.design-apple .odo-box {
+      background: #0a0a0a !important;
+      border: 1px solid #2a2a2a !important;
+      border-radius: 6px !important;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.05) !important;
+    }
+    /* racing toggle */
+    body.design-apple .toggle-slider { background: #1a1a1a; border: 1px solid #333; border-radius: 3px; }
+    body.design-apple .toggle-slider::after { border-radius: 2px; background: #888; box-shadow: 0 0 4px rgba(0,0,0,0.5); }
+    body.design-apple .toggle-input:checked + .toggle-slider { background: #1a1a1a; border-color: #666; }
+    body.design-apple .toggle-input:checked + .toggle-slider::after { background: linear-gradient(180deg,#d0d0d0,#888); }
+    /* modal */
+    body.design-apple .modal-box {
+      background: linear-gradient(160deg,#161616,#0e0e0e) !important;
+      border: 1px solid #2a2a2a !important;
+      border-radius: 8px !important;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85), 0 1px 0 rgba(255,255,255,0.04) inset !important;
+    }
+    /* section dividers */
+    body.design-apple .section-label { letter-spacing: 0.14em; }
+    body.design-apple .section-label::after { background: #222; }
+    /* tab active chrome underline */
+    body.design-apple .tab-btn.active { border-bottom-color: #c0c0c0 !important; color: #c0c0c0 !important; }
+    body.design-apple .tab-btn:hover:not(.active) { color: #888 !important; }
+    /* history timeline silver */
+    body.design-apple .history-entry { border-left-color: #444; }
+    body.design-apple .history-entry::before { background: #888; box-shadow: 0 0 0 3px rgba(136,136,136,0.1); }
+    /* stat card accent border */
+    body.design-apple .stat-card.border-accent { border-color: #555 !important; }
+
+    /* ── Design: Material Design 3 ── */
+    body.design-material .comp-card,
+    body.design-material .stat-card { border-radius:16px !important; border:none !important; }
+    body.design-material .comp-card { box-shadow:0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15) !important; background:var(--surface) !important; }
+    body.design-material .comp-card:hover { box-shadow:0 2px 6px 2px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3) !important; transform:translateY(-1px); }
+    body.design-material .stat-card { box-shadow:0 1px 2px rgba(0,0,0,0.3) !important; background:var(--card) !important; }
+    body.design-material .btn { border-radius:999px !important; font-weight:500; }
+    body.design-material .btn-primary { box-shadow:0 1px 3px rgba(0,0,0,0.3) !important; }
+    body.design-material .btn:hover { box-shadow:0 2px 6px rgba(0,0,0,0.2) !important; }
+    body.design-material .modal-box { border-radius:28px !important; border:none !important; box-shadow:0 6px 20px rgba(0,0,0,0.4) !important; }
+    body.design-material .badge { border-radius:8px !important; }
+    body.design-material .sort-group { border-radius:12px !important; border:none !important; background:var(--card2); box-shadow:0 1px 3px rgba(0,0,0,0.2); }
+    body.design-material input, body.design-material select, body.design-material textarea { border-radius:4px 4px 0 0 !important; border:none !important; border-bottom:2px solid var(--border2) !important; background:var(--card2) !important; }
+    body.design-material input:focus, body.design-material select:focus, body.design-material textarea:focus { border-bottom-color:var(--accent) !important; box-shadow:none !important; }
+    body.design-material .progress-track { border-radius:0; height:4px; }
+    body.design-material .progress-bar { border-radius:0; }
+    body.design-material .toggle-slider { border-radius:999px; width:52px; height:28px; border:2px solid var(--border2); }
+    body.design-material .toggle-slider::after { width:20px; height:20px; top:2px; left:2px; }
+    body.design-material .toggle-input:checked + .toggle-slider::after { left:26px; }
+    body.design-material .comp-card.critical { animation:pulse-glow 3s infinite !important; border:none !important; }
+    body.design-material header { box-shadow:0 1px 4px rgba(0,0,0,0.2); backdrop-filter:none; }
+    body.design-material .odo-box { border-radius:12px !important; border:none !important; box-shadow:0 1px 3px rgba(0,0,0,0.2) !important; }
+
+    /* design active highlight */
+    .design-btn-active { border-color:var(--accent) !important; background:var(--accent-glow) !important; }
+
+    /* ── Layout: Sidebar ── */
+    body.layout-sidebar { display:grid; grid-template-columns:220px 1fr; grid-template-rows:auto 1fr; min-height:100vh; }
+    body.layout-sidebar header { grid-column:1/3; grid-row:1; }
+    body.layout-sidebar #sidebarNav { display:flex !important; }
+    body.layout-sidebar .layout-main-content { grid-column:2; padding-left:0; }
+    body.layout-sidebar #sidebarToggleBtn { display:inline-flex !important; }
+    #sidebarNav {
+      display:none;
+      flex-direction:column;
+      background:var(--surface);
+      border-right:1px solid var(--border);
+      padding:20px 0;
+      position:sticky;
+      top:57px;
+      height:calc(100vh - 57px);
+      overflow-y:auto;
+      grid-row:2;
+      grid-column:1;
+      transition:width 0.18s, padding 0.18s;
+    }
+    #sidebarNav .snav-item {
+      display:flex;align-items:center;gap:10px;
+      padding:10px 20px;
+      font-size:13px;font-weight:500;
+      color:var(--text-dim);
+      cursor:pointer;border:none;background:none;
+      width:100%;text-align:left;
+      border-left:3px solid transparent;
+      transition:all 0.15s;
+    }
+    #sidebarNav .snav-item:hover { color:var(--text); background:var(--card); }
+    #sidebarNav .snav-item.active { color:var(--accent); border-left-color:var(--accent); background:var(--accent-glow); font-weight:600; }
+    /* ── Sidebar: collapsed (Show/Hide) state ── */
+    body.layout-sidebar.sidebar-collapsed { grid-template-columns:0px 1fr; }
+    body.layout-sidebar.sidebar-collapsed #sidebarNav { display:none !important; width:0; padding:0; border-right:none; overflow:hidden; }
+    /* ── Layout: Centered (formerly Focused) ── */
+    body.layout-focused .layout-main-content,
+    body.layout-focused header > div { max-width:780px; margin-left:auto; margin-right:auto; }
+    body.layout-focused .comp-grid { grid-template-columns:1fr; }
+    body.layout-focused .layout-main-content { padding-bottom:96px; }
+    body.layout-focused #topTabBar {
+      position:fixed;
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:200;
+      width:max-content;
+      max-width:calc(100% - 32px);
+      display:flex !important;
+      gap:2px;
+      background:var(--surface);
+      border:1px solid var(--border2);
+      border-radius:999px;
+      padding:6px;
+      overflow-x:auto;
+      box-shadow:0 12px 32px rgba(0,0,0,0.35);
+    }
+    body.layout-focused #topTabBar .tab-btn {
+      border-bottom:none;
+      border-radius:999px;
+      padding:8px 16px;
+    }
+    body.layout-focused #topTabBar .tab-btn.active {
+      background:var(--accent);
+      color:#fff;
+    }
+  </style>
+
+  <script>
+  (function initStylingPanel() {
+    const stored = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+
+    function markBaseSwatch(bg) {
+      document.querySelectorAll('#baseSwatches button').forEach(b => {
+        const isLight = ['#f1f5f9','#fdf6ec'].includes(bg);
+        b.style.border = '2px solid ' + (isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.15)');
+      });
+      const bmap = {
+        '#0a0b0f':'base-swatch-void','#0f172a':'base-swatch-slate','#0d1117':'base-swatch-github',
+        '#1a1a2e':'base-swatch-midnight','#0f0f0f':'base-swatch-black',
+        '#f1f5f9':'base-swatch-light','#fdf6ec':'base-swatch-warm'
+      };
+      const bel = document.getElementById(bmap[bg]);
+      if (bel) bel.style.border = '2px solid var(--accent)';
+    }
+    function markSwatch(color) {
+      document.querySelectorAll('#accentSwatches button').forEach(b => b.style.border = '2px solid transparent');
+      const map = { '#6366f1':'swatch-indigo','#f06a00':'swatch-orange','#10b981':'swatch-green',
+                    '#3b82f6':'swatch-blue','#ec4899':'swatch-pink','#f59e0b':'swatch-amber','#8b5cf6':'swatch-violet' };
+      const el = document.getElementById(map[color]);
+      if (el) el.style.border = '2px solid var(--text)';
+    }
+    function markRadius(r) {
+      ['radius-sharp','radius-rounded','radius-pill'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('btn-primary'); el.classList.add('btn-ghost'); }
+      });
+      const map = {'4px':'radius-sharp','12px':'radius-rounded','20px':'radius-pill'};
+      const el = document.getElementById(map[r]);
+      if (el) { el.classList.add('btn-primary'); el.classList.remove('btn-ghost'); }
+    }
+    function markDensity(d) {
+      ['density-compact','density-default','density-spacious'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('btn-primary'); el.classList.add('btn-ghost'); }
+      });
+      const el = document.getElementById('density-' + d);
+      if (el) { el.classList.add('btn-primary'); el.classList.remove('btn-ghost'); }
+    }
+
+    window.applyBase = function(bg, surface, card, card2) {
+      const isLight = ['#f1f5f9','#fdf6ec'].includes(bg);
+      document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+      document.documentElement.style.setProperty('--bg', bg);
+      document.documentElement.style.setProperty('--surface', surface);
+      document.documentElement.style.setProperty('--card', card);
+      document.documentElement.style.setProperty('--card2', card2);
+      // sync theme toggle to match
+      const tt = document.getElementById('themeToggle');
+      if (tt) tt.checked = isLight;
+      const tl = document.getElementById('lbl-theme-text');
+      const l = (typeof DB !== 'undefined' && DB.lang === 'id');
+      if (tl) tl.textContent = isLight ? (l ? 'Light Mode Aktif' : 'Light Mode Active') : (l ? 'Dark Mode Aktif' : 'Dark Mode Active');
+      markBaseSwatch(bg);
+      const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+      localStorage.setItem('mototrack_styling', JSON.stringify({...s, base:{bg, surface, card, card2}}));
+    };
+    window.applyAccent = function(a, a2, glow, accentGlow) {
+      document.documentElement.style.setProperty('--accent', a);
+      document.documentElement.style.setProperty('--accent2', a2);
+      document.documentElement.style.setProperty('--glow', glow);
+      document.documentElement.style.setProperty('--accent-glow', accentGlow);
+      markSwatch(a);
+      const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+      localStorage.setItem('mototrack_styling', JSON.stringify({...s, accent:a, accent2:a2, glow, accentGlow}));
+    };
+    window.applyRadius = function(r) {
+      document.querySelectorAll('.comp-card,.stat-card,.modal-box,.sort-group,.btn:not(.btn-icon)').forEach(el => el.style.borderRadius = r);
+      markRadius(r);
+      const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+      localStorage.setItem('mototrack_styling', JSON.stringify({...s, radius:r}));
+    };
+    window.applyDensity = function(d) {
+      const map = { compact: {pad:'10px', gap:'8px', fs:'13px'}, default: {pad:'18px', gap:'14px', fs:'14px'}, spacious: {pad:'26px', gap:'20px', fs:'15px'} };
+      const v = map[d];
+      document.querySelectorAll('.stat-card').forEach(el => el.style.padding = v.pad);
+      document.querySelectorAll('.comp-grid').forEach(el => el.style.gap = v.gap);
+      document.body.style.fontSize = v.fs;
+      markDensity(d);
+      const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+      localStorage.setItem('mototrack_styling', JSON.stringify({...s, density:d}));
+    };
+
+    function markLayout(l) {
+      ['layout-default','layout-sidebar','layout-focused'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.borderColor = 'var(--border2)';
+        el.style.background = 'var(--card2)';
+      });
+      const el = document.getElementById('layout-' + l);
+      if (el) { el.style.borderColor = 'var(--accent)'; el.style.background = 'var(--accent-glow)'; }
+    }
+
+    window.highlightSideNav = function(activeId) {
+      document.querySelectorAll('#sidebarNav .snav-item').forEach(b => b.classList.remove('active'));
+      const el = document.getElementById(activeId);
+      if (el) el.classList.add('active');
+    };
+
+    window.applyLayout = function(layout) {
+      document.body.classList.remove('layout-default','layout-sidebar','layout-focused');
+      document.body.classList.add('layout-' + layout);
+      const topBar = document.getElementById('topTabBar');
+      const sidebar = document.getElementById('sidebarNav');
+      if (layout === 'sidebar') {
+        if (topBar) topBar.style.display = 'none';
+        if (sidebar) sidebar.style.display = 'flex';
+      } else {
+        if (topBar) topBar.style.display = 'flex';
+        if (sidebar) sidebar.style.display = 'none';
+      }
+      markLayout(layout);
+      const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+      localStorage.setItem('mototrack_styling', JSON.stringify({...s, layout}));
+    };
+
+    window.toggleSidebarNav = function() {
+      const collapsed = document.body.classList.toggle('sidebar-collapsed');
+      const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+      localStorage.setItem('mototrack_styling', JSON.stringify({...s, sidebarCollapsed: collapsed}));
+    };
+
+    let pendingDesign = null;
+
+    function markDesign(d) {
+      ['design-minimalist','design-apple','design-material'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('design-btn-active');
+      });
+      if (d && d !== 'default') {
+        const el = document.getElementById('design-' + d);
+        if (el) el.classList.add('design-btn-active');
+      }
+      const l = (typeof LANG_DICT !== 'undefined' && typeof DB !== 'undefined') ? LANG_DICT[DB.lang || 'id'] : null;
+      const applyBtn = document.getElementById('design-apply-btn');
+      if (applyBtn) applyBtn.textContent = l ? l.designApplyBtn : 'Apply';
+    }
+
+    window.applyDesign = function(d) {
+      pendingDesign = d;
+      markDesign(d);
+    };
+
+    function _commitToDOM(d) {
+      document.body.classList.remove('design-minimalist','design-apple','design-material');
+      if (d && d !== 'default') document.body.classList.add('design-' + d);
+      const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
+      localStorage.setItem('mototrack_styling', JSON.stringify({...s, design: d}));
+    }
+
+    window.commitDesign = function() {
+      const d = pendingDesign || 'default';
+      _commitToDOM(d);
+      const l = (typeof LANG_DICT !== 'undefined' && typeof DB !== 'undefined') ? LANG_DICT[DB.lang || 'id'] : null;
+      const applyBtn = document.getElementById('design-apply-btn');
+      if (applyBtn) applyBtn.textContent = l ? l.designApplied : '✓ Applied';
+    };
+
+    window.resetDesign = function() {
+      pendingDesign = 'default';
+      _commitToDOM('default');
+      markDesign('default');
+      const l = (typeof LANG_DICT !== 'undefined' && typeof DB !== 'undefined') ? LANG_DICT[DB.lang || 'id'] : null;
+      const resetBtn = document.getElementById('design-reset-btn');
+      if (resetBtn) resetBtn.textContent = l ? l.designResetBtn : '↩ Reset';
+    };
+
+    // Restore saved preferences
+    if (stored.base) window.applyBase(stored.base.bg, stored.base.surface, stored.base.card, stored.base.card2);
+    else markBaseSwatch('#0a0b0f');
+    if (stored.accent) window.applyAccent(stored.accent, stored.accent2, stored.glow, stored.accentGlow);
+    else markSwatch('#6366f1');
+    if (stored.radius) window.applyRadius(stored.radius); else markRadius('12px');
+    if (stored.density) window.applyDensity(stored.density); else markDensity('default');
+    if (stored.layout) window.applyLayout(stored.layout); else markLayout('default');
+    if (stored.sidebarCollapsed) document.body.classList.add('sidebar-collapsed');
+    if (stored.design) { pendingDesign = stored.design; _commitToDOM(stored.design); markDesign(stored.design); } else markDesign('default');
+  })();
+  </script>
 
   <div class="stat-card mb-6" style="border-color:var(--accent);border-width:1px">
     <div class="flex flex-wrap items-start justify-between gap-4">
@@ -583,7 +1340,7 @@
     <div class="flex flex-col gap-5">
       <div>
         <label id="lbl-about-textarea-label">About Text</label>
-        <textarea id="aboutTextarea" rows="12" style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.6;resize:vertical"></textarea>
+        <textarea id="aboutTextarea" rows="12" style="font-family:'Inter',sans-serif;font-size:13px;line-height:1.6;resize:vertical"></textarea>
       </div>
       <div>
         <label id="lbl-donation-qr-label">Donation QR Code Image</label>
@@ -750,7 +1507,9 @@
   </div>
 </div>
 
-<div id="toast" style="position:fixed; bottom:24px; right:24px; z-index:9998; background:var(--card); border:1px solid var(--accent); color:var(--text); padding:12px 20px; border-radius:8px; font-size:13px; font-weight:500; font-family:'Barlow',sans-serif; box-shadow:0 4px 20px rgba(0,0,0,0.4); transform:translateY(80px); opacity:0; transition:all 0.3s; max-width:320px;"></div>
+</div><!-- /layout-main-content -->
+
+<div id="toast" style="position:fixed; bottom:24px; right:24px; z-index:9998; background:var(--card); border:1px solid var(--border2); color:var(--text); padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500; font-family:'Inter',sans-serif; box-shadow:0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05); transform:translateY(80px); opacity:0; transition:all 0.3s; max-width:320px;"></div>
 
 <script>
 const LANG_DICT = {
@@ -802,7 +1561,25 @@ const LANG_DICT = {
     toLabel: "to", validFuelMsg: "Invalid fuel entry data or total cost value.", 
     inputCompNameMsg: "⚠ Enter a component name", emptyFuelMasterMsg: "Fuel Name & RON fields are required!",
     confirmDeleteFuelMaster: "Remove this fuel variant from Master data?",
-    themeLightActive: "Light Mode Active", themeDarkActive: "Dark Mode Active", themeTitleLabel: "🌓 Theme / Night Mode"
+    themeLightActive: "Light Mode Active", themeDarkActive: "Dark Mode Active", themeTitleLabel: "🌓 Theme / Night Mode",
+    chooseLayout: "Choose Layout", layoutDefaultName: "Default", layoutDefaultDesc: "Full-width header · card grid",
+    layoutSidebarName: "Sidebar", layoutSidebarDesc: "Fixed nav sidebar · content right",
+    layoutCenteredName: "Centered", layoutCenteredDesc: "Narrow centered · bottom navbar",
+    sidebarToggleTooltip: "Show/Hide Sidebar", appStylingTitle: "🎨 App Styling",
+    baseColorLabel: "Base Color", accentColorLabel: "Accent Color", cardRadiusLabel: "Card Radius",
+    radiusSharp: "Sharp", radiusRounded: "Rounded", radiusSoft: "Soft",
+    uiDensityLabel: "UI Density", densityCompact: "Compact", densityDefault: "Default", densitySpacious: "Spacious",
+    sortTooltip: "Sort components", themeToggleTooltip: "Toggle Light/Dark Mode",
+    editTooltip: "Edit", deleteTooltip: "Delete", editComponentTitle: "Edit Component",
+    errOdoBelowBase: "Odometer cannot be below Base Odometer ({val} KM)",
+    weeklyReview: "Weekly Review", monthlyReview: "Monthly Review", customReview: "Custom Review",
+    noRecordsFilterMsg: "No records match the selected filter/dates.",
+    exportOk: "✓ Export OK", importOk: "✓ Import OK", importFailedMsg: "Import failed: invalid file format.",
+    designTitle: "✦ Design", designChoose: "Choose Design System",
+    designMinimalistName: "Minimalist", designMinimalistDesc: "Clean lines · no shadows · flat",
+    designAutomotiveName: "Premium Automotive", designAutomotiveDesc: "Black · metallic silver · racing",
+    designMaterialName: "Material Design 3", designMaterialDesc: "Tonal surfaces · elevation · ripple",
+    designApplyBtn: "Apply", designApplied: "✓ Applied", designResetBtn: "↩ Reset"
   },
   id: {
     dashboard: "Dasbor", history: "Riwayat", settings: "Pengaturan", about: "Tentang",
@@ -852,7 +1629,25 @@ const LANG_DICT = {
     toLabel: "sampai", validFuelMsg: "Data pengisian bbm atau nominal belanja tidak valid.",
     inputCompNameMsg: "⚠ Masukkan nama komponen", emptyFuelMasterMsg: "Nama Bensin & RON wajib diisi!",
     confirmDeleteFuelMaster: "Hapus varian bensin ini dari data Master?",
-    themeLightActive: "Light Mode Aktif", themeDarkActive: "Dark Mode Aktif", themeTitleLabel: "🌓 Tema / Mode Malam"
+    themeLightActive: "Light Mode Aktif", themeDarkActive: "Dark Mode Aktif", themeTitleLabel: "🌓 Tema / Mode Malam",
+    chooseLayout: "Pilih Layout", layoutDefaultName: "Bawaan", layoutDefaultDesc: "Header lebar penuh · grid kartu",
+    layoutSidebarName: "Sidebar", layoutSidebarDesc: "Sidebar navigasi tetap · konten di kanan",
+    layoutCenteredName: "Tengah", layoutCenteredDesc: "Konten tengah sempit · navbar bawah",
+    sidebarToggleTooltip: "Tampilkan/Sembunyikan Sidebar", appStylingTitle: "🎨 Gaya Aplikasi",
+    baseColorLabel: "Warna Dasar", accentColorLabel: "Warna Aksen", cardRadiusLabel: "Radius Kartu",
+    radiusSharp: "Tajam", radiusRounded: "Membulat", radiusSoft: "Lembut",
+    uiDensityLabel: "Kepadatan UI", densityCompact: "Kompak", densityDefault: "Bawaan", densitySpacious: "Lega",
+    sortTooltip: "Urutkan komponen", themeToggleTooltip: "Ganti Mode Terang/Gelap",
+    editTooltip: "Edit", deleteTooltip: "Hapus", editComponentTitle: "Edit Komponen",
+    errOdoBelowBase: "Odometer tidak boleh kurang dari Odometer Basis ({val} KM)",
+    weeklyReview: "Tinjauan Mingguan", monthlyReview: "Tinjauan Bulanan", customReview: "Tinjauan Kustom",
+    noRecordsFilterMsg: "Tidak ada catatan yang cocok dengan filter/tanggal yang dipilih.",
+    exportOk: "✓ Ekspor Berhasil", importOk: "✓ Impor Berhasil", importFailedMsg: "Impor gagal: format file tidak valid.",
+    designTitle: "✦ Desain", designChoose: "Pilih Sistem Desain",
+    designMinimalistName: "Minimalis", designMinimalistDesc: "Garis bersih · tanpa bayangan · datar",
+    designAutomotiveName: "Premium Otomotif", designAutomotiveDesc: "Hitam · perak metalik · balap",
+    designMaterialName: "Material Design 3", designMaterialDesc: "Permukaan tonal · elevasi · riak",
+    designApplyBtn: "Terapkan", designApplied: "✓ Diterapkan", designResetBtn: "↩ Reset"
   }
 };
 
@@ -995,8 +1790,46 @@ function applyLanguage() {
   document.getElementById('historySearch').placeholder = l.placeholderSearch;
   document.getElementById('lbl-settings-title').textContent = l.settingsTitle;
   document.getElementById('lbl-lang-select').textContent = `🌐 Language / Bahasa`;
-  document.getElementById('lbl-theme-title').textContent = l.themeTitleLabel;
-  document.getElementById('lbl-theme-text').textContent = DB.theme === 'light' ? l.themeLightActive : l.themeDarkActive;
+
+  document.getElementById('snav-lbl-dashboard').textContent = l.dashboard;
+  document.getElementById('snav-lbl-history').textContent = l.history;
+  document.getElementById('snav-lbl-settings').textContent = l.settings;
+  document.getElementById('snav-lbl-about').textContent = l.about;
+  document.getElementById('sidebarToggleBtn').title = l.sidebarToggleTooltip;
+  document.getElementById('sortGroupWrap').title = l.sortTooltip;
+
+  document.getElementById('lbl-app-styling-title').textContent = l.appStylingTitle;
+  document.getElementById('lbl-base-color').textContent = l.baseColorLabel;
+  document.getElementById('lbl-accent-color').textContent = l.accentColorLabel;
+  document.getElementById('lbl-card-radius').textContent = l.cardRadiusLabel;
+  document.getElementById('radius-sharp').textContent = l.radiusSharp;
+  document.getElementById('radius-rounded').textContent = l.radiusRounded;
+  document.getElementById('radius-pill').textContent = l.radiusSoft;
+  document.getElementById('lbl-ui-density').textContent = l.uiDensityLabel;
+  document.getElementById('density-compact').textContent = l.densityCompact;
+  document.getElementById('density-default').textContent = l.densityDefault;
+  document.getElementById('density-spacious').textContent = l.densitySpacious;
+
+  document.getElementById('lbl-choose-layout').textContent = l.chooseLayout;
+  document.getElementById('lbl-layout-default-name').textContent = l.layoutDefaultName;
+  document.getElementById('lbl-layout-default-desc').textContent = l.layoutDefaultDesc;
+  document.getElementById('lbl-layout-sidebar-name').textContent = l.layoutSidebarName;
+  document.getElementById('lbl-layout-sidebar-desc').textContent = l.layoutSidebarDesc;
+  document.getElementById('lbl-layout-centered-name').textContent = l.layoutCenteredName;
+  document.getElementById('lbl-layout-centered-desc').textContent = l.layoutCenteredDesc;
+
+  document.getElementById('lbl-design-title').textContent = l.designTitle;
+  document.getElementById('lbl-design-choose').textContent = l.designChoose;
+  document.getElementById('lbl-design-minimalist-name').textContent = l.designMinimalistName;
+  document.getElementById('lbl-design-minimalist-desc').textContent = l.designMinimalistDesc;
+  document.getElementById('lbl-design-apple-name').textContent = l.designAutomotiveName;
+  document.getElementById('lbl-design-apple-desc').textContent = l.designAutomotiveDesc;
+  document.getElementById('lbl-design-material-name').textContent = l.designMaterialName;
+  document.getElementById('lbl-design-material-desc').textContent = l.designMaterialDesc;
+  const dApplyBtn = document.getElementById('design-apply-btn');
+  const dResetBtn = document.getElementById('design-reset-btn');
+  if (dApplyBtn && dApplyBtn.textContent !== l.designApplied) dApplyBtn.textContent = l.designApplyBtn;
+  if (dResetBtn) dResetBtn.textContent = l.designResetBtn;
   
   document.getElementById('lbl-base-odo-adjustment').textContent = l.baseOdoAdj;
   document.getElementById('lbl-base-odo-desc').textContent = l.baseOdoDesc;
@@ -1114,8 +1947,9 @@ function toggleTheme(isLight) {
 
 function updateOdo(val) {
   const parsedVal = parseFloat(val) || 0;
+  const l = LANG_DICT[DB.lang || 'id'];
   if (parsedVal < DB.startOdometer) {
-    alert(`Odometer cannot be below Base Odometer (${DB.startOdometer} KM)`);
+    alert(l.errOdoBelowBase.replace('{val}', DB.startOdometer));
     document.getElementById('odoInput').value = DB.odometer;
     return;
   }
@@ -1156,6 +1990,13 @@ function switchTab(name, btn) {
   });
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  // animate the panel in
+  const panel = document.getElementById('tab-'+name);
+  if (panel) {
+    panel.classList.remove('tab-panel-enter');
+    void panel.offsetWidth; // reflow to restart animation
+    panel.classList.add('tab-panel-enter');
+  }
   if (name === 'dashboard') renderDashboard();
   if (name === 'history') renderHistory();
   if (name === 'settings') renderSettings();
@@ -1406,9 +2247,9 @@ function renderFuelDashboardWidget() {
             </div>
             <div style="width: 150px;">
               <select id="fuelDashboardPeriodSelect" onchange="changeFuelPeriod(this.value)" style="padding: 4px 8px; font-size:12px; font-weight:700; text-transform:uppercase;">
-                <option value="weekly" ${DB.fuelPeriod === 'weekly' ? 'selected' : ''}>Weekly Review</option>
-                <option value="monthly" ${DB.fuelPeriod === 'monthly' ? 'selected' : ''}>Monthly Review</option>
-                <option value="custom" ${DB.fuelPeriod === 'custom' ? 'selected' : ''}>Custom Review</option>
+                <option value="weekly" ${DB.fuelPeriod === 'weekly' ? 'selected' : ''}>${l.weeklyReview}</option>
+                <option value="monthly" ${DB.fuelPeriod === 'monthly' ? 'selected' : ''}>${l.monthlyReview}</option>
+                <option value="custom" ${DB.fuelPeriod === 'custom' ? 'selected' : ''}>${l.customReview}</option>
               </select>
             </div>
             <button class="btn btn-ghost btn-sm" onclick="toggleFuelSummary()">${toggleBtnText}</button>
@@ -1425,7 +2266,7 @@ function renderFuelDashboardWidget() {
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
             <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalVolLabel}</div>
-            <div class="font-display font-bold text-2xl" style="color:var(--text)">${aggregateLiters > 0 ? aggregateLiters.toFixed(2) : '0.00'} <span class="text-xs text-[var(--muted)]">Liters</span></div>
+            <div class="font-display font-bold text-2xl" style="color:var(--text)">${aggregateLiters > 0 ? aggregateLiters.toFixed(2) : '0.00'} <span class="text-xs text-[var(--muted)]">${DB.lang==='id'?'Liter':'Liters'}</span></div>
           </div>
           <div class="p-3 rounded bg-[var(--card)] border border-[var(--border)]">
             <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:4px;">${l.totalCostLabelGrid}</div>
@@ -1496,8 +2337,8 @@ function renderGrid(gridId, comps) {
         </div>
         <div class="flex gap-2">
           <button class="btn btn-primary btn-sm flex-1" onclick="openLogModal('${comp.id}')">${l.logService}</button>
-          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${comp.id}')" title="Edit">✎</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteComponent('${comp.id}')" title="Delete">✕</button>
+          <button class="btn btn-ghost btn-sm" onclick="openEditModal('${comp.id}')" title="${l.editTooltip}">✎</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteComponent('${comp.id}')" title="${l.deleteTooltip}">✕</button>
         </div>
       </div>
     </div>`;
@@ -1523,9 +2364,10 @@ function confirmLog() {
   const comp = DB.components.find(c => c.id === logTargetId);
   if (!comp) return;
   const odoVal = parseFloat(document.getElementById('logOdo').value) || DB.odometer;
-  
+  const l = LANG_DICT[DB.lang || 'id'];
+
   if (odoVal < DB.startOdometer) {
-    alert(`Odometer cannot be below Base Odometer (${DB.startOdometer} KM)`);
+    alert(l.errOdoBelowBase.replace('{val}', DB.startOdometer));
     return;
   }
 
@@ -1564,7 +2406,8 @@ let editingCompId = null;
 function openEditModal(compId) {
   editingCompId = compId;
   const comp = DB.components.find(c => c.id === compId);
-  document.getElementById('compModalTitle').textContent = `Edit Component`;
+  const l = LANG_DICT[DB.lang || 'id'];
+  document.getElementById('compModalTitle').textContent = l.editComponentTitle;
   document.getElementById('compName').value = comp.name;
   document.getElementById('compType').value = comp.type;
   document.getElementById('compKm').value = comp.intervalKm || '';
@@ -1740,7 +2583,7 @@ function submitFuelLog() {
   const l = LANG_DICT[DB.lang || 'id'];
   
   if (odoVal < DB.startOdometer) {
-    alert(`Odometer cannot be below Base Odometer (${DB.startOdometer} KM)`);
+    alert(l.errOdoBelowBase.replace('{val}', DB.startOdometer));
     return;
   }
 
@@ -1826,7 +2669,7 @@ function renderHistory() {
     if (DB.history.length === 0) {
       document.getElementById('historyList').innerHTML = `<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">${l.msgNoHistory}</div>`;
     } else {
-      document.getElementById('historyList').innerHTML = headerHtml + `<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">${l.msgNoComponentMatch || 'No records match the selected filter/dates.'}</div>`;
+      document.getElementById('historyList').innerHTML = headerHtml + `<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:14px">${l.noRecordsFilterMsg}</div>`;
     }
     return;
   }
@@ -1957,7 +2800,7 @@ function renderSettings() {
           </div>
           <div style="font-size:12px;color:${statusColor};font-weight:600">${Math.round(s.remaining)}% ${l.lblLeft}</div>
           <div class="flex gap-2">
-            <button class="btn btn-ghost btn-sm" onclick="openEditModal('${comp.id}')">✎ Edit</button>
+            <button class="btn btn-ghost btn-sm" onclick="openEditModal('${comp.id}')">✎ ${l.editTooltip}</button>
             <button class="btn btn-danger btn-sm" onclick="deleteComponent('${comp.id}')">✕</button>
           </div>
         </div>`;
@@ -1984,6 +2827,7 @@ function resetAllData() {
 }
 
 function exportData() {
+  const l = LANG_DICT[DB.lang || 'id'];
   const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1991,12 +2835,13 @@ function exportData() {
   a.download = `mototrack_${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  toast('✓ Export OK');
+  toast(l.exportOk);
 }
 
 function importData(event) {
   const file = event.target.files[0];
   if (!file) return;
+  const lBefore = LANG_DICT[DB.lang || 'id'];
   const reader = new FileReader();
   reader.onload = e => {
     try {
@@ -2029,10 +2874,10 @@ function importData(event) {
       applyLanguage();
       renderDashboard();
       renderSettings();
-      toast('✓ Import OK');
+      toast(LANG_DICT[DB.lang || 'id'].importOk);
     } catch(err) {
       console.error('Import error:', err);
-      alert('Import failed: invalid file format.');
+      alert(lBefore.importFailedMsg);
     }
   };
   reader.readAsText(file);
@@ -2040,7 +2885,7 @@ function importData(event) {
 }
 
 const DEFAULT_README_EN = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> is a comprehensive, free, web-based application designed to track your motorcycle's component lifetimes and maintenance schedule. Running fully client-side, no backend accounts or internet connections are required — all your personal data resides completely within your secure browser database.<br><br>Core features include global odometer tracking, real-time visual progress bars, customized early notification warning systems, full itemized diagnostic logs, and dynamic portability utilizing clean JSON Import/Export architectures.<br><br>This program is created entirely for free for everyone.</p>`;
-const DEFAULT_README_ID = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> is a comprehensive, free, web-based application designed to track your motorcycle's component lifetimes and maintenance schedule. Running fully client-side, no backend accounts or internet connections are required — all your personal data resides completely within your secure browser database.<br><br>Core features include global odometer tracking, real-time visual progress bars, customized early notification warning systems, full itemized diagnostic logs, and dynamic portability utilizing clean JSON Import/Export architectures.<br><br>This program is created entirely for free for everyone.</p>`;
+const DEFAULT_README_ID = `<p style="margin-bottom:14px"><strong>MotoTrack</strong> adalah aplikasi berbasis web yang lengkap dan gratis, dirancang untuk memantau umur pakai komponen motor Anda beserta jadwal perawatannya. Berjalan sepenuhnya di sisi klien (browser), tidak diperlukan akun di server atau koneksi internet — seluruh data pribadi Anda tersimpan penuh di dalam database browser Anda sendiri yang aman.<br><br>Fitur utamanya meliputi pelacakan odometer global, progress bar visual secara real-time, sistem peringatan dini yang dapat disesuaikan, riwayat catatan perawatan yang terperinci, serta portabilitas data dinamis melalui fitur Impor/Ekspor JSON.<br><br>Program ini dibuat secara gratis untuk semua orang.</p>`;
 
 let _editQrBase64 = null;
 
@@ -2134,7 +2979,8 @@ function init() {
   
   const isLight = DB.theme === 'light';
   document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
-  document.getElementById('themeToggle').checked = isLight;
+  const themeToggleEl = document.getElementById('themeToggle');
+  if (themeToggleEl) themeToggleEl.checked = isLight;
 
   applyLanguage();
   filterComponents('all');
