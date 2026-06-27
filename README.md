@@ -1,7 +1,7 @@
 # MotoTrack — Motorcycle Health, Maintenance & Fuel Management System
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-v3s-f06a00?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-v3u-f06a00?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Architecture-Pure%20SPA%20%2F%20Client--Side-blue?style=for-the-badge" alt="Architecture">
   <img src="https://img.shields.io/badge/Privacy-100%25%20Offline-success?style=for-the-badge" alt="Privacy">
