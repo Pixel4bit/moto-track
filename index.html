@@ -528,6 +528,10 @@
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     <span id="snav-lbl-about">About</span>
   </button>
+  <button class="snav-item" id="snav-howto" onclick="openHowToUse()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span class="snav-label" id="snav-lbl-howto">How To Use</span>
+  </button>
 </nav>
 
 <div class="layout-main-content">
@@ -541,6 +545,9 @@
     <button id="tab-btn-history" class="tab-btn" onclick="switchTab('history',this)">History</button>
     <button id="tab-btn-settings" class="tab-btn" onclick="switchTab('settings',this)">Settings</button>
     <button id="tab-btn-about" class="tab-btn" onclick="switchTab('about',this)">About</button>
+    <!-- i pill: only visible in centered layout, sits separated at the end of the pill navbar -->
+    <span id="htuPillSep" style="display:none;align-items:center;padding:0 4px"><span style="width:1px;height:20px;background:var(--border2);display:block"></span></span>
+    <button id="htuPillBtn" onclick="openHowToUse()" style="display:none;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;margin:auto 4px;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 2px 8px rgba(99,102,241,0.4)" title="How To Use">i</button>
   </div>
 </div>
 
@@ -571,9 +578,9 @@
     <div class="flex gap-2">
       <button id="btn-add-fuel-dash" class="btn btn-primary btn-sm" onclick="openFuelLogModal()">⛽ Log Fuel</button>
       <button id="btn-add-comp-dash" class="btn btn-ghost btn-sm" onclick="openAddModal()">＋ Add Component</button>
-      <button id="btn-export-dash" class="btn btn-ghost btn-sm" onclick="exportData()">⬇ Save</button>
+      <button id="btn-export-dash" class="btn btn-ghost btn-sm" onclick="exportData()">⬆ Export</button>
       <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importData(event)" />
-      <button id="lbl-import-dash" class="btn btn-ghost btn-sm" onclick="document.getElementById('importFileInput').click()">⬆ Load</button>
+      <button id="lbl-import-dash" class="btn btn-ghost btn-sm" onclick="document.getElementById('importFileInput').click()">⬇ Import</button>
     </div>
   </div>
 
@@ -624,7 +631,7 @@
         </div>
       </div>
       <p id="lbl-base-odo-desc" style="font-size:12px; color:var(--muted); margin-top:6px; line-height:1.4;">
-        Set initial configuration offsets. Active component ages compute values dynamic relative against this base index configuration.
+        Set your motorcycle's current odometer reading as the base for calculating component lifespans.
       </p>
     </div>
   </div>
@@ -1037,24 +1044,46 @@
       transform:translateX(-50%);
       z-index:200;
       width:max-content;
-      max-width:calc(100% - 32px);
+      max-width:calc(100% - 24px);
       display:flex !important;
       gap:2px;
       background:var(--surface);
       border:1px solid var(--border2);
       border-radius:999px;
-      padding:6px;
-      overflow-x:auto;
+      padding:5px;
+      overflow:hidden;
       box-shadow:0 12px 32px rgba(0,0,0,0.35);
     }
     body.layout-focused #topTabBar .tab-btn {
       border-bottom:none;
       border-radius:999px;
       padding:8px 16px;
+      flex:1;
+      white-space:nowrap;
     }
     body.layout-focused #topTabBar .tab-btn.active {
       background:var(--accent);
       color:#fff;
+    }
+    @media (max-width: 600px) {
+      body.layout-focused #topTabBar {
+        width:calc(100% - 24px);
+        bottom:12px;
+      }
+      body.layout-focused #topTabBar .tab-btn {
+        padding:8px 6px;
+        font-size:11.5px;
+        flex:1;
+        text-align:center;
+        min-width:0;
+      }
+      body.layout-focused #htuPillBtn {
+        width:28px;
+        height:28px;
+        font-size:13px;
+        flex-shrink:0;
+        margin:auto 2px;
+      }
     }
   </style>
 
@@ -1165,12 +1194,20 @@
       document.body.classList.add('layout-' + layout);
       const topBar = document.getElementById('topTabBar');
       const sidebar = document.getElementById('sidebarNav');
+      const fab = document.getElementById('htuFab');
       if (layout === 'sidebar') {
         if (topBar) topBar.style.display = 'none';
         if (sidebar) sidebar.style.display = 'flex';
-      } else {
+        if (fab) fab.style.display = 'none';
+      } else if (layout === 'focused') {
         if (topBar) topBar.style.display = 'flex';
         if (sidebar) sidebar.style.display = 'none';
+        if (fab) fab.style.display = 'none';
+      } else {
+        // default
+        if (topBar) topBar.style.display = 'flex';
+        if (sidebar) sidebar.style.display = 'none';
+        if (fab) fab.style.display = 'flex';
       }
       markLayout(layout);
       const s = JSON.parse(localStorage.getItem('mototrack_styling') || '{}');
@@ -1510,12 +1547,125 @@
 
 </div><!-- /layout-main-content -->
 
+<!-- ── How To Use Modal / Popup ── -->
+<div id="howToUseModal" style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,0.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity 0.25s">
+  <div style="background:var(--card);border:1px solid var(--border2);border-radius:18px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,255,255,0.05);transform:translateY(20px) scale(0.97);transition:transform 0.25s cubic-bezier(.22,1,.36,1)">
+    <div style="padding:24px 24px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <h2 id="htu-modal-title" style="font-family:'Inter',sans-serif;font-weight:700;font-size:17px;color:var(--text);letter-spacing:-0.01em">📖 How To Use MotoTrack</h2>
+        <button onclick="closeHowToUse()" style="background:var(--card2);border:1px solid var(--border2);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:16px;flex-shrink:0">✕</button>
+      </div>
+      <ol style="list-style:none;display:flex;flex-direction:column;gap:12px;margin:0;padding:0">
+        <li style="display:flex;gap:12px;align-items:flex-start">
+          <span style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px">1</span>
+          <p id="htu-step1" style="font-size:13.5px;line-height:1.6;color:var(--text-dim);margin:0;padding-top:3px">Open Settings, set the Base Odometer based on your current odo.</p>
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start">
+          <span style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px">2</span>
+          <p id="htu-step2" style="font-size:13.5px;line-height:1.6;color:var(--text-dim);margin:0;padding-top:3px">In Settings → Components, edit lifespans or add/delete components based on your needs.</p>
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start">
+          <span style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px">3</span>
+          <p id="htu-step3" style="font-size:13.5px;line-height:1.6;color:var(--text-dim);margin:0;padding-top:3px">Set the Early Warning System to your preference.</p>
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start">
+          <span style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px">4</span>
+          <p id="htu-step4" style="font-size:13.5px;line-height:1.6;color:var(--text-dim);margin:0;padding-top:3px">Don't forget to tap Export to save your current settings and data.</p>
+        </li>
+        <li style="display:flex;gap:12px;align-items:flex-start">
+          <span style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:1px">5</span>
+          <p id="htu-step5" style="font-size:13.5px;line-height:1.6;color:var(--text-dim);margin:0;padding-top:3px">If you already have saved data, tap Import to load your settings, data, and full service history.</p>
+        </li>
+      </ol>
+      <div id="htu-tip" style="margin-top:16px;padding:12px 14px;background:var(--accent-glow);border:1px solid rgba(99,102,241,0.2);border-radius:10px;font-size:12.5px;color:var(--accent2);line-height:1.5">💡 Tip: Export regularly so you never lose your data!</div>
+    </div>
+    <div style="padding:16px 24px 20px;margin-top:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px">
+      <label style="display:flex;align-items:center;gap:9px;cursor:pointer;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:500;color:var(--text-dim)">
+        <input type="checkbox" id="htuDontShow" onchange="saveHtuPreference()" style="width:15px;height:15px;border-radius:4px;cursor:pointer;accent-color:var(--accent);flex-shrink:0" />
+        <span id="htu-dont-show-lbl">Don't show this again on startup</span>
+      </label>
+      <button id="htu-close-btn" onclick="closeHowToUse()" class="btn btn-primary" style="width:100%;justify-content:center;padding:10px">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Floating "i" button (default layout, mobile only) ── -->
+<button id="htuFab" onclick="openHowToUse()" title="How To Use" style="display:none;position:fixed;bottom:24px;right:24px;z-index:500;width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(99,102,241,0.5);align-items:center;justify-content:center;transition:transform 0.15s,box-shadow 0.15s;font-family:'Inter',sans-serif">i</button>
+
+<style>
+  #htuFab:hover { transform:scale(1.1); box-shadow:0 6px 20px rgba(99,102,241,0.6); }
+  #htuPillBtn:hover { transform:scale(1.1); box-shadow:0 4px 12px rgba(99,102,241,0.55); }
+  /* Default layout: FAB always visible bottom-right */
+  body.layout-default #htuFab { display:flex !important; }
+  /* Centered layout: i-pill inside pill navbar, FAB hidden */
+  body.layout-focused #htuFab { display:none !important; }
+  body.layout-focused #htuPillBtn { display:flex !important; }
+  body.layout-focused #htuPillSep { display:flex !important; }
+  /* Sidebar layout: FAB hidden, entry point is sidebar nav item */
+  body.layout-sidebar #htuFab { display:none !important; }
+  /* sidebar nav item */
+  #snav-howto { display:none; }
+  body.layout-sidebar #snav-howto { display:flex; }
+  /* modal open state */
+  #howToUseModal.htu-open { opacity:1 !important; pointer-events:all !important; }
+  #howToUseModal.htu-open > div { transform:translateY(0) scale(1) !important; }
+</style>
+
+<script>
+  // ── How To Use logic ──
+  function openHowToUse() {
+    const l = LANG_DICT[DB.lang || 'id'];
+    const m = document.getElementById('howToUseModal');
+    document.getElementById('htu-modal-title').textContent = l.howToUseTitle;
+    document.getElementById('htu-step1').textContent = l.howToUseStep1;
+    document.getElementById('htu-step2').textContent = l.howToUseStep2;
+    document.getElementById('htu-step3').textContent = l.howToUseStep3;
+    document.getElementById('htu-step4').textContent = l.howToUseStep4;
+    document.getElementById('htu-step5').textContent = l.howToUseStep5;
+    document.getElementById('htu-tip').textContent = l.howToUseTip;
+    document.getElementById('htu-dont-show-lbl').textContent = l.howToUseDontShow;
+    document.getElementById('htu-close-btn').textContent = l.howToUseClose;
+    document.getElementById('htuDontShow').checked = localStorage.getItem('mototrack_htu_hide') === '1';
+    m.classList.add('htu-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeHowToUse() {
+    const m = document.getElementById('howToUseModal');
+    m.classList.remove('htu-open');
+    document.body.style.overflow = '';
+  }
+  function saveHtuPreference() {
+    const hide = document.getElementById('htuDontShow').checked;
+    localStorage.setItem('mototrack_htu_hide', hide ? '1' : '0');
+  }
+  // close on backdrop click
+  document.getElementById('howToUseModal').addEventListener('click', function(e) {
+    if (e.target === this) closeHowToUse();
+  });
+  // auto-show on first open
+  window.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('mototrack_htu_hide') !== '1') {
+      setTimeout(openHowToUse, 600);
+    }
+  });
+</script>
+
 <div id="toast" style="position:fixed; bottom:24px; right:24px; z-index:9998; background:var(--card); border:1px solid var(--border2); color:var(--text); padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500; font-family:'Inter',sans-serif; box-shadow:0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05); transform:translateY(80px); opacity:0; transition:all 0.3s; max-width:320px;"></div>
 
 <script>
 const LANG_DICT = {
   en: {
-    dashboard: "Dashboard", history: "Services", settings: "Settings", about: "About",
+    dashboard: "Dashboard", history: "Services", settings: "Settings", about: "About", howToUse: "How To Use",
+    howToUseTitle: "📖 How To Use MotoTrack",
+    howToUseStep1: "Open Settings, set the Base Odometer based on your current odo.",
+    howToUseStep2: "In Settings → Components, edit lifespans or add/delete components based on your needs.",
+    howToUseStep3: "Set the Early Warning System to your preference.",
+    howToUseStep4: "Don't forget to tap Export to save your current settings and data.",
+    howToUseStep5: "If you already have saved data, tap Import to load your settings, data, and full service history.",
+    howToUseTip: "💡 Tip: Export regularly so you never lose your data!",
+    howToUseDontShow: "Don't show this again on startup",
+    howToUseClose: "Got it!",
+    howToUseTabTitle: "📖 How To Use",
     all: "All", critical: "🔴 Critical", warning: "🟡 Warning", good: "🟢 Good",
     defaultSort: "Default", urgencySort: "Urgency", alphaSort: "A–Z",
     addComponent: "＋ Add Component", export: "⬆ Export", import: "⬇ Import",
@@ -1542,7 +1692,7 @@ const LANG_DICT = {
     componentsSection: "Components", lblLeft: "left", lblGlobal: "global", uploadImgName: "Uploaded image",
     clickReplaceQr: "Click to replace image",
     logFuel: "⛽ Log Fuel", baseOdoAdj: "🏁 Base Odometer Adjustment",
-    baseOdoDesc: "Set initial configuration offsets. Active component ages compute values dynamic relative against this base index configuration.",
+    baseOdoDesc: "Set your motorcycle's current odometer reading as the base for calculating component lifespans.",
     fuelMasterTitle: "⛽ FUEL MASTER DATA", addFuelVariant: "＋ Add Fuel Variant",
     allRecords: "All Records", servicesOpt: "🔧 Services", fuelLogsOpt: "⛽ Fuel Logs",
     aboutTextareaLabel: "About Text", donationQrLabel: "Donation QR Code Image",
@@ -1583,7 +1733,17 @@ const LANG_DICT = {
     designApplyBtn: "Apply", designApplied: "✓ Applied", designResetBtn: "↩ Reset"
   },
   id: {
-    dashboard: "Dasbor", history: "Riwayat", settings: "Pengaturan", about: "Tentang",
+    dashboard: "Dasbor", history: "Riwayat", settings: "Pengaturan", about: "Tentang", howToUse: "Cara Pakai",
+    howToUseTitle: "📖 Cara Menggunakan MotoTrack",
+    howToUseStep1: "Buka Pengaturan, atur Odometer Awal sesuai odometer motor kamu saat ini.",
+    howToUseStep2: "Di Pengaturan → Komponen, edit masa pakai atau tambah/hapus komponen sesuai kebutuhan.",
+    howToUseStep3: "Atur Sistem Peringatan Dini sesuai preferensimu.",
+    howToUseStep4: "Jangan lupa tekan Export untuk menyimpan pengaturan dan datamu.",
+    howToUseStep5: "Jika sudah punya data tersimpan, tekan Import untuk memuat pengaturan, data, dan riwayat servis lengkapmu.",
+    howToUseTip: "💡 Tips: Export secara rutin agar data kamu tidak hilang!",
+    howToUseDontShow: "Jangan tampilkan lagi saat buka aplikasi",
+    howToUseClose: "Mengerti!",
+    howToUseTabTitle: "📖 Cara Pakai",
     all: "Semua", critical: "🔴 Kritis", warning: "🟡 Peringatan", good: "🟢 Bagus",
     defaultSort: "Bawaan", urgencySort: "Urgensi", alphaSort: "A–Z",
     addComponent: "＋ Tambah Komponen", export: "⬆ Ekspor", import: "⬇ Impor",
@@ -1610,7 +1770,7 @@ const LANG_DICT = {
     componentsSection: "Komponen", lblLeft: "tersisa", lblGlobal: "global", uploadImgName: "Gambar terunggah",
     clickReplaceQr: "Klik untuk mengganti gambar",
     logFuel: "⛽ Log Fuel", baseOdoAdj: "🏁 Penyesuaian Odometer Basis",
-    baseOdoDesc: "Atur offset konfigurasi awal. Masa pakai komponen aktif dihitung secara dinamis relatif terhadap indeks konfigurasi basis ini.",
+    baseOdoDesc: "Atur kilometer awal pada motor mu saat ini menjadi basis perhitungan masa pakai komponen.",
     fuelMasterTitle: "⛽ MASTER DATA BAHAN BAKAR", addFuelVariant: "＋ Tambah Varian BBM",
     allRecords: "Semua Catatan", servicesOpt: "🔧 Servis", fuelLogsOpt: "⛽ Log BBM",
     aboutTextareaLabel: "Teks Tentang", donationQrLabel: "Gambar QR Code Donasi",
@@ -1763,6 +1923,8 @@ function applyLanguage() {
   document.getElementById('tab-btn-history').textContent = l.history;
   document.getElementById('tab-btn-settings').textContent = l.settings;
   document.getElementById('tab-btn-about').textContent = l.about;
+  const snavHtu = document.getElementById('snav-lbl-howto');
+  if (snavHtu) snavHtu.textContent = l.howToUse;
   document.getElementById('lbl-odometer-title').textContent = l.odometerTitle;
   document.getElementById('filter-all').textContent = l.all;
   document.getElementById('filter-critical').textContent = l.critical;
@@ -2783,7 +2945,13 @@ function renderSettings() {
 
   const container = document.getElementById('settingsCompList');
   container.innerHTML = `
-    <div class="section-label mb-4">${l.componentsSection}</div>
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+      <div class="section-label" style="flex:1;margin-bottom:0">${l.componentsSection}</div>
+      <div class="flex gap-3 flex-wrap">
+        <button class="btn btn-primary btn-sm" onclick="openAddModal()">${l.addComponent}</button>
+        <button class="btn btn-danger btn-sm" onclick="resetAllData()">${l.resetAll}</button>
+      </div>
+    </div>
     <div class="flex flex-col gap-3">
       ${DB.components.map(comp => {
         const s = getStatus(comp);
@@ -2812,10 +2980,6 @@ function renderSettings() {
           </div>
         </div>`;
       }).join('')}
-    </div>
-    <div class="mt-6 flex gap-3 flex-wrap">
-      <button class="btn btn-primary" onclick="openAddModal()">${l.addComponent}</button>
-      <button class="btn btn-danger" onclick="resetAllData()">${l.resetAll}</button>
     </div>
   `;
 }
