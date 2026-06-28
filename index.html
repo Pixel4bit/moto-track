@@ -1272,7 +1272,7 @@
     else markSwatch('#6366f1');
     if (stored.radius) window.applyRadius(stored.radius); else markRadius('12px');
     if (stored.density) window.applyDensity(stored.density); else markDensity('default');
-    if (stored.layout) window.applyLayout(stored.layout); else markLayout('default');
+    if (stored.layout) window.applyLayout(stored.layout); else window.applyLayout('default');
     if (stored.sidebarCollapsed) document.body.classList.add('sidebar-collapsed');
     if (stored.design) { pendingDesign = stored.design; _commitToDOM(stored.design); markDesign(stored.design); } else markDesign('default');
   })();
@@ -1836,7 +1836,7 @@ const DEFAULT_FUELS = [
   { id: 'f_1', ron: 'RON 90', name: 'Pertalite', price: 10000, brand: 'Pertamina' },
   { id: 'f_2', ron: 'RON 92', name: 'Pertamax', price: 16250, brand: 'Pertamina' },
   { id: 'f_3', ron: 'RON 95', name: 'Green', price: 17000, brand: 'Pertamina' },
-  { id: 'f_4', ron: 'RON 98 Turbo', name: 'Pertamax Turbo', price: 20750, brand: 'Pertamina' }
+  { id: 'f_4', ron: 'RON 98', name: 'Turbo', price: 20750, brand: 'Pertamina' }
 ];
 
 const DEFAULT_COMPONENTS = [
